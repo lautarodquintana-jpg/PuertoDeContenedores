@@ -2,18 +2,13 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include "nodo.h"
 
 #define OK               1
 #define PILA_VACIA      10
 #define PILA_LLENA      11
 #define PILA_DISPONIBLE 12
 
-typedef struct sNodo
-{
-    void         *info;
-    unsigned     tamInfo;
-    struct sNodo *sig;
-}tNodo;
 typedef tNodo* tPila;
 
 void crearPila( tPila *pila );
