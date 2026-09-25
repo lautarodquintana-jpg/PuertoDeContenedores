@@ -4,28 +4,22 @@
 #include "../TDA/cola.h"
 #include "../TDA/pila.h"
 
-#define POS_CANT_MUELLES 0
-#define POS_CANT_ZONAS_ALMACENAMIENTO 1
-
-#define POS_MAX_BUQUES 0
-#define POS_MAX_CONTENEDORES_POR_BUQUE 1
-#define POS_MAX_CAMIONES 2
-
-#define POS_TIEMPO_DESCARGA_DE_CONTENEDOR 0
-#define POS_TIEMPO_REUBICACION_CONTENEDOR 1
-#define POS_TIEMPO_CARGA_CAMION 2
-
 #define TODO_OK 1
 #define ERROR_ARCHIVO -20
 #define TAM_USER 50
-
+#define TAM_CODIGOS 15
 typedef struct
 {
 	unsigned duracionMinutosdeJornada;
-	unsigned cants[2];
+	unsigned cantidadMuelles;
+	unsigned cantidadZonasDeAlmacenamiento;
 	unsigned capPila;
-	unsigned maximos[3];
-	unsigned tiempos[3];
+	unsigned maximosBuques;
+	unsigned maximosContenedoresPorBuque;
+	unsigned maximosCamiones;
+	unsigned tiempoDeDescargaDeContenedor;
+	unsigned tiempoDeReubicacionDeContenedor;
+	unsigned tiempoDeCargaDeCamion;
 }tConfig;
 
 typedef struct{
@@ -47,12 +41,12 @@ typedef struct{
 }tJornada;
 
 typedef struct{
-	tConfig 	config;
-	tJornada	jornada;
+	tConfig 	*config;
+	tJornada	*jornada;
 }tPuerto;
 
 typedef struct{
-		unsigned	cod;
+		char	    cod[TAM_CODIGOS];
 		unsigned	arriboProgramado;
 		unsigned	cantidadContenedoresTotal;
 		unsigned 	cantidadContenedoresRestante;
@@ -68,7 +62,7 @@ typedef struct{
 }tMuelle;
 
 typedef struct{
-    unsigned cod;
+    char cod[TAM_CODIGOS];
 }tContenedor;
 
 typedef struct{
@@ -78,9 +72,9 @@ typedef struct{
 }tZona;
 
 typedef struct{
-	unsigned	cod;
+	char    	cod[TAM_CODIGOS];
 	unsigned 	minutoRetiro;
-	unsigned	codContenedorRetirar;
+	char    	codContenedorRetirar[TAM_CODIGOS];
 }tCamion;
 
 #endif // ESTRUCTURAS_H_INCLUDED
