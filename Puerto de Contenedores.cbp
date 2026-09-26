@@ -66,6 +66,10 @@
 		<Unit filename="lib/estructuras.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
+		<Unit filename="lib/ingreso_operaciones.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib/ingreso_operaciones.h" />
 		<Unit filename="lib/jornada.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />
