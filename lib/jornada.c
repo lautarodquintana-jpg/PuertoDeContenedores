@@ -210,14 +210,3 @@ int procesarTiempo( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosE
 
     return TODO_OK;
 }
-
-int procesarArriboDeBarco( tJornada* jornada , const tBarco* barco )
-{
-    // Primero verificamos si hay un muelle disponible (SIN BARCO).
-
-
-
-    // Caso contrario, quedara en la cola barcosEspera de jornada.
-
-    return TODO_OK;
-}
