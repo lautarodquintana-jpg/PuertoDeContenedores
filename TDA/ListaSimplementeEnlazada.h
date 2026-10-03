@@ -7,6 +7,7 @@
 #define NO_ENCONTRADO -1
 #define TODO_OK 1
 #define DUPLICADO 2
+#define LISTA_VACIA 3
 #define INSERTADO_EN_OTRA_POS 5
 #define minimo(a,b)(a<=b?a:b)
 typedef struct sNodoLista
@@ -36,4 +37,6 @@ int insertarEnPosicionEnLista(tLista *pl, const void *elem, unsigned tam, unsign
 void ordenarLista(tLista *pl, cmp comparacion);
 int verNElem(tLista *pl, unsigned pos, void *elem, unsigned tam);
 int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actualizar)(void *actualizado, const void *actualizador));
+int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem );
+
 #endif // LISTASIMPLEMENTEENLAZADA_H_INCLUDED

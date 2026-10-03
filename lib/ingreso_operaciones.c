@@ -142,5 +142,6 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config){
             return INGRESO_OK;
     }while(0 != strcmp(bufferChar, "EXIT"));
 
-    return INGRESO_OK;
+    //return INGRESO_OK;
+    return INGRESO_CAD_EXIT;
 }

@@ -68,8 +68,11 @@
 		</Unit>
 		<Unit filename="lib/ingreso_operaciones.c">
 			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
 		</Unit>
-		<Unit filename="lib/ingreso_operaciones.h" />
+		<Unit filename="lib/ingreso_operaciones.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
 		<Unit filename="lib/jornada.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />
@@ -77,11 +80,25 @@
 		<Unit filename="lib/jornada.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
+		<Unit filename="lib/proceso_operacion.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
+		<Unit filename="lib/proceso_operacion.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
 		<Unit filename="lib/ranking.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />
 		</Unit>
 		<Unit filename="lib/ranking.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
+		<Unit filename="lib/usuarios.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
+		<Unit filename="lib/usuarios.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
 		<Unit filename="lib/validaciones.c">

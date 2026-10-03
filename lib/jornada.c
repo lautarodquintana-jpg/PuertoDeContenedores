@@ -116,12 +116,12 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
         }
         if(actualizarNElemDeLista(listaBarcosEnCamino, &barco, i, actualizarBarco)!=TODO_OK)
         {
-                fclose(archPuerto);
-                vaciarCola(&barco.contenedores);
-                vaciarLista(listaBarcosEnCamino);
-                vaciarCola(&barco.contenedores);
-                vaciarCola(&colaAuxContenedores);
-                return NO_ENCONTRADO;
+            fclose(archPuerto);
+            vaciarCola(&barco.contenedores);
+            vaciarLista(listaBarcosEnCamino);
+            vaciarCola(&barco.contenedores);
+            vaciarCola(&colaAuxContenedores);
+            return NO_ENCONTRADO;
         }
         //debo actualizar el elemento
         i++;
@@ -166,4 +166,58 @@ void actualizarBarco(void *actualizado, const void *actualizador)
     //Este barco estaba insertado en la lista: si bien los punteros de la cola siguen apuntando a nodos, estos ya fueron liberados al desencolarlos previamente
     //Por ende no debemos vaciar la cola, solo reemplazarla por la nueva
     barcoActualizado->contenedores=barcoActualizador->contenedores;
+}
+
+void avanzarTiempoHastaEventoFuturo( tJornada* jornada, const tLista* camionesEnCamino, const tLista* barcosEnCamino )
+{
+    tCamion camion;
+    tBarco barco;
+
+    verNElem( (tLista*)camionesEnCamino, 0, &camion, sizeof(tCamion) );
+    verNElem( (tLista*)barcosEnCamino, 0, &barco, sizeof(tBarco) );
+
+    if( camion.minutoRetiro < barco.arriboProgramado )
+        jornada->tiempoActual = camion.minutoRetiro;
+    else
+        jornada->tiempoActual = barco.arriboProgramado;
+}
+
+int procesarTiempo( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
+{
+    tCamion camion;
+    tBarco barco;
+    int res;
+
+    while( verNElem( camionesEnCamino, 0, &camion, sizeof(tCamion) ) == TODO_OK && camion.minutoRetiro < jornada->tiempoActual )
+    {
+        res = sacarPrimerElementoDeLista( camionesEnCamino, &camion, sizeof(tCamion) );
+        if( res != TODO_OK )
+            return res;
+
+        if( ponerEnCola( &jornada->camiones , &camion , sizeof(tCamion) ) != TODO_OK )
+            return res;
+    }
+
+    while( verNElem( barcosEnCamino , 0, &barco, sizeof(tBarco) ) == TODO_OK && barco.arriboProgramado < jornada->tiempoActual )
+    {
+        res = sacarPrimerElementoDeLista( barcosEnCamino, &barco, sizeof(tBarco) );
+        if( res != TODO_OK )
+            return res;
+
+        if( ponerEnCola( &jornada->camiones , &barco , sizeof(tBarco) ) != TODO_OK )
+            return res;
+    }
+
+    return TODO_OK;
+}
+
+int procesarArriboDeBarco( tJornada* jornada , const tBarco* barco )
+{
+    // Primero verificamos si hay un muelle disponible (SIN BARCO).
+
+
+
+    // Caso contrario, quedara en la cola barcosEspera de jornada.
+
+    return TODO_OK;
 }

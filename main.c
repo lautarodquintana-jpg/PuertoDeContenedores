@@ -8,6 +8,9 @@
 #include "lib/jornada.h"
 #include "TDA/cola.h"
 #include "TDA/pila.h"
+#include "lib/ingreso_operaciones.h"
+#include "lib/proceso_operacion.h"
+#include "lib/usuarios.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()
@@ -42,8 +45,8 @@ int main()
                 //MostrarRanking (coming soon)
                 break;
             case 'V':
-                printf("Ranking:\n");
-                //MostrarRanking (coming soon)
+                if( mostrarRanking() != TODO_OK )
+                    fprintf(stderr,"\nERROR al mostrar ranking.");
                 break;
         }
         opcion=leerYValidarCharMenu();
@@ -55,6 +58,8 @@ int jugar (tConfig *config, const char *nomUser)
 {
     tJornada jornada;
     tLista barcosEnCamino, camionesEnCamino;
+    tOperacion operacion;
+    //tCola historialOperaciones;
     int ret;
 
     ret=inicializarValoresYGenerarPuertoTXT(config, &jornada, nomUser, &barcosEnCamino, &camionesEnCamino);
@@ -63,6 +68,20 @@ int jugar (tConfig *config, const char *nomUser)
         vaciarLista(&barcosEnCamino);
         vaciarLista(&camionesEnCamino);
         return ret;
+    }
+
+    getchar(); // Consumo salto de linea
+    iniciarSesion( &jornada );
+
+    jornada.estado = JUEGO_EN_CURSO;
+    while( jornada.estado == JUEGO_EN_CURSO )
+    {
+        avanzarTiempoHastaEventoFuturo( &jornada , &camionesEnCamino , &barcosEnCamino );
+        if( solicitarOperacionSTDIN( &operacion , config ) != INGRESO_CAD_EXIT )
+        {
+
+        }else
+            jornada.estado = FIN_JUEGO;
     }
 
     return TODO_OK;

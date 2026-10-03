@@ -310,3 +310,19 @@ int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actu
     else
         return NO_ENCONTRADO;
 }
+
+int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem )
+{
+    tNodoLista* aux = *pl;
+
+    if( *pl == NULL )
+        return LISTA_VACIA;
+
+    memcpy( elem , aux->info , minimo(tamElem,aux->tamElem) );
+    *pl = aux->sig;
+
+    free(aux->info);
+    free(aux);
+
+    return TODO_OK;
+}

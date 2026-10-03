@@ -13,4 +13,7 @@ int compararTiempos(const void *elem1, const void *elem2);
 int compararContenedores(const void *elem1, const void *elem2);
 int compararTiemposDeCamiones(const void *elem1, const void *elem2);
 void actualizarBarco(void *actualizado, const void *actualizador);
+void avanzarTiempoHastaEventoFuturo( tJornada* jornada , const tLista* camionesEnCamino , const tLista* barcosEnCamino );
+int procesarTiempo( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino );
+
 #endif // JORNADA_H_INCLUDED
