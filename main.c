@@ -11,6 +11,7 @@
 #include "lib/ingreso_operaciones.h"
 #include "lib/proceso_operacion.h"
 #include "lib/usuarios.h"
+#include "lib/muelle.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()

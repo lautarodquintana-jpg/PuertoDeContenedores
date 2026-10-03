@@ -87,6 +87,13 @@
 		<Unit filename="lib/proceso_operacion.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
+		<Unit filename="lib/muelle.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".h/" />
+		</Unit>
+		<Unit filename="lib/muelle.h">
+			<Option virtualFolder=".c/" />
+		</Unit>
 		<Unit filename="lib/ranking.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />

@@ -150,7 +150,7 @@ int eliminarDeListaOrdenada(tLista *pl, void *elem, unsigned tam, cmp comparacio
         pl=&(*pl)->sig;
     }
     if(*pl && comparacion(elem, (*pl)->info)==0)
-    {// Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
+    {// Lo encontre y debo eliminarlo: pl estï¿½ mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
         memcpy(elem, (*pl)->info, minimo(tam, (*pl)->tamElem));
         elim=*pl;
         *pl=(*pl)->sig;
@@ -169,7 +169,7 @@ int eliminarDeListaDesordenada(tLista *pl, void *elem, unsigned tam, cmp compara
         pl=&(*pl)->sig;
     }
     if(*pl && comparacion(elem, (*pl)->info)==0)
-    {// Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
+    {// Lo encontre y debo eliminarlo: pl estï¿½ mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
         memcpy(elem, (*pl)->info, minimo(tam, (*pl)->tamElem));
         elim=*pl;
         *pl=(*pl)->sig;
@@ -324,5 +324,15 @@ int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem )
     free(aux->info);
     free(aux);
 
+    return TODO_OK;
+}
+
+int recorrerLista(tLista pl, void *ctx, accion fx){
+    if(NULL == pl)
+        return 0;
+    while(pl){
+        fx(ctx, pl->info);
+        pl = pl->sig;
+    }
     return TODO_OK;
 }

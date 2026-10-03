@@ -60,10 +60,10 @@ typedef struct{
 
 typedef struct{
 	unsigned 	cod;
-	unsigned 	minutoArribo;
 	tBarco		barco;
-	unsigned	estado; //Esperando - Descargando - Libre
-	unsigned 	minutoLiberacion;
+	unsigned	estado; //Disponible (1) - Ocupado (0)
+	unsigned 	minutoArribo; //Este campo podria no usarse
+	unsigned 	minutoLiberacion; //Este podria no usarse
 }tMuelle;
 
 typedef struct{
