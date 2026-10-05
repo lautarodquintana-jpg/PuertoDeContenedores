@@ -103,7 +103,7 @@ int insertarAlFinalDeLista(tLista *pl, const void *elem, unsigned tam)
     return 1;
 }
 
-int insertarOrdenadoenLista(tLista *pl, const void *elem, unsigned tam, cmp comparacion, int conDuplicado ,accion accionar)
+int insertarOrdenadoenLista(tLista *pl, const void *elem, unsigned tam, cmp comparacion, int conDuplicado,accion accionar)
 {
     tNodoLista *nue;
 
@@ -150,7 +150,8 @@ int eliminarDeListaOrdenada(tLista *pl, void *elem, unsigned tam, cmp comparacio
         pl=&(*pl)->sig;
     }
     if(*pl && comparacion(elem, (*pl)->info)==0)
-    {// Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
+    {
+        // Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
         memcpy(elem, (*pl)->info, minimo(tam, (*pl)->tamElem));
         elim=*pl;
         *pl=(*pl)->sig;
@@ -162,14 +163,16 @@ int eliminarDeListaOrdenada(tLista *pl, void *elem, unsigned tam, cmp comparacio
         return NO_ENCONTRADO;
 }
 int eliminarDeListaDesordenada(tLista *pl, void *elem, unsigned tam, cmp comparacion)
-{//Retorna si lo elimino o no
+{
+    //Retorna si lo elimino o no
     tNodoLista *elim;
     while(*pl && comparacion(elem, (*pl)->info)!=0)
     {
         pl=&(*pl)->sig;
     }
     if(*pl && comparacion(elem, (*pl)->info)==0)
-    {// Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
+    {
+        // Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
         memcpy(elem, (*pl)->info, minimo(tam, (*pl)->tamElem));
         elim=*pl;
         *pl=(*pl)->sig;
@@ -212,7 +215,8 @@ int insertarEnPosicionEnLista(tLista *pl, const void *elem, unsigned tam, unsign
     return TODO_OK;
 }
 void ordenarLista(tLista *pl, cmp comparacion)
-{//Debo enganchar y desenganchar los nodos
+{
+    //Debo enganchar y desenganchar los nodos
     tNodoLista *nodoAMover;
     tLista *PMin, *aux; //Esto es tNodoLista **
 
@@ -311,15 +315,16 @@ int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actu
         return NO_ENCONTRADO;
 }
 
-int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem )
+int sacarPrimerElementoDeLista( tLista* pl, void* elem, unsigned tamElem )
 {
     tNodoLista* aux = *pl;
 
     if( *pl == NULL )
         return LISTA_VACIA;
 
-    memcpy( elem , aux->info , minimo(tamElem,aux->tamElem) );
     *pl = aux->sig;
+
+    memcpy( elem, aux->info, minimo(tamElem,aux->tamElem) );
 
     free(aux->info);
     free(aux);

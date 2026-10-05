@@ -12,6 +12,12 @@
 #include "lib/proceso_operacion.h"
 #include "lib/usuarios.h"
 
+void mostrar(const void* elem)
+{
+    tBarco* barco = (tBarco*)elem;
+    printf(" COD: %s | Tiempo arribo: %u | Cant conte. to: %u | Cant conte. res: %u\n",barco->cod,barco->arriboProgramado,barco->cantidadContenedoresTotal,barco->cantidadContenedoresRestante);
+}
+
 int jugar (tConfig *config, const char *nomUser);
 int main()
 {
