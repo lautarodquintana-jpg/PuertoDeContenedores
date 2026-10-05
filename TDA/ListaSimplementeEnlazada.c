@@ -4,6 +4,7 @@ void crearLista(tLista *pl)
 {
     *pl=NULL;
 }
+
 void vaciarLista(tLista *pl)
 {
     tNodoLista *elim;
@@ -16,6 +17,7 @@ void vaciarLista(tLista *pl)
         free(elim);
     }
 }
+
 void mostrarLista(const tLista *pl, void MostrarElemento(const void *elem))
 {
     while(*pl)
@@ -24,6 +26,7 @@ void mostrarLista(const tLista *pl, void MostrarElemento(const void *elem))
         pl=&(*pl)->sig;
     }
 }
+
 void mostrarListaInversa(const tLista *pl, void MostrarElemento(const void *elem))
 {
     tNodoLista *act;
@@ -51,6 +54,7 @@ void mostrarListaInversa(const tLista *pl, void MostrarElemento(const void *elem
         cantElems--;
     }
 }
+
 void mostrarListaInversaRecursivamente(const tLista *pl, void MostrarElemento(const void *elem))
 {
     tNodoLista *act=*pl;
@@ -61,10 +65,12 @@ void mostrarListaInversaRecursivamente(const tLista *pl, void MostrarElemento(co
     mostrarListaInversaRecursivamente(&act->sig, MostrarElemento);
     MostrarElemento(act->info);
 }
+
 int listaVacia(const tLista *pl)
 {
     return (*pl)==NULL? 1: 0;
 }
+
 int listaLlena(const tLista *pl)
 {
     tNodoLista *elemPrueba;
@@ -75,6 +81,7 @@ int listaLlena(const tLista *pl)
     free(elemPrueba);
     return 0;
 }
+
 int insertarAlFinalDeLista(tLista *pl, const void *elem, unsigned tam)
 {
     tNodoLista *nue;
@@ -103,17 +110,16 @@ int insertarAlFinalDeLista(tLista *pl, const void *elem, unsigned tam)
     return 1;
 }
 
-int insertarOrdenadoenLista(tLista *pl, const void *elem, unsigned tam, cmp comparacion, int conDuplicado ,accion accionar)
+int insertarOrdenadoenLista(tLista *pl, const void *elem, unsigned tam, cmp comparacion, int conDuplicado, accion accionar)
 {
     tNodoLista *nue;
-
 
     while(*pl && comparacion(elem, (*pl)->info)>0)
     {
         pl=&(*pl)->sig;
     }
 
-    if(conDuplicado==0 && (*pl)!=NULL && comparacion(elem, (*pl)->info)==0)//No quiero duplicados
+    if(conDuplicado==0 && (*pl)!=NULL && comparacion(elem, (*pl)->info)==0) // No quiero duplicados
     {
         if(accionar)
         {
@@ -142,6 +148,7 @@ int insertarOrdenadoenLista(tLista *pl, const void *elem, unsigned tam, cmp comp
 
     return TODO_OK;
 }
+
 int eliminarDeListaOrdenada(tLista *pl, void *elem, unsigned tam, cmp comparacion)
 {
     tNodoLista *elim;
@@ -150,7 +157,8 @@ int eliminarDeListaOrdenada(tLista *pl, void *elem, unsigned tam, cmp comparacio
         pl=&(*pl)->sig;
     }
     if(*pl && comparacion(elem, (*pl)->info)==0)
-    {// Lo encontre y debo eliminarlo: pl estï¿½ mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
+    {
+        // Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
         memcpy(elem, (*pl)->info, minimo(tam, (*pl)->tamElem));
         elim=*pl;
         *pl=(*pl)->sig;
@@ -161,15 +169,18 @@ int eliminarDeListaOrdenada(tLista *pl, void *elem, unsigned tam, cmp comparacio
     else
         return NO_ENCONTRADO;
 }
+
 int eliminarDeListaDesordenada(tLista *pl, void *elem, unsigned tam, cmp comparacion)
-{//Retorna si lo elimino o no
+{
+    // Retorna si lo elimino o no
     tNodoLista *elim;
     while(*pl && comparacion(elem, (*pl)->info)!=0)
     {
         pl=&(*pl)->sig;
     }
     if(*pl && comparacion(elem, (*pl)->info)==0)
-    {// Lo encontre y debo eliminarlo: pl estï¿½ mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
+    {
+        // Lo encontre y debo eliminarlo: pl está mirando al nodo a eliminar desde el anterior, debo asignar a *pl=(*pl)->sig
         memcpy(elem, (*pl)->info, minimo(tam, (*pl)->tamElem));
         elim=*pl;
         *pl=(*pl)->sig;
@@ -180,7 +191,8 @@ int eliminarDeListaDesordenada(tLista *pl, void *elem, unsigned tam, cmp compara
     else
         return NO_ENCONTRADO;
 }
-//Eliminar creativamente
+
+// Eliminar creativamente
 int insertarEnPosicionEnLista(tLista *pl, const void *elem, unsigned tam, unsigned pos)
 {
     unsigned cont=0;
@@ -200,7 +212,7 @@ int insertarEnPosicionEnLista(tLista *pl, const void *elem, unsigned tam, unsign
         cont++;
         pl=&(*pl)->sig;
     }
-    if(cont<pos)//El usuario me paso un numero de posicion que excede la cantidad de elementos que poseo, por lo que inserto a lo ultimo
+    if(cont<pos) // El usuario me paso un numero de posicion que excede la cantidad de elementos que poseo, por lo que inserto a lo ultimo
     {
         *pl=nue;
         nue->sig=NULL;
@@ -211,10 +223,12 @@ int insertarEnPosicionEnLista(tLista *pl, const void *elem, unsigned tam, unsign
     *pl=nue;
     return TODO_OK;
 }
+
 void ordenarLista(tLista *pl, cmp comparacion)
-{//Debo enganchar y desenganchar los nodos
+{
+    // Debo enganchar y desenganchar los nodos
     tNodoLista *nodoAMover;
-    tLista *PMin, *aux; //Esto es tNodoLista **
+    tLista *PMin, *aux; // Esto es tNodoLista **
 
     while(*pl)
     {
@@ -238,6 +252,7 @@ void ordenarLista(tLista *pl, cmp comparacion)
         pl=&(*pl)->sig;
     }
 }
+
 void eliminarElementosDuplicados(tLista *pl, cmp comparacion)
 {
     int band;
@@ -261,7 +276,7 @@ void eliminarElementosDuplicados(tLista *pl, cmp comparacion)
             else
                 aux=&(*aux)->sig;
         }
-        if(band==1)//Debo borrar ese elemento tambien
+        if(band==1) // Debo borrar ese elemento tambien
         {
             elim=*pl;
             *pl=elim->sig;
@@ -274,6 +289,7 @@ void eliminarElementosDuplicados(tLista *pl, cmp comparacion)
         }
     }
 }
+
 int verNElem(tLista *pl, unsigned pos, void *elem, unsigned tam)
 {
     unsigned i=0;
@@ -292,6 +308,7 @@ int verNElem(tLista *pl, unsigned pos, void *elem, unsigned tam)
 
     return NO_ENCONTRADO;
 }
+
 int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actualizar)(void *actualizado, const void *actualizador))
 {
     int i=0;
@@ -311,15 +328,16 @@ int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actu
         return NO_ENCONTRADO;
 }
 
-int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem )
+int sacarPrimerElementoDeLista(tLista* pl, void* elem, unsigned tamElem)
 {
     tNodoLista* aux = *pl;
 
-    if( *pl == NULL )
+    if(*pl == NULL)
         return LISTA_VACIA;
 
-    memcpy( elem , aux->info , minimo(tamElem,aux->tamElem) );
     *pl = aux->sig;
+
+    memcpy(elem, aux->info, minimo(tamElem, aux->tamElem));
 
     free(aux->info);
     free(aux);
@@ -327,10 +345,12 @@ int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem )
     return TODO_OK;
 }
 
-int recorrerLista(tLista pl, void *ctx, accion fx){
+int recorrerLista(tLista pl, void *ctx, accion fx)
+{
     if(NULL == pl)
         return 0;
-    while(pl){
+    while(pl)
+    {
         fx(ctx, pl->info);
         pl = pl->sig;
     }
