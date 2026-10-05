@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 #include "lib/configuracion.h"
 #include "lib/validaciones.h"
 #include "lib/estructuras.h"
@@ -12,16 +15,22 @@
 #include "lib/proceso_operacion.h"
 #include "lib/usuarios.h"
 #include "lib/muelle.h"
+#include "lib/zona_almacenamiento.h"
 
 void mostrar(const void* elem)
 {
     tBarco* barco = (tBarco*)elem;
     printf(" COD: %s | Tiempo arribo: %u | Cant conte. to: %u | Cant conte. res: %u\n",barco->cod,barco->arriboProgramado,barco->cantidadContenedoresTotal,barco->cantidadContenedoresRestante);
 }
-
+void iniciar_consola(void) {
+    #ifdef _WIN32
+        SetConsoleOutputCP(CP_UTF8);
+    #endif
+}
 int jugar (tConfig *config, const char *nomUser);
 int main()
 {
+    iniciar_consola(); //Para poder mostrar los caracteres de los "mostrarMuelles()" y "mostrarZonasAlmacenamiento()"
     int ret;
     tConfig config;
     char opcion, nomUser[TAM_USER];
@@ -67,10 +76,12 @@ int jugar (tConfig *config, const char *nomUser)
     tLista barcosEnCamino, camionesEnCamino;
     tOperacion operacion;
     //tCola historialOperaciones;
+
     int ret;
 
     ret=inicializarValoresYGenerarPuertoTXT(config, &jornada, nomUser, &barcosEnCamino, &camionesEnCamino);
-    if(ret!=TODO_OK)
+
+    if(ret!=TODO_OK || inicializarMuellesYZonas(&jornada, config)!=TODO_OK)
     {
         vaciarLista(&barcosEnCamino);
         vaciarLista(&camionesEnCamino);
@@ -84,9 +95,23 @@ int jugar (tConfig *config, const char *nomUser)
     while( jornada.estado == JUEGO_EN_CURSO )
     {
         avanzarTiempoHastaEventoFuturo( &jornada , &camionesEnCamino , &barcosEnCamino );
-        if( solicitarOperacionSTDIN( &operacion , config ) != INGRESO_CAD_EXIT )
+        //actualizarListasMuellesYCamiones();  //Asignar a lista
+        //actualizaryMostrarInterfaz();
+        if( solicitarOperacionSTDIN( &operacion , config, &jornada ) != INGRESO_CAD_EXIT )
         {
-
+            /*if (validarOperacion() == OK){
+                //encolarOperacionEnHistorial();
+                switch(obtenerNROOperacion(&operacion)){
+                    case OPERACION_DES:{}break;
+                    case OPERACION_REU:{
+                        reubicarContenedores(&jornada, config->capPila, operacion->codParametro_1, operacion->codParametro_2);
+                    }break;
+                    case OPERACION_ENT:{}break;
+                    case OPERACION_VER:{}break;
+                    case OPERACION_ESP:{}break;
+                }
+            }*/
+            //jornada.tiempoActual-=consultarTiempoRequeridoOperacion(operacion.cod,&config);
         }else
             jornada.estado = FIN_JUEGO;
     }

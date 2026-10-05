@@ -210,3 +210,14 @@ int procesarTiempo( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosE
 
     return TODO_OK;
 }
+
+int inicializarMuellesYZonas(tJornada *jornada, tConfig *config){
+
+    if(COD_MUELLES_OK != generarMuelles(&jornada->muelles, config->cantidadMuelles))
+        return 0;
+    if(COD_ZONAS_OK != generarZonasAlmacenamiento(&jornada->zonasAlmacenamiento, config->cantidadZonasDeAlmacenamiento)){
+        eliminarMuelles(&jornada->muelles);
+        return 0;
+    }
+    return TODO_OK;
+}

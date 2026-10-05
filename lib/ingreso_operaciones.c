@@ -19,7 +19,7 @@ void asignarParametro_tOperacion(tOperacion *opp, unsigned nroParametro, unsigne
         opp->codParametro_2 = valor;
 }
 
-int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *config){
+int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *config, tJornada *jornada){
     char  opp  [TAM_BUFFER_OPP];
     char  par_1[TAM_BUFFER_OPP];
     char  par_2[TAM_BUFFER_OPP];
@@ -48,7 +48,7 @@ int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *confi
         printf("\n\t | PARAMETRO U ORDEN DE LOS MISMOS INVALIDO |\n");
         return INGRESO_PAR_INVALID0;
     }
-
+    oppDest->minutoEjecutado = jornada->tiempoActual;
     return INGRESO_OK;
 }
 
@@ -129,7 +129,53 @@ int procesarComandoSTDIN_validarPAR(const char *ordenParametros, char const **di
     return INGRESO_OK;
 }
 
-int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config){
+int consultarTiempoRequeridoOperacion(const char *oppCod, tConfig *config){
+    if(NULL == oppCod || NULL == config)
+        return INGRESO_OPP_INVALIDA;
+
+    if(!strcmp(oppCod, "DES"))
+        return config->tiempoDeDescargaDeContenedor;
+
+    if(!strcmp(oppCod, "REU"))
+        return config->tiempoDeReubicacionDeContenedor;
+
+    if(!strcmp(oppCod, "ENT"))
+        return config->tiempoDeCargaDeCamion;
+
+    return 0;
+}
+
+int construirMensajeOperacion(tOperacion *opp, char *buffer){
+    if(NULL == opp)
+        return INGRESO_OPP_INVALIDA;
+    sprintf(buffer, "T=%u O=%s",opp->minutoEjecutado, opp->cod);
+    if(!strcmp(opp->cod, "DES"))
+        sprintf(buffer + strlen(buffer)," M%u Z%u",opp->codParametro_1, opp->codParametro_2);
+    if(!strcmp(opp->cod, "REU"))
+        sprintf(buffer + strlen(buffer)," Z%u Z%u",opp->codParametro_1, opp->codParametro_2);
+    return INGRESO_OK;
+}
+
+int obtenerNROOperacion(tOperacion *opp){
+    if(!strcmp(opp->cod, "DES"))
+        return OPERACION_DES;
+
+    if(!strcmp(opp->cod, "REU"))
+        return OPERACION_REU;
+
+    if(!strcmp(opp->cod, "ENT"))
+        return OPERACION_ENT;
+
+    if(!strcmp(opp->cod, "VER"))
+        return OPERACION_VER;
+
+    if(!strcmp(opp->cod, "ESP"))
+        return OPERACION_ESP;
+
+    return INGRESO_OPP_INVALIDA;
+}
+
+int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jornada){
 //FUNCION QUE SOLICITA EL INGRESA DE UNA OPERACION AL OPERADOR, VALIDA LA CADENA Y LA CONVIERTE A UNA ESTRUCTURA DEL TIPO "tOperacion"
     char bufferChar[TAM_BUFFER_STDIN_OPP] = {0};
     do{
@@ -138,7 +184,7 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config){
             bufferChar[strcspn(bufferChar, "\n")] = '\0';
             aMayusculas(bufferChar);
 
-        if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config))
+        if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config, jornada))
             return INGRESO_OK;
     }while(0 != strcmp(bufferChar, "EXIT"));
 

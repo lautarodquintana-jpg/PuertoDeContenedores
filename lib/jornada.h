@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include "estructuras.h"
+#include "muelle.h"
+#include "zona_almacenamiento.h"
 #include "../TDA/ListaSimplementeEnlazada.h"
 #include "../TDA/cola.h"
 #include "../TDA/nodo.h"
@@ -15,5 +17,6 @@ int compararTiemposDeCamiones(const void *elem1, const void *elem2);
 void actualizarBarco(void *actualizado, const void *actualizador);
 void avanzarTiempoHastaEventoFuturo( tJornada* jornada , const tLista* camionesEnCamino , const tLista* barcosEnCamino );
 int procesarTiempo( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino );
+int inicializarMuellesYZonas(tJornada *jornada, tConfig *config);
 
 #endif // JORNADA_H_INCLUDED
