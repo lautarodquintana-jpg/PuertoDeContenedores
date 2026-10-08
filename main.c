@@ -12,12 +12,7 @@
 #include "lib/proceso_operacion.h"
 #include "lib/usuarios.h"
 #include "lib/muelle.h"
-
-void mostrar(const void* elem)
-{
-    tBarco* barco = (tBarco*)elem;
-    printf(" COD: %s | Tiempo arribo: %u | Cant conte. to: %u | Cant conte. res: %u\n",barco->cod,barco->arriboProgramado,barco->cantidadContenedoresTotal,barco->cantidadContenedoresRestante);
-}
+#include "lib/barco.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()
@@ -80,15 +75,21 @@ int jugar (tConfig *config, const char *nomUser)
     getchar(); // Consumo salto de linea
     iniciarSesion( &jornada );
 
-    jornada.estado = JUEGO_EN_CURSO;
+    prepararJornada( &jornada , &camionesEnCamino , &barcosEnCamino , config );
+
+    avanzarTiempoHastaEventoFuturo( &jornada , &camionesEnCamino , &barcosEnCamino );
+    procesarLlegadas( &jornada , &camionesEnCamino , &barcosEnCamino );
+
     while( jornada.estado == JUEGO_EN_CURSO )
     {
-        avanzarTiempoHastaEventoFuturo( &jornada , &camionesEnCamino , &barcosEnCamino );
-        if( solicitarOperacionSTDIN( &operacion , config ) != INGRESO_CAD_EXIT )
-        {
 
-        }else
-            jornada.estado = FIN_JUEGO;
+        while( solicitarOperacionSTDIN( &operacion , config ) != INGRESO_CAD_EXIT )
+        {
+            procesarOperacion( &jornada , &operacion , config );
+            procesarLlegadas( &jornada , &camionesEnCamino , &barcosEnCamino );
+        }
+
+        jornada.estado = FIN_JUEGO;
     }
 
     return TODO_OK;

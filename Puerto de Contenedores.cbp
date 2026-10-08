@@ -56,6 +56,20 @@
 		<Unit filename="TDA/pila.h">
 			<Option virtualFolder="TDAs/" />
 		</Unit>
+		<Unit filename="lib/barco.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
+		<Unit filename="lib/barco.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
+		<Unit filename="lib/camion.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
+		<Unit filename="lib/camion.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
 		<Unit filename="lib/configuracion.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />
@@ -80,19 +94,19 @@
 		<Unit filename="lib/jornada.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
+		<Unit filename="lib/muelle.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
+		<Unit filename="lib/muelle.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
 		<Unit filename="lib/proceso_operacion.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />
 		</Unit>
 		<Unit filename="lib/proceso_operacion.h">
 			<Option virtualFolder=".h/" />
-		</Unit>
-		<Unit filename="lib/muelle.c">
-			<Option compilerVar="CC" />
-			<Option virtualFolder=".h/" />
-		</Unit>
-		<Unit filename="lib/muelle.h">
-			<Option virtualFolder=".c/" />
 		</Unit>
 		<Unit filename="lib/ranking.c">
 			<Option compilerVar="CC" />
@@ -113,6 +127,13 @@
 			<Option virtualFolder=".c/" />
 		</Unit>
 		<Unit filename="lib/validaciones.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
+		<Unit filename="lib/zona.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
+		<Unit filename="lib/zona.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
 		<Unit filename="main.c">

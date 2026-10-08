@@ -182,31 +182,91 @@ void avanzarTiempoHastaEventoFuturo( tJornada* jornada, const tLista* camionesEn
         jornada->tiempoActual = barco.arriboProgramado;
 }
 
-int procesarTiempo( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
+int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola, tLista* camionesEnCamino, tLista* barcosEnCamino, unsigned tiempoActual )
 {
     tCamion camion;
     tBarco barco;
     int res;
 
-    while( verNElem( camionesEnCamino, 0, &camion, sizeof(tCamion) ) == TODO_OK && camion.minutoRetiro < jornada->tiempoActual )
+    while( verNElem( camionesEnCamino, 0, &camion, sizeof(tCamion) ) == TODO_OK && camion.minutoRetiro <= tiempoActual )
     {
         res = sacarPrimerElementoDeLista( camionesEnCamino, &camion, sizeof(tCamion) );
         if( res != TODO_OK )
             return res;
 
-        if( ponerEnCola( &jornada->camiones , &camion , sizeof(tCamion) ) != TODO_OK )
+        if( ponerEnCola( camionesEnCola, &camion, sizeof(tCamion) ) != TODO_OK )
             return res;
     }
 
-    while( verNElem( barcosEnCamino , 0, &barco, sizeof(tBarco) ) == TODO_OK && barco.arriboProgramado < jornada->tiempoActual )
+    res = verNElem( barcosEnCamino, 0, &barco, sizeof(tBarco) );
+    while( res == TODO_OK && barco.arriboProgramado <= tiempoActual )
     {
         res = sacarPrimerElementoDeLista( barcosEnCamino, &barco, sizeof(tBarco) );
         if( res != TODO_OK )
+        {
             return res;
+        }
 
-        if( ponerEnCola( &jornada->camiones , &barco , sizeof(tBarco) ) != TODO_OK )
+        if( ponerEnCola( barcosEnCola, &barco, sizeof(tBarco) ) != TODO_OK )
+        {
             return res;
+        }
+        res = verNElem( barcosEnCamino, 0, &barco, sizeof(tBarco) );
     }
 
     return TODO_OK;
+}
+
+int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino, const tConfig* config )
+{
+    int ret = TODO_OK;
+
+    jornada->estado = JUEGO_EN_CURSO;
+    jornada->puntajeActual = 0;
+
+    crearCola( &jornada->camiones );
+    crearCola( &jornada->barcosEspera );
+    crearListaMuelles( &jornada->muelles );
+    crearListaZonas( &jornada->zonasAlmacenamiento );
+
+    ret = generarMuelles( &jornada->muelles, config->cantidadMuelles );
+    if( ret != COD_MUELLES_OK )
+    {
+        fprintf(stderr,"ERROR al generar muelles.");
+        liberarJornada(jornada,camionesEnCamino,barcosEnCamino);
+        return ret;
+    }
+
+    ret = generarZonas( &jornada->zonasAlmacenamiento, config->cantidadZonasDeAlmacenamiento );
+    if( ret != COD_ZONAS_OK )
+    {
+        fprintf(stderr,"ERROR al generar zonas.");
+        liberarJornada(jornada,camionesEnCamino,barcosEnCamino);
+        return ret;
+    }
+
+    return ret;
+}
+
+void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
+{
+    vaciarLista(barcosEnCamino);
+    vaciarLista(camionesEnCamino);
+
+    /**
+    FALTARIA:
+    - VACIAR LOS CONTENEDORES DE LOS BARCOS
+    - VACIAR CAMIONES EN LA COLA
+    - VACIAR LA PILA DE CONTENEDORES EN LAS ZONAS Y ZONAS
+    */
+
+    eliminarMuelles(&jornada->muelles);
+
+}
+
+void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
+{
+    procesarTiempo( &jornada->camiones, &jornada->barcosEspera, camionesEnCamino, barcosEnCamino, jornada->tiempoActual );
+    ponerBarcosArribadosEnMuelles( &jornada->muelles, &jornada->barcosEspera, jornada->tiempoActual );
+    ponerCamionesArribadosEnCola( &jornada->camiones, camionesEnCamino, jornada->tiempoActual );
 }
