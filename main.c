@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 #include "lib/configuracion.h"
 #include "lib/validaciones.h"
 #include "lib/estructuras.h"
@@ -17,6 +20,7 @@
 int jugar (tConfig *config, const char *nomUser);
 int main()
 {
+    iniciar_consola(); //Para poder mostrar los caracteres de los "mostrarMuelles()" y "mostrarZonasAlmacenamiento()"
     int ret;
     tConfig config;
     char opcion, nomUser[TAM_USER];
@@ -62,10 +66,12 @@ int jugar (tConfig *config, const char *nomUser)
     tLista barcosEnCamino, camionesEnCamino;
     tOperacion operacion;
     //tCola historialOperaciones;
+
     int ret;
 
     ret=inicializarValoresYGenerarPuertoTXT(config, &jornada, nomUser, &barcosEnCamino, &camionesEnCamino);
-    if(ret!=TODO_OK)
+
+    if(ret!=TODO_OK || inicializarMuellesYZonas(&jornada, config)!=TODO_OK)
     {
         vaciarLista(&barcosEnCamino);
         vaciarLista(&camionesEnCamino);

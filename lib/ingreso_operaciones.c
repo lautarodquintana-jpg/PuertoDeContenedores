@@ -20,7 +20,7 @@ void asignarParametro_tOperacion(tOperacion *opp, unsigned nroParametro, unsigne
         opp->codParametro_2 = valor;
 }
 
-int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *config){
+int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *config, tJornada *jornada){
     char  opp  [TAM_BUFFER_OPP];
     char  par_1[TAM_BUFFER_OPP];
     char  par_2[TAM_BUFFER_OPP];
@@ -49,7 +49,7 @@ int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *confi
         printf("\n\t | PARAMETRO U ORDEN DE LOS MISMOS INVALIDO |\n");
         return INGRESO_PAR_INVALID0;
     }
-
+    oppDest->minutoEjecutado = jornada->tiempoActual;
     return INGRESO_OK;
 }
 

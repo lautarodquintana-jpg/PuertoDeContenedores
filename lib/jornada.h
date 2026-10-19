@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include "estructuras.h"
+#include "muelle.h"
+#include "zona_almacenamiento.h"
 #include "../TDA/ListaSimplementeEnlazada.h"
 #include "../TDA/cola.h"
 #include "../TDA/nodo.h"

@@ -25,14 +25,14 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
 
     fprintf(archPuerto, "\n\n[BUQUES]\n");
 
-    //A partir de ac· viene la lÛgica para cargar aleatoriamente los buques con sus respectivos contenedores y tiempos
+    //A partir de ac√° viene la l√≥gica para cargar aleatoriamente los buques con sus respectivos contenedores y tiempos
 
     contadorBarcos=1;
     while(contadorBarcos<=config->maximosBuques)//En cada iteracion cargamos un barco
     {
-        barco.arriboProgramado=rand()%config->duracionMinutosdeJornada; //Cargamos el minuto en el que arribar· el barco
+        barco.arriboProgramado=rand()%config->duracionMinutosdeJornada; //Cargamos el minuto en el que arribar√° el barco
 
-        sprintf(barco.cod, "B%u", contadorBarcos); //Cargamos el cÛdigo del barco
+        sprintf(barco.cod, "B%u", contadorBarcos); //Cargamos el c√≥digo del barco
         crearCola(&(barco.contenedores));
         barco.cantidadContenedoresTotal=rand()%config->maximosContenedoresPorBuque+1;
 

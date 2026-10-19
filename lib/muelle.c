@@ -27,13 +27,21 @@ int generarMuelles(tLista *plMuelles, unsigned cantMuelles){
     return COD_MUELLES_OK;
 }
 
+//Funcion callback que libera, si existen elementos, la cola de contenedores de barcos
+void liberarColaContenedoresCB(void *ctx, const void *muelleLista){
+    tMuelle *muelle = (tMuelle*)muelleLista;
+    vaciarCola(&muelle->barco.contenedores);
+}
+
 //Elimina los muelles (para terminar el programa)
 void eliminarMuelles(tLista *plMuelles){
+    recorrerLista(*plMuelles, NULL, liberarColaContenedoresCB);
     vaciarLista(plMuelles);
 }
 
 //Funcion callback para mostrar un muelle
 void mostrarMuelleCB(void *ctx, const void *elem){
+    tContenedor auxContenedor;
     tMuelle *muelle = (tMuelle*)elem;
     printf("\n ||-> COD: %u - EST: %u - MA: %u - BUQUE: ",muelle->cod, muelle->estado, muelle->minutoArribo);
 
@@ -66,7 +74,6 @@ void actualizarMuelleCB(void *muelleLista, const void *actualizador){
     tMuelle *muelle        = (tMuelle*)muelleLista;
     muelle->estado         = MUELLE_OCUPADO;
     muelle->minutoArribo   = minutoArribo;
-
     memcpy(&muelle->barco, barco, sizeof(tBarco));
 }
 
@@ -81,7 +88,7 @@ void consultarEstadoMuelleCB(void *muelleLista, const void *actualizador){
     // Importante, no valida que exista disponibilidad en el muelle.
 int ocuparMuelle(tLista *plMuelles, unsigned codMuelle, tBarco barco, unsigned minutoArribo){
     void *ptxCtx[2] = {&barco, &minutoArribo};
-    if(--codMuelle < 0)
+    if(0 == codMuelle--)
         return COD_MUELLES_MAL;
     if(TODO_OK != actualizarNElemDeLista(plMuelles, ptxCtx, codMuelle, actualizarMuelleCB))
         return COD_MUELLES_MAL;
@@ -107,7 +114,9 @@ void liberarMuelleCB(void *muelleLista, const void *actualizador){
 }
 
 int liberarMuelle(tLista *plMuelles, unsigned codMuelle){
-    if(--codMuelle < 0)
+    if(0 == codMuelle--)
+        return COD_MUELLES_MAL;
+    if(MUELLE_DISPONIBLE == estadoMuelle(plMuelles, codMuelle + 1))
         return COD_MUELLES_MAL;
     if(TODO_OK != actualizarNElemDeLista(plMuelles, NULL, codMuelle, liberarMuelleCB))
         return COD_MUELLES_MAL;

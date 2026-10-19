@@ -13,6 +13,9 @@
 #define JUEGO_EN_CURSO 70
 #define FIN_JUEGO 75
 
+#define TAM_BUFFER_STDIN_OPP 100
+#define TAM_BUFFER_OPP 10
+
 typedef struct
 {
 	unsigned duracionMinutosdeJornada;
@@ -81,5 +84,13 @@ typedef struct{
 	unsigned 	minutoRetiro;
 	char    	codContenedorRetirar[TAM_CODIGOS];
 }tCamion;
+
+//Estructura construida luego de parsear el codigo de operacion y constantes que usa
+typedef struct{
+    char     cod[TAM_BUFFER_OPP];
+    unsigned codParametro_1;
+    unsigned codParametro_2;
+    unsigned minutoEjecutado;
+}tOperacion;
 
 #endif // ESTRUCTURAS_H_INCLUDED

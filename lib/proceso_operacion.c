@@ -31,7 +31,7 @@ void procesarOperacion( tJornada* jornada, const tOperacion* ope, const tConfig*
 Muestra el tiempo actual, los buques
 atracados, la cantidad de buques esperando, el
 contenido de las zonas de almacenamiento, la ventana
-de planificación de hasta tres camiones y la puntuación
+de planificaciï¿½n de hasta tres camiones y la puntuaciï¿½n
 provisoria.
 */
 void ejecutarVER( tJornada* jornada )
