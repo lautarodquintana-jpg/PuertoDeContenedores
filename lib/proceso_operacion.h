@@ -4,8 +4,15 @@
 #include "estructuras.h"
 #include "zona_almacenamiento.h"
 #include "../TDA/ListaSimplementeEnlazada.h"
+#include "ingreso_operaciones.h"
+#include "muelle.h"
+#include "zona.h"
 
-int reubicarContenedores(tJornada *jornada, unsigned capacidadPila, unsigned codOrigen, unsigned codDestino);
+void procesarOperacion( tJornada* jornada , const tOperacion* ope, const tConfig* config );
 
+void ejecutarVER( tJornada* jornada );
+int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , unsigned codZonaDes, unsigned capacidadPilaZona );
+int ejecutarREU();
+int ejecutarENT();
 
 #endif // PROCESO_OPERACION_H_INCLUDED

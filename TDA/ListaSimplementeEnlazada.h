@@ -38,6 +38,6 @@ void ordenarLista(tLista *pl, cmp comparacion);
 int verNElem(tLista *pl, unsigned pos, void *elem, unsigned tam);
 int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actualizar)(void *actualizado, const void *actualizador));
 int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem );
-int recorrerLista(tLista pl, void *ctx, accion fx);
+int recorrerLista(tLista* pl, void *ctx, accion fx);
 
 #endif // LISTASIMPLEMENTEENLAZADA_H_INCLUDED

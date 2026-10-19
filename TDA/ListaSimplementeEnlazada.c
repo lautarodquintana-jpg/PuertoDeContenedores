@@ -345,14 +345,14 @@ int sacarPrimerElementoDeLista(tLista* pl, void* elem, unsigned tamElem)
     return TODO_OK;
 }
 
-int recorrerLista(tLista pl, void *ctx, accion fx)
+int recorrerLista(tLista* pl, void *ctx, accion fx)
 {
-    if(NULL == pl)
+    if(NULL == *pl)
         return 0;
-    while(pl)
+    while(*pl)
     {
-        fx(ctx, pl->info);
-        pl = pl->sig;
+        fx(ctx, (*pl)->info);
+        pl = &(*pl)->sig;
     }
     return TODO_OK;
 }

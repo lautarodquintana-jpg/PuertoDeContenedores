@@ -1,17 +1,25 @@
 #include "muelle.h"
 
+//Inicializa la lista de muelles
+void crearListaMuelles( tLista *plMuelles )
+{
+    crearLista(plMuelles);
+}
+
 //Genera los muelles y los asigna a la lista de muelles
 int generarMuelles(tLista *plMuelles, unsigned cantMuelles){
-    crearLista(plMuelles);
+    int i;
     tMuelle auxMuelle;
         auxMuelle.barco.arriboProgramado = 0;
         auxMuelle.barco.cantidadContenedoresRestante = 0;
+        *auxMuelle.barco.cod = '\0';
         auxMuelle.barco.cantidadContenedoresTotal = 0;
-        crearCola(&auxMuelle.barco.contenedores);
+        crearCola( &auxMuelle.barco.contenedores );
     auxMuelle.estado = MUELLE_DISPONIBLE; //Estado disponible
-    for(int i=0 ; i<cantMuelles ; i++){
+    for( i=0 ; i<cantMuelles ; i++){
         auxMuelle.cod = i+1;
-        if( 0 == insertarAlFinalDeLista(plMuelles,&auxMuelle,sizeof(tMuelle))){
+        if( 0 == insertarAlFinalDeLista(plMuelles,&auxMuelle,sizeof(tMuelle)))
+        {
             vaciarLista(plMuelles);
             return COD_MUELLES_MAL;
         }
@@ -35,23 +43,12 @@ void eliminarMuelles(tLista *plMuelles){
 void mostrarMuelleCB(void *ctx, const void *elem){
     tContenedor auxContenedor;
     tMuelle *muelle = (tMuelle*)elem;
-    if(MUELLE_DISPONIBLE == muelle->estado){
-        printf("\n o M%-2u | %-10s", muelle->cod,"DISPONIBLE");
-    }else{
-        if(COLA_VACIA == verPrimeroCola(&muelle->barco.contenedores,&auxContenedor, sizeof(tContenedor)))
-            printf("\n ● M%-2u | %-10s >[%-4s | Arribo (min):%-3u | Contenedores (rest): %-3u | Prox: %-5s]>>", muelle->cod,"OCUPADO", muelle->barco.cod, muelle->minutoArribo, muelle->barco.cantidadContenedoresRestante,"Error");
-        else
-            printf("\n ● M%-2u | %-10s >[%-4s | Arribo (min):%-3u | Contenedores (rest): %-3u | Prox: %-5s]>>", muelle->cod,"OCUPADO", muelle->barco.cod, muelle->minutoArribo, muelle->barco.cantidadContenedoresRestante,auxContenedor.cod);
-    }
-}
+    printf("\n ||-> COD: %u - EST: %u - MA: %u - BUQUE: ",muelle->cod, muelle->estado, muelle->minutoArribo);
 
-void mostrarMuelles(tLista lMuelles, unsigned lineas){
-    if(lineas)
-        printf("\n [  MUELLES  ]\n");
-    if(lineas>=100)
-        while(lineas--)
-            printf("-");
-    recorrerLista(lMuelles, NULL, mostrarMuelleCB);
+    if( *muelle->barco.cod != '\0' )
+        printf("%s",muelle->barco.cod);
+    else
+        printf("SIN BARCO");
 }
 
 //Funcion callback encontrar muelle disponible
@@ -64,7 +61,7 @@ void encontrarMuelleCB(void *ctx, const void *elem){
 // Recorre la lista de muelles y devuelve el primero que este disponible, si no hay ninguno disponible, retorna cero
 int encontrarMuelleDisponible(tLista lMuelles){
     unsigned codDisponible = 0;
-    if(TODO_OK != recorrerLista(lMuelles, &codDisponible, encontrarMuelleCB))
+    if(TODO_OK != recorrerLista(&lMuelles, &codDisponible, encontrarMuelleCB))
         return COD_MUELLES_MAL;
     return codDisponible;
 }
@@ -99,8 +96,8 @@ int ocuparMuelle(tLista *plMuelles, unsigned codMuelle, tBarco barco, unsigned m
 }
 
 int estadoMuelle(tLista *plMuelles, unsigned codMuelle){
-    unsigned estadoMuelle;
-    if(0 == codMuelle--)
+    unsigned estadoMuelle = 0;
+    if(--codMuelle < 0)
         return COD_MUELLES_MAL;
     if(TODO_OK != actualizarNElemDeLista(plMuelles, &estadoMuelle, codMuelle, consultarEstadoMuelleCB))
         return COD_MUELLES_MAL;
@@ -112,7 +109,8 @@ void liberarMuelleCB(void *muelleLista, const void *actualizador){
     tMuelle *muelle = (tMuelle*)muelleLista;
     muelle->estado = MUELLE_DISPONIBLE;
     muelle->minutoArribo = 0;
-    vaciarCola(&(muelle->barco.contenedores));
+    *muelle->barco.cod = '\0';
+    vaciarCola(&muelle->barco.contenedores);
 }
 
 int liberarMuelle(tLista *plMuelles, unsigned codMuelle){
@@ -125,4 +123,58 @@ int liberarMuelle(tLista *plMuelles, unsigned codMuelle){
     return COD_MUELLES_OK;
 }
 
-int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor *contenedorDest); // Requiere primitivas de barco
+int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor) // Requiere primitivas de barco
+{
+    int res;
+    unsigned cantConteResAntes = 0,cantConteResDesp = 0;
+
+    // Obtenemos la cantidad de contenedores restantes ANTES de quitar el contenedor
+    res = actualizarNElemDeLista( plMuelles , &cantConteResAntes , codMuelle - 1 , obtenerCantidadDeContenedoresRestantesBarco );
+    if( res != TODO_OK )
+        return res;
+
+    res = actualizarNElemDeLista( plMuelles , contenedor , codMuelle - 1 , quitarPrimerContenedorBarco );
+    if( res != TODO_OK )
+        return res;
+
+    res = actualizarNElemDeLista( plMuelles , &cantConteResDesp , codMuelle - 1, obtenerCantidadDeContenedoresRestantesBarco );
+    if( res != TODO_OK )
+        return res;
+
+    if( cantConteResAntes == cantConteResDesp )
+            return ERROR_SACAR_CONTENEDOR_BARCO;
+
+    if( !tieneBarcoContenedores( plMuelles , codMuelle ) )
+        liberarMuelle( plMuelles , codMuelle );
+
+    return TODO_OK;
+}
+
+int obtenerContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor)
+{
+    int res;
+
+    res = actualizarNElemDeLista( plMuelles , contenedor , --codMuelle , obtenerPrimerContenedorDeBarco );
+    if( res != TODO_OK )
+        return res;
+
+    if( *contenedor->cod == '\0' )
+        return ERROR_SACAR_CONTENEDOR_BARCO;
+
+    return TODO_OK;
+}
+
+void mostrarMuelles( tLista *plMuelles )
+{
+    printf("\n=== MUELLES ===\n");
+    recorrerLista( plMuelles , NULL, mostrarMuelleCB );
+}
+
+int tieneBarcoContenedores( tLista *plMuelles , unsigned codMuelle )
+{
+    unsigned cantContenedores = 0;
+
+    actualizarNElemDeLista( plMuelles , &cantContenedores , codMuelle-1 , obtenerCantidadDeContenedoresRestantesBarco );
+
+    return cantContenedores > 0;
+}

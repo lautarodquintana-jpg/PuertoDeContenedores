@@ -1,4 +1,5 @@
 #include "ingreso_operaciones.h"
+#include "validaciones.h"
 
 void aMayusculas(char *s)
 {
@@ -129,65 +130,25 @@ int procesarComandoSTDIN_validarPAR(const char *ordenParametros, char const **di
     return INGRESO_OK;
 }
 
-int consultarTiempoRequeridoOperacion(const char *oppCod, tConfig *config){
-    if(NULL == oppCod || NULL == config)
-        return INGRESO_OPP_INVALIDA;
-
-    if(!strcmp(oppCod, "DES"))
-        return config->tiempoDeDescargaDeContenedor;
-
-    if(!strcmp(oppCod, "REU"))
-        return config->tiempoDeReubicacionDeContenedor;
-
-    if(!strcmp(oppCod, "ENT"))
-        return config->tiempoDeCargaDeCamion;
-
-    return 0;
-}
-
-int construirMensajeOperacion(tOperacion *opp, char *buffer){
-    if(NULL == opp)
-        return INGRESO_OPP_INVALIDA;
-    sprintf(buffer, "T=%u O=%s",opp->minutoEjecutado, opp->cod);
-    if(!strcmp(opp->cod, "DES"))
-        sprintf(buffer + strlen(buffer)," M%u Z%u",opp->codParametro_1, opp->codParametro_2);
-    if(!strcmp(opp->cod, "REU"))
-        sprintf(buffer + strlen(buffer)," Z%u Z%u",opp->codParametro_1, opp->codParametro_2);
-    return INGRESO_OK;
-}
-
-int obtenerNROOperacion(tOperacion *opp){
-    if(!strcmp(opp->cod, "DES"))
-        return OPERACION_DES;
-
-    if(!strcmp(opp->cod, "REU"))
-        return OPERACION_REU;
-
-    if(!strcmp(opp->cod, "ENT"))
-        return OPERACION_ENT;
-
-    if(!strcmp(opp->cod, "VER"))
-        return OPERACION_VER;
-
-    if(!strcmp(opp->cod, "ESP"))
-        return OPERACION_ESP;
-
-    return INGRESO_OPP_INVALIDA;
-}
-
-int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jornada){
-//FUNCION QUE SOLICITA EL INGRESA DE UNA OPERACION AL OPERADOR, VALIDA LA CADENA Y LA CONVIERTE A UNA ESTRUCTURA DEL TIPO "tOperacion"
+int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jornada)
+{
     char bufferChar[TAM_BUFFER_STDIN_OPP] = {0};
+    int codValidacion;
+
     do{
         printf("\n |-> INGRESE OPERACION: ");
-            fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
-            bufferChar[strcspn(bufferChar, "\n")] = '\0';
-            aMayusculas(bufferChar);
+        fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
+        bufferChar[strcspn(bufferChar, "\n")] = '\0';
+        aMayusculas(bufferChar);
 
-        if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config, jornada))
-            return INGRESO_OK;
+        if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config))
+        {
+            codValidacion = validarOperacion(oppDest, config, jornada);
+            if(INGRESO_OK == codValidacion)
+                return INGRESO_OK;
+            mostrarMotivoRechazo(codValidacion);
+        }
     }while(0 != strcmp(bufferChar, "EXIT"));
 
-    //return INGRESO_OK;
     return INGRESO_CAD_EXIT;
 }

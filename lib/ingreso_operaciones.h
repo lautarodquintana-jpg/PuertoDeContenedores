@@ -40,6 +40,7 @@ int obtenerNROOperacion(tOperacion *opp);
 //FUNCION PRINCIPAL:
     // Debe estar config inicializado, debe haber una variable tOperacion que almacene el valor parseado de la cadena. Orden de operandos estricto. Opcion exit (se puede quitar)
     // Lee la cadena y la convierte a mayuscula.
-    int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jornada);
+    int  solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jornada);
+
 
 #endif // INGRESO_OPERACIONES_H_INCLUDED
