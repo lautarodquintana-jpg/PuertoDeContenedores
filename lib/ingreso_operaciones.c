@@ -1,4 +1,5 @@
 #include "ingreso_operaciones.h"
+#include "validaciones.h"
 
 void aMayusculas(char *s)
 {
@@ -129,19 +130,25 @@ int procesarComandoSTDIN_validarPAR(const char *ordenParametros, char const **di
     return INGRESO_OK;
 }
 
-int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config){
-//FUNCION QUE SOLICITA EL INGRESA DE UNA OPERACION AL OPERADOR, VALIDA LA CADENA Y LA CONVIERTE A UNA ESTRUCTURA DEL TIPO "tOperacion"
+int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jornada)
+{
     char bufferChar[TAM_BUFFER_STDIN_OPP] = {0};
+    int codValidacion;
+
     do{
         printf("\n |-> INGRESE OPERACION: ");
-            fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
-            bufferChar[strcspn(bufferChar, "\n")] = '\0';
-            aMayusculas(bufferChar);
+        fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
+        bufferChar[strcspn(bufferChar, "\n")] = '\0';
+        aMayusculas(bufferChar);
 
         if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config))
-            return INGRESO_OK;
+        {
+            codValidacion = validarOperacion(oppDest, config, jornada);
+            if(INGRESO_OK == codValidacion)
+                return INGRESO_OK;
+            mostrarMotivoRechazo(codValidacion);
+        }
     }while(0 != strcmp(bufferChar, "EXIT"));
 
-    //return INGRESO_OK;
     return INGRESO_CAD_EXIT;
 }

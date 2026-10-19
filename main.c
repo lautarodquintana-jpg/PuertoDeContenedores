@@ -83,7 +83,7 @@ int jugar (tConfig *config, const char *nomUser)
     while( jornada.estado == JUEGO_EN_CURSO )
     {
 
-        while( solicitarOperacionSTDIN( &operacion , config ) != INGRESO_CAD_EXIT )
+        while( solicitarOperacionSTDIN( &operacion , config , &jornada) != INGRESO_CAD_EXIT )
         {
             procesarOperacion( &jornada , &operacion , config );
             procesarLlegadas( &jornada , &camionesEnCamino , &barcosEnCamino );
