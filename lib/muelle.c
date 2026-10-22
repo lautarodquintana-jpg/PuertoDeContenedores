@@ -35,7 +35,7 @@ void liberarColaContenedoresCB(void *ctx, const void *muelleLista){
 
 //Elimina los muelles (para terminar el programa)
 void eliminarMuelles(tLista *plMuelles){
-    recorrerLista(*plMuelles, NULL, liberarColaContenedoresCB);
+    recorrerLista(plMuelles, NULL, liberarColaContenedoresCB);
     vaciarLista(plMuelles);
 }
 
@@ -123,7 +123,7 @@ int liberarMuelle(tLista *plMuelles, unsigned codMuelle){
     return COD_MUELLES_OK;
 }
 
-int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor) // Requiere primitivas de barco
+int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor, unsigned* puntuacionActual) // Requiere primitivas de barco
 {
     int res;
     unsigned cantConteResAntes = 0,cantConteResDesp = 0;
@@ -145,7 +145,10 @@ int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* c
             return ERROR_SACAR_CONTENEDOR_BARCO;
 
     if( !tieneBarcoContenedores( plMuelles , codMuelle ) )
+    {
         liberarMuelle( plMuelles , codMuelle );
+        *puntuacionActual += 5;
+    }
 
     return TODO_OK;
 }

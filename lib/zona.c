@@ -73,3 +73,45 @@ void mostrarZonas( tLista *plZonas )
     printf("\n\n=== ZONAS ===\n\n");
     recorrerLista( plZonas , NULL , mostrarTopeContenedorPorZona );
 }
+
+//Funcion callback para el desapilado de un contenedor de una zona de almacenamiento
+void desapilarContenedorCB(void *zonaLista, const void *ctx)
+{
+    tZona       *zonaAlmacenamiento = (tZona*)zonaLista;
+    tContenedor *contenedor         = (tContenedor*)((const void**)ctx)[0];
+    unsigned    *error              = (unsigned*)((const void**)ctx)[1];
+    if(PILA_VACIA == sacarDePila(&zonaAlmacenamiento->contenedores, contenedor, sizeof(tContenedor)))
+        *error = PILA_VACIA;
+    else
+        zonaAlmacenamiento->cantidadOcupada--;
+}
+
+//Funcion que retira un contenedor de la pila de una zona de almacenamiento y la asignar a "tContendor *contenedorDest", variable de funcion llamadora
+int retirarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned codZona, tContenedor *contenedorDest)
+{
+    unsigned error=0;
+    void *ptxCtx[2] = {contenedorDest, &error};
+    if(0 == codZona--)
+        return COD_ZONAS_MAL;
+    if(TODO_OK != actualizarNElemDeLista(plZonasAlmacenamiento, &ptxCtx, codZona, desapilarContenedorCB))
+        return COD_ZONAS_MAL;
+    return error?error:COD_ZONAS_OK;
+}
+
+//Funcion para obtener codigo de zona donde se encuentre un codigo de contenedor.
+int buscarCodZona( tLista *plZonasAlmacenamiento, const char* codContenedor )
+{
+    return busquedaClavePosLista( plZonasAlmacenamiento, codContenedor, compararZonaTopeContenedor );
+}
+
+int compararZonaTopeContenedor( const void* elem_z, const void* elem_c )
+{
+    tZona* zona = (tZona*)elem_z;
+    char* codContenedor = (char*)elem_c;
+    tContenedor conteEnZona;
+
+    if( verTope( &zona->contenedores, &conteEnZona, sizeof(tContenedor) ) == TODO_OK )
+        return strcmp( conteEnZona.cod, codContenedor );
+    else
+        return -1;
+}

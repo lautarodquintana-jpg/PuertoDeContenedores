@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #ifdef _WIN32
-    #include <windows.h>
+#include <windows.h>
 #endif
 #include "lib/configuracion.h"
 #include "lib/validaciones.h"
@@ -20,7 +20,10 @@
 int jugar (tConfig *config, const char *nomUser);
 int main()
 {
+    /*
+    HACER:
     iniciar_consola(); //Para poder mostrar los caracteres de los "mostrarMuelles()" y "mostrarZonasAlmacenamiento()"
+    */
     int ret;
     tConfig config;
     char opcion, nomUser[TAM_USER];
@@ -38,22 +41,22 @@ int main()
     {
         switch(opcion)
         {
-            case 'N':
-                //IniciarSesion (coming soon)
-                ret=jugar(&config, nomUser);
-                if(ret!=TODO_OK)
-                {
-                    return ret;
-                }
-                printf("A trabajar!\n");
-                //IniciarJornada (coming soon)
-                //ActualizarRanking (coming soon)
-                //MostrarRanking (coming soon)
-                break;
-            case 'V':
-                if( mostrarRanking() != TODO_OK )
-                    fprintf(stderr,"\nERROR al mostrar ranking.");
-                break;
+        case 'N':
+            //IniciarSesion (coming soon)
+            ret=jugar(&config, nomUser);
+            if(ret!=TODO_OK)
+            {
+                return ret;
+            }
+            printf("A trabajar!\n");
+            //IniciarJornada (coming soon)
+            //ActualizarRanking (coming soon)
+            //MostrarRanking (coming soon)
+            break;
+        case 'V':
+            if( mostrarRanking() != TODO_OK )
+                fprintf(stderr,"\nERROR al mostrar ranking.");
+            break;
         }
         opcion=leerYValidarCharMenu();
     }
@@ -71,7 +74,7 @@ int jugar (tConfig *config, const char *nomUser)
 
     ret=inicializarValoresYGenerarPuertoTXT(config, &jornada, nomUser, &barcosEnCamino, &camionesEnCamino);
 
-    if(ret!=TODO_OK || inicializarMuellesYZonas(&jornada, config)!=TODO_OK)
+    if(ret!=TODO_OK /*|| inicializarMuellesYZonas(&jornada, config)!=TODO_OK*/)
     {
         vaciarLista(&barcosEnCamino);
         vaciarLista(&camionesEnCamino);
@@ -81,21 +84,22 @@ int jugar (tConfig *config, const char *nomUser)
     getchar(); // Consumo salto de linea
     iniciarSesion( &jornada );
 
-    prepararJornada( &jornada , &camionesEnCamino , &barcosEnCamino , config );
+    prepararJornada( &jornada, &camionesEnCamino, &barcosEnCamino, config );
 
-    avanzarTiempoHastaEventoFuturo( &jornada , &camionesEnCamino , &barcosEnCamino );
-    procesarLlegadas( &jornada , &camionesEnCamino , &barcosEnCamino );
+    avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
+    procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
 
     while( jornada.estado == JUEGO_EN_CURSO )
     {
-
-        while( solicitarOperacionSTDIN( &operacion , config , &jornada) != INGRESO_CAD_EXIT )
+        if( solicitarOperacionSTDIN( &operacion, config, &jornada) == INGRESO_CAD_EXIT )
         {
-            procesarOperacion( &jornada , &operacion , config );
-            procesarLlegadas( &jornada , &camionesEnCamino , &barcosEnCamino );
+            jornada.estado = FIN_JUEGO;
         }
-
-        jornada.estado = FIN_JUEGO;
+        else
+        {
+            procesarOperacion( &jornada, &operacion, config );
+            procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
+        }
     }
 
     return TODO_OK;
