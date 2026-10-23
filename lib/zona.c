@@ -115,3 +115,47 @@ int compararZonaTopeContenedor( const void* elem_z, const void* elem_c )
     else
         return -1;
 }
+
+//Función callback que devuelve la disponibilidad de una zona de almacenamiento
+void obtenerDisponibilidadCB(void *zonaLista, const void *cantidadOcupado)
+{
+    tZona *zona = (tZona*)zonaLista;
+    *(unsigned*)cantidadOcupado = zona->cantidadOcupada;
+}
+
+//Funcion que devuelve el estado de ocupación de una zona: ZONA_LLENA (0) - ZONA_DISPONIBLE(1)
+int consultarDisponibilidadZona(tLista *plZonasAlmacenamiento, unsigned codZona, unsigned capacidadPila)
+{
+    unsigned cantidadOcupada = 0;
+    if(0 == codZona--)
+        return COD_ZONAS_MAL;
+    if(TODO_OK != actualizarNElemDeLista(plZonasAlmacenamiento, &cantidadOcupada, codZona, obtenerDisponibilidadCB))
+        return COD_ZONAS_MAL;
+    return cantidadOcupada==capacidadPila?ZONA_LLENA:(cantidadOcupada==0?ZONA_VACIA:ZONA_DISPONIBLE);
+}
+
+//Funcion callback que empila un contenedor a una zona de almacenamiento
+void apilarContenedorCB(void *zonaLista, const void *ctx)
+{
+    tZona       *zonaAlmacenamiento = (tZona*)zonaLista;
+    tContenedor *contenedor         = (tContenedor*)((const void**)ctx)[0];
+    unsigned    *error              = (unsigned*)((const void**)ctx)[1];
+    if(PILA_LLENA == ponerEnPila(&zonaAlmacenamiento->contenedores, contenedor, sizeof(tContenedor)))
+        *error = 1;
+    else
+        zonaAlmacenamiento->cantidadOcupada++;
+}
+
+//Funcion que agrega a una zona de almacenamiento un contenedor
+int agregarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned codZona, tContenedor contenedor, unsigned capacidadPila)
+{
+    unsigned error=0;
+    void *ptxCtx[2] = {&contenedor, &error};
+    if(0 == codZona--)
+        return COD_ZONAS_MAL;
+    if(ZONA_LLENA == consultarDisponibilidadZona(plZonasAlmacenamiento,codZona,capacidadPila))
+        return ZONA_LLENA;
+    if(TODO_OK != actualizarNElemDeLista(plZonasAlmacenamiento, &ptxCtx, codZona, apilarContenedorCB))
+        return COD_ZONAS_MAL;
+    return error?COD_ZONAS_MAL:COD_ZONAS_OK;
+}
