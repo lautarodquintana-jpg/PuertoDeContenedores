@@ -13,14 +13,18 @@ void procesarOperacion( tJornada* jornada, const tOperacion* ope, const tConfig*
 
     if( strcmp( ope->cod, "DES" ) == 0 )
     {
-        if( ejecutarDES(&jornada->muelles, &jornada->zonasAlmacenamiento, ope->codParametro_1, ope->codParametro_2, config->capPila) == TODO_OK )
-            jornada->tiempoActual += config->tiempoDeDescargaDeContenedor;
+        if( ejecutarDES(&jornada->muelles, &jornada->zonasAlmacenamiento, ope->codParametro_1, ope->codParametro_2, config->capPila, &jornada->puntajeActual) == TODO_OK )
+                jornada->tiempoActual += config->tiempoDeDescargaDeContenedor;
     }
 
     if( strcmp( ope->cod, "ENT" ) == 0 )
     {
-        //if( ejecutarENT() == TODO_OK )
+        if( ejecutarENT( &jornada->camiones, &jornada->zonasAlmacenamiento ) == TODO_OK )
+        {
             jornada->tiempoActual += config->tiempoDeCargaDeCamion;
+            jornada->puntajeActual += 10;
+        }
+
     }
 
     if( strcmp( ope->cod, "ESP" ) == 0 )
@@ -41,6 +45,7 @@ void ejecutarVER( tJornada* jornada )
 
     mostrarMuelles( &jornada->muelles );
     mostrarZonas( &jornada->zonasAlmacenamiento );
+    mostrarPrimerCamion( &jornada->camiones );
 
     printf("\n");
 }
@@ -48,7 +53,7 @@ void ejecutarVER( tJornada* jornada )
 /**El ultimo contenedor que se ingreso en el buque sera el que se ponga en
 la pila de la zona seleccionada.
 */
-int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , unsigned codZonaDes, unsigned capacidadPilaZona )
+int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , unsigned codZonaDes, unsigned capacidadPilaZona, unsigned* puntuacionActual )
 {
     tContenedor contenedor;
     int res = TODO_OK;
@@ -77,11 +82,17 @@ int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , un
     if( *contenedor.cod == '\0' )
         return PILA_LLENA;
 
-    res = quitarContenedorMuelle( plMuelles , codMuelleOri , &contenedor );
+    res = quitarContenedorMuelle( plMuelles , codMuelleOri , &contenedor, puntuacionActual );
     if( res != TODO_OK )
         return res;
 
     mostrarZonas( plZonas );
 
     return res;
+}
+
+//Se ejecuta la entrega del contenedor al primer camion de la cola
+int ejecutarENT( tCola* colaCamiones, tLista* plZonas )
+{
+    return realizarEntregaCamion( colaCamiones, plZonas );
 }

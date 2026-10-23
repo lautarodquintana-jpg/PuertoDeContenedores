@@ -102,6 +102,9 @@
 			<Option virtualFolder=".h/" />
 		</Unit>
 		<Unit filename="lib/proceso_operacion.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
 		<Unit filename="lib/proceso_operacion.h">
 			<Option virtualFolder=".h/" />
 		</Unit>

@@ -141,7 +141,7 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
         bufferChar[strcspn(bufferChar, "\n")] = '\0';
         aMayusculas(bufferChar);
 
-        if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config))
+        if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config, jornada))
         {
             codValidacion = validarOperacion(oppDest, config, jornada);
             if(INGRESO_OK == codValidacion)

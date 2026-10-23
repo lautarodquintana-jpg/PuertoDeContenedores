@@ -27,4 +27,11 @@ void apilarContenedorEnZona( void* pZona , const void* elem );
 void mostrarTopeContenedorPorZona( void* elem , const void *actualizador );
 void mostrarZonas( tLista *plZonas );
 
+///////
+void desapilarContenedorCB(void *zonaLista, const void *ctx);
+int retirarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned codZona, tContenedor *contenedorDest);
+int compararZonaTopeContenedor( const void* elem_z, const void* elem_c );
+int buscarCodZona( tLista *plZonasAlmacenamiento, const char* codContenedor );
+
+///////
 #endif // ZONA_H_INCLUDED

@@ -40,4 +40,6 @@ int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actu
 int sacarPrimerElementoDeLista( tLista* pl , void* elem , unsigned tamElem );
 int recorrerLista(tLista* pl, void *ctx, accion fx);
 
+int busquedaClavePosLista( const tLista* pl, const void* ctx, cmp comparacion );
+
 #endif // LISTASIMPLEMENTEENLAZADA_H_INCLUDED

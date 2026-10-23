@@ -34,7 +34,7 @@ int  liberarMuelle(tLista *plMuelles, unsigned codMuelle);               //Para 
 int tieneBarcoContenedores( tLista *plMuelles , unsigned codMuelle );
 int  obtenerContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor);
 void mostrarMuelles( tLista *plMuelles );
-int  quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor);      //Requiere las primitivas de tBarco, se deja para mas adelante ->
+int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor, unsigned* puntuacionActual); // Requiere primitivas de barco//Requiere las primitivas de tBarco, se deja para mas adelante ->
                                                                                                   //deberia retornar el tContenedor quitado o su codigo, y eliminarlo de barco (lista de contenedores)
                                                                                                   //Es la que se ejecutar acuando se haga DES
 #endif // MUELLE_H_INCLUDED

@@ -356,3 +356,19 @@ int recorrerLista(tLista* pl, void *ctx, accion fx)
     }
     return TODO_OK;
 }
+
+int busquedaClavePosLista( const tLista* pl, const void* ctx, cmp comparacion )
+{
+    int pos = 0;
+
+    while( *pl )
+    {
+        if( comparacion( (*pl)->info, ctx ) == 0 )
+            return pos;
+
+        pos++;
+        pl = &(*pl)->sig;
+    }
+
+    return NO_ENCONTRADO;
+}
