@@ -36,7 +36,7 @@ int procesarComandoSTDIN_validarPAR(const char *ordenParametros, char const **di
 int consultarTiempoRequeridoOperacion(const char *oppCod, tConfig *config);
 int construirMensajeOperacion(tOperacion *opp, char *buffer); //Para despues imprimir todos los mensajes en un .txt
 int obtenerNROOperacion(tOperacion *opp);
-
+void mostrarTipoOperaciones();
 //FUNCION PRINCIPAL:
     // Debe estar config inicializado, debe haber una variable tOperacion que almacene el valor parseado de la cadena. Orden de operandos estricto. Opcion exit (se puede quitar)
     // Lee la cadena y la convierte a mayuscula.

@@ -71,3 +71,15 @@ void obtenerPrimerContenedorDeBarco( void *ctx, const void* elem  )
     if( verPrimeroCola( &muelle->barco.contenedores , contenedor , sizeof(tContenedor) ) != OK )
         *contenedor->cod = '\0';
 }
+//Libera primero los contenedores de los barcos, y luego libera la lista
+void liberarListaDeBarcos(tLista *plBarcos)
+{
+    int i=0;
+    tBarco barco;
+    while(verNElem(plBarcos, i, &barco, sizeof(tBarco))==TODO_OK)
+    {
+        vaciarCola(&barco.contenedores);
+        i++;
+    }
+    vaciarLista(plBarcos);
+}

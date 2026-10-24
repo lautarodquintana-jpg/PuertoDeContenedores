@@ -21,14 +21,16 @@ enum COD_ZONAS{
 };
 
 void crearListaZonas( tLista* zonas );
-int generarZonas( tLista* zonas , unsigned cantZonas );
+int generarZonas( tLista* zonas , unsigned cantZonas , int largoMaxCodContenedor , int contenedoresApiladosMax);
 int actualizarZonaN( tLista *plZonas , unsigned codZona , const tContenedor* contenedor );
 int tieneZonaEspacio( tLista *plZonas , unsigned codZona , unsigned capacidadPila );
 void consultarCantidadOcupada(void *zonaLista, const void *actualizador);
 void apilarContenedorEnZona( void* pZona , const void* elem );
+void liberarZonasDeAlmacenamiento (tLista *zonas);
 
-void mostrarTopeContenedorPorZona( void* elem , const void *actualizador );
+void mostrarContenedoresdeZonaAlmacenamiento( void* elem , const void *actualizador );
 void mostrarZonas( tLista *plZonas );
+int mostrarCadContenedoresEnFormaDePilaRecursiva(const char *cad);
 
 ///////
 void desapilarContenedorCB(void *zonaLista, const void *ctx);
