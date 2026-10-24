@@ -12,5 +12,5 @@ void mostrarTopeContenedorBarcoEnMuelle( tLista* plMuelle, unsigned codMuelle );
 void quitarPrimerContenedorBarco( void *ctx, const void* elem  );
 void obtenerPrimerContenedorDeBarco( void *ctx, const void* elem  );
 void obtenerCantidadDeContenedoresRestantesBarco( void *ctx, const void* elem  );
-
+void liberarListaDeBarcos(tLista *plBarcos);
 #endif // BARCO_H_INCLUDED

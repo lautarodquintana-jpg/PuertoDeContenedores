@@ -43,7 +43,7 @@ void eliminarMuelles(tLista *plMuelles){
 void mostrarMuelleCB(void *ctx, const void *elem){
     tContenedor auxContenedor;
     tMuelle *muelle = (tMuelle*)elem;
-    printf("\n ||-> COD: %u - EST: %u - MA: %u - BUQUE: ",muelle->cod, muelle->estado, muelle->minutoArribo);
+    printf("\n ||-> COD: %u - ESTADO: %-10s - Minuto Arribo: %u - BUQUE: ",muelle->cod, muelle->estado==MUELLE_DISPONIBLE? "Disponible": "Ocupado", muelle->minutoArribo);
 
     if( *muelle->barco.cod != '\0' )
         printf("%s",muelle->barco.cod);

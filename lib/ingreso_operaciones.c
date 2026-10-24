@@ -129,6 +129,18 @@ int procesarComandoSTDIN_validarPAR(const char *ordenParametros, char const **di
     }
     return INGRESO_OK;
 }
+void mostrarTipoOperaciones()
+{
+    printf("%-21s %-30s", "Tipo de operacion", "Sintaxis de la operacion");//Titulo
+    printf("\n%-21s %-30s", "Descargar y almacenar", "DES M(Numero) Z(Numero)");
+    printf("\n%-21s %-30s", "Reubicar", "REU Z(Numero) Z(Numero)");
+    printf("\n%-21s %-30s", "Entregar a camion", "ENT");
+    printf("\n%-21s %-30s", "Ver estado", "VER");
+    printf("\n%-21s %-30s", "Esperar 1 minuto", "ESP");
+    printf("\n%-21s %-30s", "Salir del juego", "EXIT");
+    printf("\nNotas: \nZ= Zona de almacenamiento\nM= Muelle\nAl ingresar el numero de zona o muelle hagalo sin ()");
+    printf("\n");
+}
 
 int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jornada)
 {
@@ -136,6 +148,7 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
     int codValidacion;
 
     do{
+        mostrarTipoOperaciones();
         printf("\n |-> INGRESE OPERACION: ");
         fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
         bufferChar[strcspn(bufferChar, "\n")] = '\0';
