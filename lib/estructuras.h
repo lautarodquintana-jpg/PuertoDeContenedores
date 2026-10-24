@@ -77,6 +77,7 @@ typedef struct{
 	unsigned	cod;
 	unsigned 	cantidadOcupada;
 	tPila		contenedores;
+	char*       cadContenedoresApilados;
 }tZona;
 
 typedef struct{

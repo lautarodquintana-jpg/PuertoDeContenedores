@@ -1,6 +1,6 @@
 #include "jornada.h"
 
-int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino)
+int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino, int *largoMaxCodContenedor)
 {
     FILE *archPuerto;
     unsigned contadorBarcos, contadorCamiones;
@@ -41,6 +41,9 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
         while(barco.cantidadContenedoresRestante<barco.cantidadContenedoresTotal)//En cada iteracion cargamos un contenedor
         {
             sprintf(contenedor.cod, "C%u", 100*contadorBarcos+barco.cantidadContenedoresRestante);//Cargamos el contenedor en el buque
+            if(strlen(contenedor.cod)>(*largoMaxCodContenedor)) //Calculamos la mayor cantidad de caracteres que puede tener un contenedor}
+                *largoMaxCodContenedor=strlen(contenedor.cod);
+
             if(ponerEnCola(&barco.contenedores, &contenedor, sizeof(tContenedor))!=OK)
             {
                 fclose(archPuerto);
@@ -217,7 +220,7 @@ int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola, tLista* camiones
     return TODO_OK;
 }
 
-int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino, const tConfig* config )
+int prepararJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino , const tConfig* config , int largoMaxCodContenedor)
 {
     int ret = TODO_OK;
 
@@ -237,7 +240,7 @@ int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcos
         return ret;
     }
 
-    ret = generarZonas( &jornada->zonasAlmacenamiento, config->cantidadZonasDeAlmacenamiento );
+    ret = generarZonas( &jornada->zonasAlmacenamiento, config->cantidadZonasDeAlmacenamiento ,largoMaxCodContenedor, config->capPila );
     if( ret != COD_ZONAS_OK )
     {
         fprintf(stderr,"ERROR al generar zonas.");
@@ -250,18 +253,12 @@ int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcos
 
 void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
 {
-    vaciarLista(barcosEnCamino);
     vaciarLista(camionesEnCamino);
-
-    /**
-    FALTARIA:
-    - VACIAR LOS CONTENEDORES DE LOS BARCOS
-    - VACIAR CAMIONES EN LA COLA
-    - VACIAR LA PILA DE CONTENEDORES EN LAS ZONAS Y ZONAS
-    */
-
+    liberarListaDeBarcos(barcosEnCamino);
+    vaciarCola(&jornada->camiones);
+    liberarZonasDeAlmacenamiento(&jornada->zonasAlmacenamiento);
     eliminarMuelles(&jornada->muelles);
-
+    vaciarCola(&jornada->movimientos);
 }
 
 void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )

@@ -33,7 +33,7 @@ int main()
     ret=leerConfigTxt(&config, "config.txt");
     if(ret!=TODO_OK)
         return ret;
-    mostrarConfig(&config);
+    //mostrarConfig(&config);
 
     printf("Bienvenido a Container port simulator!");
     opcion=leerYValidarCharMenu();
@@ -48,7 +48,6 @@ int main()
             {
                 return ret;
             }
-            printf("A trabajar!\n");
             //IniciarJornada (coming soon)
             //ActualizarRanking (coming soon)
             //MostrarRanking (coming soon)
@@ -70,9 +69,9 @@ int jugar (tConfig *config, const char *nomUser)
     tOperacion operacion;
     //tCola historialOperaciones;
 
-    int ret;
+    int ret, largoMaxCodContenedor=0;
 
-    ret=inicializarValoresYGenerarPuertoTXT(config, &jornada, nomUser, &barcosEnCamino, &camionesEnCamino);
+    ret=inicializarValoresYGenerarPuertoTXT(config, &jornada, nomUser, &barcosEnCamino, &camionesEnCamino, &largoMaxCodContenedor);
 
     if(ret!=TODO_OK /*|| inicializarMuellesYZonas(&jornada, config)!=TODO_OK*/)
     {
@@ -83,8 +82,14 @@ int jugar (tConfig *config, const char *nomUser)
 
     getchar(); // Consumo salto de linea
     iniciarSesion( &jornada );
+    system("cls");//Borro la consola
 
-    prepararJornada( &jornada, &camionesEnCamino, &barcosEnCamino, config );
+    ret=prepararJornada( &jornada, &camionesEnCamino, &barcosEnCamino, config , largoMaxCodContenedor);
+    if(ret!=TODO_OK)
+    {
+        printf("\Error al generar la jornada\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la función
+        return ret;
+    }
 
     avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
     procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
@@ -100,6 +105,8 @@ int jugar (tConfig *config, const char *nomUser)
             procesarOperacion( &jornada, &operacion, config );
             procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
         }
+        system("pause");
+        system("cls");
     }
 
     return TODO_OK;

@@ -39,6 +39,13 @@
 		<Unit filename="TDA/ListaSimplementeEnlazada.h">
 			<Option virtualFolder="TDAs/" />
 		</Unit>
+		<Unit filename="TDA/arbol.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="TDAs/" />
+		</Unit>
+		<Unit filename="TDA/arbol.h">
+			<Option virtualFolder="TDAs/" />
+		</Unit>
 		<Unit filename="TDA/cola.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="TDAs/" />

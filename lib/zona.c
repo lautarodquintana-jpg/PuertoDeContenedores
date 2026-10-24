@@ -6,20 +6,33 @@ void crearListaZonas( tLista* zonas )
     crearLista( zonas );
 }
 
-int generarZonas( tLista* zonas , unsigned cantZonas )
+int generarZonas( tLista* zonas , unsigned cantZonas , int largoMaxCodContenedor , int contenedoresApiladosMax)
 {
     int i;
     tZona auxZona;
 
     auxZona.cantidadOcupada = 0;
+
     crearPila( &auxZona.contenedores );
 
     for( i = 0 ; i < cantZonas ; i++ )
     {
         auxZona.cod = i + 1;
+
+        auxZona.cadContenedoresApilados=malloc(sizeof(char)*largoMaxCodContenedor*contenedoresApiladosMax)+contenedoresApiladosMax+1;
+        //En la cadena guardaré: códigos de contenedores, el '\0' y el '\n' entre códigos
+        //Le sumo 1 para el '\0' y contenedoresApiladosMax para todos los '\n' que puedan aparecer
+
+        if(!auxZona.cadContenedoresApilados)
+        {
+            liberarZonasDeAlmacenamiento(zonas);
+            return COD_ZONAS_MAL;
+        }
+        auxZona.cadContenedoresApilados[0]='\0';
+
         if( insertarAlFinalDeLista(zonas,&auxZona,sizeof(tZona)) != TODO_OK )
         {
-            vaciarLista(zonas);
+            liberarZonasDeAlmacenamiento(zonas);
             return COD_ZONAS_MAL;
         }
     }
@@ -36,6 +49,9 @@ void apilarContenedorEnZona( void* pZona , const void* elem )
         *contenedor->cod = '\0';
     else
         zona->cantidadOcupada++;
+
+    strcat(zona->cadContenedoresApilados, contenedor->cod);
+    strcat(zona->cadContenedoresApilados, "\n");
 }
 
 void consultarCantidadOcupada(void *elem, const void *actualizador)
@@ -54,16 +70,16 @@ int tieneZonaEspacio( tLista *plZonas , unsigned codZona , unsigned capacidadPil
     return cantOcupada < capacidadPilaZona;
 }
 
-void mostrarTopeContenedorPorZona( void* elem , const void *actualizador )
+void mostrarContenedoresdeZonaAlmacenamiento( void* elem , const void *actualizador )
 {
     tZona* zona = (tZona*)actualizador;
-    tContenedor contenedor;
 
     printf("Z%u ",zona->cod);
-    if( verTope( &zona->contenedores , &contenedor , sizeof(tContenedor) ) == TODO_OK )
-        printf( "[%s]", contenedor.cod );
-    else
+    printf( "\nPila de contenedores: \n");
+    if( mostrarCadContenedoresEnFormaDePilaRecursiva(zona->cadContenedoresApilados) == 0 )//No hay contenedores apilados, sino los muestra
+    {
         printf( "[SIN CONTENEDORES]" );
+    }
 
     putchar('\n');
 }
@@ -71,22 +87,58 @@ void mostrarTopeContenedorPorZona( void* elem , const void *actualizador )
 void mostrarZonas( tLista *plZonas )
 {
     printf("\n\n=== ZONAS ===\n\n");
-    recorrerLista( plZonas , NULL , mostrarTopeContenedorPorZona );
+    recorrerLista( plZonas , NULL , mostrarContenedoresdeZonaAlmacenamiento );
 }
-
+int mostrarCadContenedoresEnFormaDePilaRecursiva(const char *cad)
+{
+    int largoHastaElBarraN;
+    if(*cad=='\0')
+        return 0;
+    else
+    {
+        largoHastaElBarraN=strchr(cad, '\n')-cad+1;
+        mostrarCadContenedoresEnFormaDePilaRecursiva(cad+largoHastaElBarraN);
+        printf("%*.*s", largoHastaElBarraN, largoHastaElBarraN, cad);
+        return 1;//Los return son utilizados para saber si encontré contenedores apilados o no
+    }
+}
 //Funcion callback para el desapilado de un contenedor de una zona de almacenamiento
 void desapilarContenedorCB(void *zonaLista, const void *ctx)
 {
+    char *aux;
     tZona       *zonaAlmacenamiento = (tZona*)zonaLista;
     tContenedor *contenedor         = (tContenedor*)((const void**)ctx)[0];
     unsigned    *error              = (unsigned*)((const void**)ctx)[1];
     if(PILA_VACIA == sacarDePila(&zonaAlmacenamiento->contenedores, contenedor, sizeof(tContenedor)))
         *error = PILA_VACIA;
     else
+    {
+        //Estructura de la cadena: codigo+'\n'+codigo+'\n'
+        //Si llegué hasta acá, se que aunque sea hay 1 contenedor apilado: pasan 2 cosas
+        //-Es el ultimo contenedor: hay 1 solo '\n'
+        //-Hay mas de 1 contenedor apilado: hay 2 o mas '\n'
+
+        aux=strrchr(zonaAlmacenamiento->cadContenedoresApilados, '\n');
+        *aux='\0';//Elimino el '\n' que está después del codigo a quitar
+
+        aux=strrchr(zonaAlmacenamiento->cadContenedoresApilados, '\n');
+        //Acá ocurre que devuelva nulo, entonces es el único contenedor en pila
+        //u ocurre que no devuelva nulo, entonces hay 2 o mas contenedores apilados
+
+        if(aux==NULL)//Es el ultimo contenedor apilado
+        {
+            zonaAlmacenamiento->cadContenedoresApilados[0]='\0';
+        }
+        else        //No es el último contenedor apilado
+        {
+            *(aux+1)='\0';
+        }
         zonaAlmacenamiento->cantidadOcupada--;
+    }
+
 }
 
-//Funcion que retira un contenedor de la pila de una zona de almacenamiento y la asignar a "tContendor *contenedorDest", variable de funcion llamadora
+//Funcion que retira un contenedor de la pila de una zona de almacenamiento y la asignar a "tContenedor *contenedorDest", variable de funcion llamadora
 int retirarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned codZona, tContenedor *contenedorDest)
 {
     unsigned error=0;
@@ -114,4 +166,19 @@ int compararZonaTopeContenedor( const void* elem_z, const void* elem_c )
         return strcmp( conteEnZona.cod, codContenedor );
     else
         return -1;
+}
+void liberarZonasDeAlmacenamiento (tLista *zonas)
+{
+    tZona aux;
+    int i=0;
+
+    //Primero libero la memoria reservada para las cadenas
+    while(verNElem(zonas, i, &aux, sizeof(tZona))==TODO_OK)
+    {
+        free(aux.cadContenedoresApilados);
+        vaciarPila(&aux.contenedores);
+        i++;
+    }
+
+    vaciarLista(zonas);
 }

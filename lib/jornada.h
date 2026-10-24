@@ -15,8 +15,8 @@
 #include "muelle.h"
 #include "zona.h"
 
-int prepararJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino , const tConfig* config );
-int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino);
+int prepararJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino , const tConfig* config , int largoMaxCodContenedor);
+int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino, int *largoMaxCodContenedor);
 int compararTiempos(const void *elem1, const void *elem2);
 int compararContenedores(const void *elem1, const void *elem2);
 int compararTiemposDeCamiones(const void *elem1, const void *elem2);
