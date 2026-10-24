@@ -211,3 +211,19 @@ int agregarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned 
         return COD_ZONAS_MAL;
     return error?COD_ZONAS_MAL:COD_ZONAS_OK;
 }
+
+void liberarZonasDeAlmacenamiento (tLista *zonas)
+{
+    tZona aux;
+    int i=0;
+
+    //Primero libero la memoria reservada para las cadenas
+    while(verNElem(zonas, i, &aux, sizeof(tZona))==TODO_OK)
+    {
+        free(aux.cadContenedoresApilados);
+        vaciarPila(&aux.contenedores);
+        i++;
+    }
+
+    vaciarLista(zonas);
+}
