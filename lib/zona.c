@@ -20,7 +20,7 @@ int generarZonas( tLista* zonas , unsigned cantZonas , int largoMaxCodContenedor
         auxZona.cod = i + 1;
 
         auxZona.cadContenedoresApilados=malloc(sizeof(char)*largoMaxCodContenedor*contenedoresApiladosMax)+contenedoresApiladosMax+1;
-        //En la cadena guardaré: códigos de contenedores, el '\0' y el '\n' entre códigos
+        //En la cadena guardarÃ©: cÃ³digos de contenedores, el '\0' y el '\n' entre cÃ³digos
         //Le sumo 1 para el '\0' y contenedoresApiladosMax para todos los '\n' que puedan aparecer
 
         if(!auxZona.cadContenedoresApilados)
@@ -99,7 +99,7 @@ int mostrarCadContenedoresEnFormaDePilaRecursiva(const char *cad)
         largoHastaElBarraN=strchr(cad, '\n')-cad+1;
         mostrarCadContenedoresEnFormaDePilaRecursiva(cad+largoHastaElBarraN);
         printf("%*.*s", largoHastaElBarraN, largoHastaElBarraN, cad);
-        return 1;//Los return son utilizados para saber si encontré contenedores apilados o no
+        return 1;//Los return son utilizados para saber si encontrÃ© contenedores apilados o no
     }
 }
 //Funcion callback para el desapilado de un contenedor de una zona de almacenamiento
@@ -114,22 +114,22 @@ void desapilarContenedorCB(void *zonaLista, const void *ctx)
     else
     {
         //Estructura de la cadena: codigo+'\n'+codigo+'\n'
-        //Si llegué hasta acá, se que aunque sea hay 1 contenedor apilado: pasan 2 cosas
+        //Si lleguÃ© hasta acÃ¡, se que aunque sea hay 1 contenedor apilado: pasan 2 cosas
         //-Es el ultimo contenedor: hay 1 solo '\n'
         //-Hay mas de 1 contenedor apilado: hay 2 o mas '\n'
 
         aux=strrchr(zonaAlmacenamiento->cadContenedoresApilados, '\n');
-        *aux='\0';//Elimino el '\n' que está después del codigo a quitar
+        *aux='\0';//Elimino el '\n' que estÃ¡ despuÃ©s del codigo a quitar
 
         aux=strrchr(zonaAlmacenamiento->cadContenedoresApilados, '\n');
-        //Acá ocurre que devuelva nulo, entonces es el único contenedor en pila
+        //AcÃ¡ ocurre que devuelva nulo, entonces es el Ãºnico contenedor en pila
         //u ocurre que no devuelva nulo, entonces hay 2 o mas contenedores apilados
 
         if(aux==NULL)//Es el ultimo contenedor apilado
         {
             zonaAlmacenamiento->cadContenedoresApilados[0]='\0';
         }
-        else        //No es el último contenedor apilado
+        else        //No es el Ãºltimo contenedor apilado
         {
             *(aux+1)='\0';
         }
@@ -167,18 +167,47 @@ int compararZonaTopeContenedor( const void* elem_z, const void* elem_c )
     else
         return -1;
 }
-void liberarZonasDeAlmacenamiento (tLista *zonas)
+
+//FunciÃ³n callback que devuelve la disponibilidad de una zona de almacenamiento
+void obtenerDisponibilidadCB(void *zonaLista, const void *cantidadOcupado)
 {
-    tZona aux;
-    int i=0;
+    tZona *zona = (tZona*)zonaLista;
+    *(unsigned*)cantidadOcupado = zona->cantidadOcupada;
+}
 
-    //Primero libero la memoria reservada para las cadenas
-    while(verNElem(zonas, i, &aux, sizeof(tZona))==TODO_OK)
-    {
-        free(aux.cadContenedoresApilados);
-        vaciarPila(&aux.contenedores);
-        i++;
-    }
+//Funcion que devuelve el estado de ocupaciÃ³n de una zona: ZONA_LLENA (0) - ZONA_DISPONIBLE(1)
+int consultarDisponibilidadZona(tLista *plZonasAlmacenamiento, unsigned codZona, unsigned capacidadPila)
+{
+    unsigned cantidadOcupada = 0;
+    if(0 == codZona--)
+        return COD_ZONAS_MAL;
+    if(TODO_OK != actualizarNElemDeLista(plZonasAlmacenamiento, &cantidadOcupada, codZona, obtenerDisponibilidadCB))
+        return COD_ZONAS_MAL;
+    return cantidadOcupada==capacidadPila?ZONA_LLENA:(cantidadOcupada==0?ZONA_VACIA:ZONA_DISPONIBLE);
+}
 
-    vaciarLista(zonas);
+//Funcion callback que empila un contenedor a una zona de almacenamiento
+void apilarContenedorCB(void *zonaLista, const void *ctx)
+{
+    tZona       *zonaAlmacenamiento = (tZona*)zonaLista;
+    tContenedor *contenedor         = (tContenedor*)((const void**)ctx)[0];
+    unsigned    *error              = (unsigned*)((const void**)ctx)[1];
+    if(PILA_LLENA == ponerEnPila(&zonaAlmacenamiento->contenedores, contenedor, sizeof(tContenedor)))
+        *error = 1;
+    else
+        zonaAlmacenamiento->cantidadOcupada++;
+}
+
+//Funcion que agrega a una zona de almacenamiento un contenedor
+int agregarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned codZona, tContenedor contenedor, unsigned capacidadPila)
+{
+    unsigned error=0;
+    void *ptxCtx[2] = {&contenedor, &error};
+    if(0 == codZona--)
+        return COD_ZONAS_MAL;
+    if(ZONA_LLENA == consultarDisponibilidadZona(plZonasAlmacenamiento,codZona,capacidadPila))
+        return ZONA_LLENA;
+    if(TODO_OK != actualizarNElemDeLista(plZonasAlmacenamiento, &ptxCtx, codZona, apilarContenedorCB))
+        return COD_ZONAS_MAL;
+    return error?COD_ZONAS_MAL:COD_ZONAS_OK;
 }

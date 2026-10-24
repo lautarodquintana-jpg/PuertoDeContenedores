@@ -14,7 +14,10 @@ enum COD_ZONAS{
     COD_ZONA_INCORRECTO   = -1,
     ZONA_NO_DISPO         = 0,
     ERROR_OBTENER_CANT_OCUPADA = -3,
-    ZONA_APILAR_CONTENEDOR_MAL = -4
+    ZONA_APILAR_CONTENEDOR_MAL = -4,
+    ZONA_LLENA      = -5,
+    ZONA_VACIA      = -6,
+    ZONA_DISPONIBLE = 2
 };
 
 void crearListaZonas( tLista* zonas );
@@ -36,4 +39,10 @@ int compararZonaTopeContenedor( const void* elem_z, const void* elem_c );
 int buscarCodZona( tLista *plZonasAlmacenamiento, const char* codContenedor );
 
 ///////
+int consultarDisponibilidadZona(tLista *plZonasAlmacenamiento, unsigned codZona, unsigned capacidadPila);
+void obtenerDisponibilidadCB(void *zonaLista, const void *cantidadOcupado);
+
+void apilarContenedorCB(void *zonaLista, const void *ctx);
+int agregarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned codZona, tContenedor contenedor, unsigned capacidadPila);
+
 #endif // ZONA_H_INCLUDED
