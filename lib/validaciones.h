@@ -16,7 +16,9 @@ enum VALIDACION{
     INGRESO_ZONAS_IGUALES         = -55,
     INGRESO_SIN_CAMION            = -60,
     INGRESO_CONTENEDOR_NO_EN_TOPE = -65,
-    INGRESO_ERROR_INTERNO         = -70
+    INGRESO_ERROR_INTERNO         = -70,
+    EXISTE_OPE_VALIDA             = -75,
+    NO_EXISTE_OPE_VALIDA          = -85
 };
 
 char leerYValidarCharMenu();
@@ -29,5 +31,6 @@ int  validarOperacion(const tOperacion *opp, tConfig *config, tJornada *jornada)
 
 void mostrarMotivoRechazo(int codigo);
 
+int existeOperacionValida( tConfig* config, tJornada* jornada );
 
 #endif // VALIDACIONES_H_INCLUDED

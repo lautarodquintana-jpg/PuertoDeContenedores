@@ -18,7 +18,7 @@ void ponerBarcosArribadosEnMuelles( tLista *plMuelles , tCola* barcosEnCola , un
     codMuelleDisponible = encontrarMuelleDisponible( *plMuelles );
     seEncontroBarco = verPrimeroCola( barcosEnCola , &barco , sizeof(tBarco) );
 
-    while( codMuelleDisponible != 0 && seEncontroBarco == OK && barco.arriboProgramado <= tiempoActual )
+    while( codMuelleDisponible != 0 && seEncontroBarco == OK )
     {
         if( sacarDeCola( barcosEnCola , &barco , sizeof(tBarco) ) != TODO_OK )
             return;
@@ -35,10 +35,10 @@ void mostrarTopeContenedorBarcoEnMuelle( tLista* plMuelle, unsigned codMuelle )
     tMuelle muelle;
     tContenedor contenedor;
 
-    if( verNElem( plMuelle , codMuelle , &muelle , sizeof(tMuelle) ) != TODO_OK )
+    if( verNElem( plMuelle , codMuelle , &muelle , sizeof(tMuelle) ) == TODO_OK )
     {
         barco = muelle.barco;
-        if( verPrimeroCola( &barco.contenedores , &contenedor , sizeof(tContenedor) ) != OK )
+        if( verPrimeroCola( &barco.contenedores , &contenedor , sizeof(tContenedor) ) == OK )
             printf("Cod. contenedor: %s\n",contenedor.cod);
     }
 }

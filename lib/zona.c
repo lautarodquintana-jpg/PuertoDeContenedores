@@ -6,7 +6,7 @@ void crearListaZonas( tLista* zonas )
     crearLista( zonas );
 }
 
-int generarZonas( tLista* zonas , unsigned cantZonas , int largoMaxCodContenedor , int contenedoresApiladosMax)
+int generarZonas( tLista* zonas, unsigned cantZonas, int largoMaxCodContenedor, int contenedoresApiladosMax)
 {
     int i;
     tZona auxZona;
@@ -40,12 +40,12 @@ int generarZonas( tLista* zonas , unsigned cantZonas , int largoMaxCodContenedor
 }
 
 
-void apilarContenedorEnZona( void* pZona , const void* elem )
+void apilarContenedorEnZona( void* pZona, const void* elem )
 {
     tZona* zona = (tZona*)pZona;
     tContenedor* contenedor = (tContenedor*)elem;
 
-    if( ponerEnPila( &zona->contenedores , contenedor , sizeof(tContenedor) ) != TODO_OK )
+    if( ponerEnPila( &zona->contenedores, contenedor, sizeof(tContenedor) ) != TODO_OK )
         *contenedor->cod = '\0';
     else
         zona->cantidadOcupada++;
@@ -61,16 +61,16 @@ void consultarCantidadOcupada(void *elem, const void *actualizador)
     *cantOcupada = zona->cantidadOcupada;
 }
 
-int tieneZonaEspacio( tLista *plZonas , unsigned codZona , unsigned capacidadPilaZona )
+int tieneZonaEspacio( tLista *plZonas, unsigned codZona, unsigned capacidadPilaZona )
 {
     unsigned cantOcupada = 0;
-    if( actualizarNElemDeLista( plZonas , &cantOcupada , codZona , consultarCantidadOcupada ) != TODO_OK )
+    if( actualizarNElemDeLista( plZonas, &cantOcupada, codZona, consultarCantidadOcupada ) != TODO_OK )
         return ERROR_OBTENER_CANT_OCUPADA;
 
     return cantOcupada < capacidadPilaZona;
 }
 
-void mostrarContenedoresdeZonaAlmacenamiento( void* elem , const void *actualizador )
+void mostrarContenedoresdeZonaAlmacenamiento( void* elem, const void *actualizador )
 {
     tZona* zona = (tZona*)actualizador;
 
@@ -87,7 +87,7 @@ void mostrarContenedoresdeZonaAlmacenamiento( void* elem , const void *actualiza
 void mostrarZonas( tLista *plZonas )
 {
     printf("\n\n=== ZONAS ===\n\n");
-    recorrerLista( plZonas , NULL , mostrarContenedoresdeZonaAlmacenamiento );
+    recorrerLista( plZonas, NULL, mostrarContenedoresdeZonaAlmacenamiento );
 }
 int mostrarCadContenedoresEnFormaDePilaRecursiva(const char *cad)
 {
@@ -195,7 +195,11 @@ void apilarContenedorCB(void *zonaLista, const void *ctx)
     if(PILA_LLENA == ponerEnPila(&zonaAlmacenamiento->contenedores, contenedor, sizeof(tContenedor)))
         *error = 1;
     else
+    {
         zonaAlmacenamiento->cantidadOcupada++;
+        strcat(zonaAlmacenamiento->cadContenedoresApilados, contenedor->cod);
+        strcat(zonaAlmacenamiento->cadContenedoresApilados, "\n");
+    }
 }
 
 //Funcion que agrega a una zona de almacenamiento un contenedor

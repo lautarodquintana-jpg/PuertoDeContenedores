@@ -171,18 +171,30 @@ void actualizarBarco(void *actualizado, const void *actualizador)
     barcoActualizado->contenedores=barcoActualizador->contenedores;
 }
 
-void avanzarTiempoHastaEventoFuturo( tJornada* jornada, const tLista* camionesEnCamino, const tLista* barcosEnCamino )
+int avanzarTiempoHastaEventoFuturo( tJornada* jornada, const tLista* camionesEnCamino, const tLista* barcosEnCamino )
 {
     tCamion camion;
     tBarco barco;
+    unsigned tiempoPrimerEvento = 0, existeEvento = 0;
 
-    verNElem( (tLista*)camionesEnCamino, 0, &camion, sizeof(tCamion) );
-    verNElem( (tLista*)barcosEnCamino, 0, &barco, sizeof(tBarco) );
+    if( verNElem( (tLista*)camionesEnCamino, 0, &camion, sizeof(tCamion) ) == TODO_OK )
+    {
+        tiempoPrimerEvento = camion.minutoRetiro;
+        existeEvento = 1;
+    }
 
-    if( camion.minutoRetiro < barco.arriboProgramado )
-        jornada->tiempoActual = camion.minutoRetiro;
-    else
+    if( verNElem( (tLista*)barcosEnCamino, 0, &barco, sizeof(tBarco) ) == TODO_OK)
+    {
+        if( existeEvento == 0 || barco.arriboProgramado < tiempoPrimerEvento )
+        tiempoPrimerEvento = barco.arriboProgramado;
+    }
+
+    if( existeEvento != 0 )
+    {
         jornada->tiempoActual = barco.arriboProgramado;
+        return TIEMPO_AVANZADO;
+    }
+    return TIEMPO_NO_AVANZADO;
 }
 
 int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola, tLista* camionesEnCamino, tLista* barcosEnCamino, unsigned tiempoActual )
@@ -197,7 +209,8 @@ int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola, tLista* camiones
         if( res != TODO_OK )
             return res;
 
-        if( ponerEnCola( camionesEnCola, &camion, sizeof(tCamion) ) != TODO_OK )
+        res = ponerEnCola( camionesEnCola, &camion, sizeof(tCamion) );
+        if( res != TODO_OK )
             return res;
     }
 
@@ -206,26 +219,27 @@ int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola, tLista* camiones
     {
         res = sacarPrimerElementoDeLista( barcosEnCamino, &barco, sizeof(tBarco) );
         if( res != TODO_OK )
-        {
             return res;
-        }
 
-        if( ponerEnCola( barcosEnCola, &barco, sizeof(tBarco) ) != TODO_OK )
-        {
+        res = ponerEnCola( barcosEnCola, &barco, sizeof(tBarco) );
+        if( res != TODO_OK )
             return res;
-        }
+
         res = verNElem( barcosEnCamino, 0, &barco, sizeof(tBarco) );
     }
 
     return TODO_OK;
 }
 
-int prepararJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino , const tConfig* config , int largoMaxCodContenedor)
+int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino, const tConfig* config, int largoMaxCodContenedor)
 {
     int ret = TODO_OK;
 
     jornada->estado = JUEGO_EN_CURSO;
     jornada->puntajeActual = 0;
+    jornada->cantOperaciones.cantDescargas = 0;
+    jornada->cantOperaciones.cantEntregas = 0;
+    jornada->cantOperaciones.cantReubic = 0;
 
     crearCola( &jornada->camiones );
     crearCola( &jornada->barcosEspera );
@@ -240,7 +254,7 @@ int prepararJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barc
         return ret;
     }
 
-    ret = generarZonas( &jornada->zonasAlmacenamiento, config->cantidadZonasDeAlmacenamiento ,largoMaxCodContenedor, config->capPila );
+    ret = generarZonas( &jornada->zonasAlmacenamiento, config->cantidadZonasDeAlmacenamiento,largoMaxCodContenedor, config->capPila );
     if( ret != COD_ZONAS_OK )
     {
         fprintf(stderr,"ERROR al generar zonas.");
@@ -265,5 +279,21 @@ void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barc
 {
     procesarTiempo( &jornada->camiones, &jornada->barcosEspera, camionesEnCamino, barcosEnCamino, jornada->tiempoActual );
     ponerBarcosArribadosEnMuelles( &jornada->muelles, &jornada->barcosEspera, jornada->tiempoActual );
-    ponerCamionesArribadosEnCola( &jornada->camiones, camionesEnCamino, jornada->tiempoActual );
+}
+
+void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned cantCamionesPend, unsigned puntuacionFinal, const char* nomOpera )
+{
+    printf("\n\tRESUMEN DE LA JORNADA\n");
+    printf("\n\tOPERADOR: %s\n", nomOpera);
+    printf("TIEMPO DE LA JORNADA: %u de %u MINUTOS\n", tiempoJornada, tiempoDispo);
+    printf("BUQUES DESCARGADOS EN SU TOTALIDAD: %u -> %u PUNTOS\n", cantDesc, cantDesc * PUNTOS_DESCA_TOTAL);
+    printf("CONTENEDORES ENTREGADOS: %u -> %u PUNTOS\n", cantEntre, cantEntre * PUNTOS_ENTREGA);
+    printf("REUBICACIONES REALIZADAS: %u\n", cantReubi);
+    /**
+
+    FALTARIA:
+    printf("CAMIONES QUE QUEDARON PENDIENTES: %u -> %u PUNTOS\n", cantCamionesPend, cantCamionesPend * PUNTOS_PENALIZACION);
+
+    */
+    printf("PUNTUACION FINAL: %u PUNTOS\n", puntuacionFinal);
 }

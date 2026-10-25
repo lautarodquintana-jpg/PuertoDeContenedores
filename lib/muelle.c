@@ -147,7 +147,7 @@ int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* c
     if( !tieneBarcoContenedores( plMuelles , codMuelle ) )
     {
         liberarMuelle( plMuelles , codMuelle );
-        *puntuacionActual += 5;
+        *puntuacionActual += PUNTOS_DESCA_TOTAL;
     }
 
     return TODO_OK;

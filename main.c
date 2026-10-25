@@ -54,7 +54,7 @@ int main()
             break;
         case 'V':
             if( mostrarRanking() != TODO_OK )
-                fprintf(stderr,"\nERROR al mostrar ranking.");
+                fprintf(stderr,"\n\t | ERROR AL MOSTRAR RANKING.\n");
             break;
         }
         opcion=leerYValidarCharMenu();
@@ -87,7 +87,7 @@ int jugar (tConfig *config, const char *nomUser)
     ret=prepararJornada( &jornada, &camionesEnCamino, &barcosEnCamino, config , largoMaxCodContenedor);
     if(ret!=TODO_OK)
     {
-        printf("\Error al generar la jornada\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la función
+        printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la función
         return ret;
     }
 
@@ -96,7 +96,14 @@ int jugar (tConfig *config, const char *nomUser)
 
     while( jornada.estado == JUEGO_EN_CURSO )
     {
-        if( solicitarOperacionSTDIN( &operacion, config, &jornada) == INGRESO_CAD_EXIT )
+        while( !existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
+            procesarLlegadas(&jornada, &camionesEnCamino, &barcosEnCamino);
+
+        if( existeOperacionValida( config, &jornada ) == NO_EXISTE_OPE_VALIDA )
+        {
+            jornada.estado = FIN_JUEGO;
+        } // Primero verificamos que haya tiempo
+        else if( solicitarOperacionSTDIN( &operacion, config, &jornada) == INGRESO_CAD_EXIT )
         {
             jornada.estado = FIN_JUEGO;
         }
@@ -108,6 +115,8 @@ int jugar (tConfig *config, const char *nomUser)
         system("pause");
         system("cls");
     }
+
+    mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, 0, jornada.puntajeActual, jornada.user );
 
     return TODO_OK;
 }

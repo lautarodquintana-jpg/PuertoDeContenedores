@@ -1,24 +1,5 @@
 #include "camion.h"
 
-// Se ingresan los camiones en la cola a partir del tiempo de arribo
-int ponerCamionesArribadosEnCola( tCola* camionesEnCola , tLista* camionesEnCamino , unsigned tiempoActual )
-{
-    tCamion camion;
-    int hayCamionEnLista = verNElem( camionesEnCamino , 0, &camion , sizeof(tCamion) );
-
-    while( hayCamionEnLista == OK && camion.minutoRetiro <= tiempoActual )
-    {
-        sacarPrimerElementoDeLista( camionesEnCamino , &camion , sizeof(tCamion) );
-
-        if( ponerEnCola( camionesEnCola, &camion, sizeof(tCamion) ) != TODO_OK )
-            return ENCOLAR_CAMION_MAL;
-
-        hayCamionEnLista = verNElem( camionesEnCamino , 0, &camion , sizeof(tCamion) );
-    }
-
-    return COD_CAMION_OK;
-}
-
 // Mostrar datos del camion recibido
 void mostrarCamion( const void* elem )
 {

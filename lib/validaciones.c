@@ -127,3 +127,43 @@ void mostrarMotivoRechazo(int codigo)
     }
 }
 
+int existeOperacionValida( tConfig* config, tJornada* jornada )
+{
+    tOperacion ope;
+    unsigned i,j;
+
+    // Se comprueba si ENT (entrega) es una operacion que se puede ejecutar
+    strcpy( ope.cod, "ENT" );
+    ope.codParametro_1 = 0;
+    ope.codParametro_2 = 0;
+    if( validarOperacion( &ope, config, jornada ) == INGRESO_OK )
+        return EXISTE_OPE_VALIDA;
+
+    // Se comprueba si DES (descarga) es una operacion que se puede ejecutar
+    strcpy( ope.cod, "DES" );
+    for( i = 1 ; i < config->cantidadMuelles ; i++ )
+    {
+        for( j = 1 ; j < config->cantidadZonasDeAlmacenamiento ; j++ )
+        {
+            ope.codParametro_1 = i;
+            ope.codParametro_2 = j;
+            if( validarOperacion( &ope, config, jornada ) == INGRESO_OK )
+                return EXISTE_OPE_VALIDA;
+        }
+    }
+
+    // Se comprueba si REU (reubicacion) es una operacion que se puede ejecutar
+    strcpy( ope.cod, "REU" );
+    for( i = 1 ; i < config->cantidadZonasDeAlmacenamiento ; i++ )
+    {
+        for( j = 1 ; j < config->cantidadZonasDeAlmacenamiento ; j++ )
+        {
+            ope.codParametro_1 = i;
+            ope.codParametro_2 = j;
+            if( validarOperacion( &ope, config, jornada ) == INGRESO_OK )
+                return EXISTE_OPE_VALIDA;
+        }
+    }
+
+    return NO_EXISTE_OPE_VALIDA;
+}

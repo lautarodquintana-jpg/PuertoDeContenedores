@@ -15,15 +15,21 @@
 #include "muelle.h"
 #include "zona.h"
 
+enum COD_JORNADA{
+    TIEMPO_AVANZADO    = -300,
+    TIEMPO_NO_AVANZADO = -305
+};
+
 int prepararJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino , const tConfig* config , int largoMaxCodContenedor);
 int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino, int *largoMaxCodContenedor);
 int compararTiempos(const void *elem1, const void *elem2);
 int compararContenedores(const void *elem1, const void *elem2);
 int compararTiemposDeCamiones(const void *elem1, const void *elem2);
 void actualizarBarco(void *actualizado, const void *actualizador);
-void avanzarTiempoHastaEventoFuturo( tJornada* jornada , const tLista* camionesEnCamino , const tLista* barcosEnCamino );
+int avanzarTiempoHastaEventoFuturo( tJornada* jornada , const tLista* camionesEnCamino , const tLista* barcosEnCamino );
 int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola , tLista* camionesEnCamino, tLista* barcosEnCamino , unsigned tiempoActual );
 void procesarLlegadas( tJornada* jornada , tLista* camionesEnCamino, tLista* barcosEnCamino );
 void liberarJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino );
+void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned cantCamionesPend, unsigned puntuacionFinal, const char* nomOpera );
 
 #endif // JORNADA_H_INCLUDED
