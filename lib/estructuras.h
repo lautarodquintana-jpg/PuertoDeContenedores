@@ -12,6 +12,9 @@
 
 #define JUEGO_EN_CURSO 70
 #define FIN_JUEGO 75
+#define PUNTOS_ENTREGA       10
+#define PUNTOS_DESCA_TOTAL    5
+#define PUNTOS_PENALIZACION   2
 
 #define TAM_BUFFER_STDIN_OPP 100
 #define TAM_BUFFER_OPP 10
@@ -30,9 +33,15 @@ typedef struct
 	unsigned tiempoDeCargaDeCamion;
 }tConfig;
 
+typedef struct
+{
+    unsigned cantDescargas;
+    unsigned cantEntregas;
+    unsigned cantReubic;
+}tCantidad;
+
 typedef struct{
 	char 		user[TAM_USER];
-	unsigned	tiempoTotal;
 	unsigned 	tiempoActual;
 	unsigned 	puntajeActual;
 
@@ -44,6 +53,8 @@ typedef struct{
 
 	tCola		barcosEspera;
 	tCola		camiones;
+
+    tCantidad   cantOperaciones;
 
 	unsigned 	estado;
 }tJornada;

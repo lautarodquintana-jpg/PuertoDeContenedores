@@ -8,13 +8,19 @@ void procesarOperacion( tJornada* jornada, const tOperacion* ope, const tConfig*
     if( strcmp( ope->cod, "REU" ) == 0 )
     {
         if( ejecutarREU( &jornada->zonasAlmacenamiento, ope->codParametro_1, ope->codParametro_2, config->cantidadZonasDeAlmacenamiento ) == TODO_OK )
+        {
             jornada->tiempoActual += config->tiempoDeReubicacionDeContenedor;
+            jornada->cantOperaciones.cantReubic++;
+        }
     }
 
     if( strcmp( ope->cod, "DES" ) == 0 )
     {
         if( ejecutarDES(&jornada->muelles, &jornada->zonasAlmacenamiento, ope->codParametro_1, ope->codParametro_2, config->capPila, &jornada->puntajeActual) == TODO_OK )
-                jornada->tiempoActual += config->tiempoDeDescargaDeContenedor;
+        {
+            jornada->tiempoActual += config->tiempoDeDescargaDeContenedor;
+            jornada->cantOperaciones.cantDescargas++;
+        }
     }
 
     if( strcmp( ope->cod, "ENT" ) == 0 )
@@ -22,9 +28,9 @@ void procesarOperacion( tJornada* jornada, const tOperacion* ope, const tConfig*
         if( ejecutarENT( &jornada->camiones, &jornada->zonasAlmacenamiento ) == TODO_OK )
         {
             jornada->tiempoActual += config->tiempoDeCargaDeCamion;
-            jornada->puntajeActual += 10;
+            jornada->puntajeActual += PUNTOS_ENTREGA;
+            jornada->cantOperaciones.cantEntregas++;
         }
-
     }
 
     if( strcmp( ope->cod, "ESP" ) == 0 )
@@ -106,6 +112,8 @@ int ejecutarREU( tLista* plZonasAlmacenamiento, unsigned codZonaOri, unsigned co
         fprintf(stderr,"\n\t | ERROR AL AGREGAR CONTENEDOR DE ZONA %u |\n",codZonaDes);
         return COD_ZONAS_MAL;
     }
+
+    mostrarZonas( plZonasAlmacenamiento );
 
     return TODO_OK;
 }
