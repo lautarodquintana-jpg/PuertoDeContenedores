@@ -21,7 +21,8 @@ enum COD_JORNADA{
 };
 
 int prepararJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino , const tConfig* config , int largoMaxCodContenedor);
-int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino, int *largoMaxCodContenedor);
+int generarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, int *largoMaxCodContenedor);
+int cargarPuertoTxt(tJornada *jornada, tConfig *config, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino);
 int compararTiempos(const void *elem1, const void *elem2);
 int compararContenedores(const void *elem1, const void *elem2);
 int compararTiemposDeCamiones(const void *elem1, const void *elem2);

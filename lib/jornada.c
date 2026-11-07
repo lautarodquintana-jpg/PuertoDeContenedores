@@ -1,6 +1,6 @@
 #include "jornada.h"
 
-int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino, int *largoMaxCodContenedor)
+int generarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, int *largoMaxCodContenedor)
 {
     FILE *archPuerto;
     unsigned contadorBarcos, contadorCamiones;
@@ -8,14 +8,16 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
     tCamion camion;
     tContenedor contenedor;
     tCola colaAuxContenedores;
+    tLista listaBarcosEnCamino, listaCamionesEnCamino;
+
     int i;
 
     archPuerto=fopen("puerto.txt", "wt");
     if(!archPuerto)
         return ERROR_ARCHIVO;
 
-    crearLista(listaBarcosEnCamino);
-    crearLista(listaCamionesEnCamino);
+    crearLista(&listaBarcosEnCamino);
+    crearLista(&listaCamionesEnCamino);
     crearCola(&colaAuxContenedores);
 
     fprintf(archPuerto, "JORNADA:%u\n", config->duracionMinutosdeJornada);
@@ -48,16 +50,16 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
             {
                 fclose(archPuerto);
                 vaciarCola(&barco.contenedores);
-                vaciarLista(listaBarcosEnCamino);
+                liberarListaDeBarcos(&listaBarcosEnCamino);
                 return COLA_LLENA;
             }
             barco.cantidadContenedoresRestante++;
         }
-        if(insertarOrdenadoenLista(listaBarcosEnCamino, &barco, sizeof(tBarco), compararTiempos, 1, NULL)!=TODO_OK)
+        if(insertarOrdenadoenLista(&listaBarcosEnCamino, &barco, sizeof(tBarco), compararTiempos, 1, NULL)!=TODO_OK)
         {
             fclose(archPuerto);
             vaciarCola(&barco.contenedores);
-            vaciarLista(listaBarcosEnCamino);
+            liberarListaDeBarcos(&listaBarcosEnCamino);
             return SINMEM;
         }
 
@@ -66,7 +68,7 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
 
     i=0;
     contadorCamiones=0;
-    while(verNElem(listaBarcosEnCamino, i, &barco, sizeof(tBarco))==TODO_OK) //Ya tenemos cargados los buques ordenados por tiempo, escribimos puerto.txt
+    while(verNElem(&listaBarcosEnCamino, i, &barco, sizeof(tBarco))==TODO_OK) //Ya tenemos cargados los buques ordenados por tiempo, escribimos puerto.txt
     {
         fprintf(archPuerto, "%s;T=%u;C=", barco.cod, barco.arriboProgramado);
         while(sacarDeCola(&barco.contenedores, &contenedor, sizeof(tContenedor))==OK)
@@ -76,8 +78,7 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
             {
                 fclose(archPuerto);
                 vaciarCola(&barco.contenedores);
-                vaciarLista(listaBarcosEnCamino);
-                vaciarCola(&barco.contenedores);
+                liberarListaDeBarcos(&listaBarcosEnCamino);
                 vaciarCola(&colaAuxContenedores);
                 return COLA_LLENA;
             }
@@ -96,14 +97,13 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
                 sprintf(camion.cod, "K%u", contadorCamiones);
                 strcpy(camion.codContenedorRetirar, contenedor.cod);
 
-                if(insertarOrdenadoenLista(listaCamionesEnCamino, &camion, sizeof(tCamion), compararTiemposDeCamiones, 1, NULL)!=TODO_OK)
+                if(insertarOrdenadoenLista(&listaCamionesEnCamino, &camion, sizeof(tCamion), compararTiemposDeCamiones, 1, NULL)!=TODO_OK)
                 {
                     fclose(archPuerto);
                     vaciarCola(&barco.contenedores);
-                    vaciarLista(listaBarcosEnCamino);
-                    vaciarCola(&barco.contenedores);
+                    liberarListaDeBarcos(&listaBarcosEnCamino);
                     vaciarCola(&colaAuxContenedores);
-                    return COLA_LLENA;
+                    return SINMEM;
                 }
                 contadorCamiones++;
             }
@@ -111,18 +111,16 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
             {
                 fclose(archPuerto);
                 vaciarCola(&barco.contenedores);
-                vaciarLista(listaBarcosEnCamino);
-                vaciarCola(&barco.contenedores);
+                liberarListaDeBarcos(&listaBarcosEnCamino);
                 vaciarCola(&colaAuxContenedores);
                 return COLA_LLENA;
             }
         }
-        if(actualizarNElemDeLista(listaBarcosEnCamino, &barco, i, actualizarBarco)!=TODO_OK)
+        if(actualizarNElemDeLista(&listaBarcosEnCamino, &barco, i, actualizarBarco)!=TODO_OK)
         {
             fclose(archPuerto);
             vaciarCola(&barco.contenedores);
-            vaciarLista(listaBarcosEnCamino);
-            vaciarCola(&barco.contenedores);
+            liberarListaDeBarcos(&listaBarcosEnCamino);
             vaciarCola(&colaAuxContenedores);
             return NO_ENCONTRADO;
         }
@@ -134,10 +132,139 @@ int inicializarValoresYGenerarPuertoTXT(tConfig *config, tJornada *jornada, cons
 
     fprintf(archPuerto, "\n[CAMIONES]\n");
     i=0;
-    while(verNElem(listaCamionesEnCamino, i, &camion, sizeof(tCamion))==TODO_OK)
+    while(verNElem(&listaCamionesEnCamino, i, &camion, sizeof(tCamion))==TODO_OK)
     {
         fprintf(archPuerto, "%s;T=%u;C=%s\n", camion.cod, camion.minutoRetiro, camion.codContenedorRetirar);
         i++;
+    }
+
+    liberarListaDeBarcos(&listaBarcosEnCamino);
+    vaciarLista(&listaCamionesEnCamino);
+    fclose(archPuerto);
+    return TODO_OK;
+}
+int cargarPuertoTxt(tJornada *jornada, tConfig *config, tLista *listaBarcosEnCamino, tLista *listaCamionesEnCamino)
+{
+    int todosLosBuquesProcesados=0;
+    FILE *archPuerto=fopen("puerto.txt", "rt");
+    tBarco barco;
+    tCamion camion;
+    tContenedor contenedor;
+    char *aux, *auxParaCalculo, linea[TAM_LINEAMAX_PUERTOTXT], *retFgets;
+
+
+    if(!archPuerto)
+        return ERROR_ARCHIVO;
+
+    crearLista(listaBarcosEnCamino);
+    crearLista(listaCamionesEnCamino);
+    //Que hace esta funcion? Inicializa zonaAlmacenamiento, muelles y carga en lista lo que hay en puerto txt
+    //Primeras lineas: ya estan cargadas en jornada, pero estaría bueno cargarlas de nuevo....
+
+    fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);//La cantidad minutos ya está cargada en config
+    fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);//La cantidad de muelles ya está cargada en config
+    fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);//La cantidad de zonas ya está cargada en config
+    fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);//La capacidad de pila ya está cargada en config
+    fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);//Consumo el renglón vacío
+    fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);//Consumo la linea [BUQUES]
+
+    //A partir de acá cargo los buques mientras el largo de linea sea != de cero. Si es cero, pasamos a camiones
+    retFgets=fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);
+    while(retFgets && todosLosBuquesProcesados==0)
+    {
+        aux=strchr(linea, '\n');
+        if(aux)
+            *aux='\0';
+        if(strlen(linea)==0)//Procesamos todos los buques
+            todosLosBuquesProcesados=1;
+        else
+        {
+            crearCola(&barco.contenedores);
+            barco.cantidadContenedoresTotal=0;
+            aux=strrchr(linea, ';');//Buscamos la ultima aparicion  del ';', luego le sigue C
+            *aux='\0';
+            aux=aux+3;//Omitmimos ";C="
+            while(aux)
+            {
+                barco.cantidadContenedoresTotal++;
+
+                auxParaCalculo=strchr(aux, ',');//Busco la siguiente ',' para calcular la cantidad de caracteres a copiar
+                if(auxParaCalculo)
+                {
+                    strncpy(contenedor.cod, aux, auxParaCalculo-aux);
+                    *(auxParaCalculo+1)='\0';
+                    //Al hacer la resta con punteros, se la cantidad de caracteres que le pertenecen a este contenedor
+                    aux=auxParaCalculo+1;//Me posiciono en el siguiente contenedor
+                }
+                else//Es el ultimo contenedor
+                {
+                    strcpy(contenedor.cod, aux);
+                    aux=NULL;
+                }
+                if(ponerEnCola(&barco.contenedores, &contenedor, sizeof(tContenedor))!=OK)
+                {
+                    liberarListaDeBarcos(listaBarcosEnCamino);
+                    vaciarCola(&barco.contenedores);
+                    fclose(archPuerto);
+                    return COLA_LLENA;
+                }
+            }
+            barco.cantidadContenedoresRestante=barco.cantidadContenedoresTotal;
+            //Ya tenemos cargados los contenedores del barco
+
+            aux=strchr(linea, '=');
+            sscanf(aux+1, "%u", &barco.arriboProgramado);
+
+            aux=strchr(linea, ';');
+            *aux='\0';
+            strcpy(barco.cod, linea);
+        }
+        if(todosLosBuquesProcesados==0)
+        {
+            if(insertarAlFinalDeLista(listaBarcosEnCamino, &barco, sizeof(tBarco))!=TODO_OK)
+            {
+                liberarListaDeBarcos(listaBarcosEnCamino);
+                vaciarCola(&barco.contenedores);
+                fclose(archPuerto);
+                return SINMEM;
+            }
+        }
+
+        retFgets=fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto);
+        //Aca puede ocurrir que:-Obtengamos la siguiente linea de otro barco
+        //                      -Consumamos el renglón vacío que precede a la línea de camiones y luego el de camiones
+    }
+
+    //Como ya tenemos consumido el renglón [CAMIONES], leemos normalmente
+    while(fgets(linea, TAM_LINEAMAX_PUERTOTXT, archPuerto))
+    {
+        aux=strrchr(linea, '\n');
+        if(aux)
+            *aux='\0';
+        if(strlen(linea)!=0)//Si no es la última línea que no posee nada
+        {
+            aux=strrchr(linea, 'C');//Busca la última C
+            strcpy(camion.codContenedorRetirar, aux);//Cargamos el contenedor
+
+            aux=strrchr(linea, ';');
+            *aux='\0';
+
+            aux=strchr(linea, '=');
+            sscanf(aux+1, "%u", &camion.minutoRetiro);//Cargamos el minuto de retiro
+
+            aux=strrchr(linea, ';');
+            *aux='\0';
+
+            strcpy(camion.cod, linea);
+            if(insertarAlFinalDeLista(listaCamionesEnCamino, &camion, sizeof(tCamion))!=TODO_OK)
+            {
+                liberarListaDeBarcos(listaBarcosEnCamino);
+                vaciarLista(listaCamionesEnCamino);
+                fclose(archPuerto);
+                return SINMEM;
+            }
+        }
+
     }
 
     fclose(archPuerto);

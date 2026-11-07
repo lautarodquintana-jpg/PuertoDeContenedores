@@ -41,12 +41,13 @@ void eliminarMuelles(tLista *plMuelles){
 
 //Funcion callback para mostrar un muelle
 void mostrarMuelleCB(void *ctx, const void *elem){
-    tContenedor auxContenedor;
     tMuelle *muelle = (tMuelle*)elem;
     printf("\n ||-> COD: %u - ESTADO: %-10s - Minuto Arribo: %u - BUQUE: ",muelle->cod, muelle->estado==MUELLE_DISPONIBLE? "Disponible": "Ocupado", muelle->minutoArribo);
 
     if( *muelle->barco.cod != '\0' )
-        printf("%s",muelle->barco.cod);
+    {
+        printf("%s - CONTENEDORES RESTANTES: %u",muelle->barco.cod, muelle->barco.cantidadContenedoresRestante);
+    }
     else
         printf("SIN BARCO");
 }
@@ -157,7 +158,7 @@ int obtenerContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* 
 {
     int res;
 
-    res = actualizarNElemDeLista( plMuelles , contenedor , --codMuelle , obtenerPrimerContenedorDeBarco );
+    res = actualizarNElemDeLista( plMuelles , contenedor , codMuelle-1 , obtenerPrimerContenedorDeBarco );
     if( res != TODO_OK )
         return res;
 
