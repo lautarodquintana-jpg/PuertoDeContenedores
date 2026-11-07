@@ -9,6 +9,7 @@
 #define ERROR_ARCHIVO -20
 #define TAM_USER 50
 #define TAM_CODIGOS 15
+#define TAM_LINEAMAX_PUERTOTXT 300
 
 #define JUEGO_EN_CURSO 70
 #define FIN_JUEGO 75

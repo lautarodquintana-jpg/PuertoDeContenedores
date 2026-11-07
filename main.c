@@ -71,9 +71,9 @@ int jugar (tConfig *config, const char *nomUser)
 
     int ret, largoMaxCodContenedor=0;
 
-    ret=inicializarValoresYGenerarPuertoTXT(config, &jornada, nomUser, &barcosEnCamino, &camionesEnCamino, &largoMaxCodContenedor);
+    ret=generarPuertoTXT(config, &jornada, nomUser, &largoMaxCodContenedor);
 
-    if(ret!=TODO_OK /*|| inicializarMuellesYZonas(&jornada, config)!=TODO_OK*/)
+    if(ret!=TODO_OK || cargarPuertoTxt(&jornada, config, &barcosEnCamino, &camionesEnCamino)!=TODO_OK)
     {
         vaciarLista(&barcosEnCamino);
         vaciarLista(&camionesEnCamino);
