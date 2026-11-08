@@ -122,6 +122,13 @@
 		<Unit filename="lib/ranking.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
+		<Unit filename="lib/recuperacion.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder=".c/" />
+		</Unit>
+		<Unit filename="lib/recuperacion.h">
+			<Option virtualFolder=".h/" />
+		</Unit>
 		<Unit filename="lib/usuarios.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />

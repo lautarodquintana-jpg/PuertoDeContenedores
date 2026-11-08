@@ -32,7 +32,7 @@ int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *confi
     if(!strlen(buffer))
         return INGRESO_CAD_INVALIDA;
 
-    if(!strcmpi(buffer,"EXIT"))
+    if(!strcmpi(buffer,"SALIR"))
         return INGRESO_CAD_EXIT;
 
     sprintf(formatoCadena, "%%%us %%%us %%%us", (int)(sizeof(opp)-1), (int)(sizeof(par_1)-1), (int)(sizeof(par_2)-1));
@@ -137,7 +137,7 @@ void mostrarTipoOperaciones()
     printf("\n%-21s %-30s", "Entregar a camion", "ENT");
     printf("\n%-21s %-30s", "Ver estado", "VER");
     printf("\n%-21s %-30s", "Esperar 1 minuto", "ESP");
-    printf("\n%-21s %-30s", "Salir del juego", "EXIT");
+    printf("\n%-21s %-30s", "Salir del juego", "SALIR");
     printf("\nNotas: \nZ= Zona de almacenamiento\nM= Muelle\nAl ingresar el numero de zona o muelle hagalo sin ()");
     printf("\n");
 }
@@ -161,7 +161,7 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
                 return INGRESO_OK;
             mostrarMotivoRechazo(codValidacion);
         }
-    }while(0 != strcmp(bufferChar, "EXIT"));
+    }while(0 != strcmp(bufferChar, "SALIR"));
 
     return INGRESO_CAD_EXIT;
 }

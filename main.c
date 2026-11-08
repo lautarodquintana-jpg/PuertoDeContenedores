@@ -16,6 +16,7 @@
 #include "lib/usuarios.h"
 #include "lib/muelle.h"
 #include "lib/barco.h"
+#include "lib/recuperacion.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()
@@ -59,7 +60,6 @@ int main()
         }
         opcion=leerYValidarCharMenu();
     }
-
     return 0;
 }
 int jugar (tConfig *config, const char *nomUser)
