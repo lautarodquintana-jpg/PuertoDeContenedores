@@ -1,12 +1,15 @@
 #ifndef RECUPERACION_H_INCLUDED
 #define RECUPERACION_H_INCLUDED
 
-/*
-    ARCHIVO DE LOCACION DE LAS FUNCIONES DE CARGA DE UNA PARTIDA YA INICIALIZADA CON GUARDADA EN EL DISCO
-
-        PARA CADA PARTIDA GUARDADA, SE GENERARA: UN ARCHIVO: LOG/ARCHIVO.BIN, SIENDO "ARCHIVO.BIN" GENERADO EN BASE AL
-        NOMBRE DE USUARIO DEL JUGADOR. I.E -> "LOG/DELTAPLAYER.BIN" /  "LOG/BETHAPLAYER.BIN" / ETC...
-
+/**
+    ARCHIVO DE LOCACION DE LAS FUNCIONES DE GUARDADO TEMPORAL Y CARGA DE PARTIDAS EN EJECUCIÓN PARA EL CASO DE SALIDAS ANTICIPADAS.
+    PARA CADA PARTIDA, SE GUARDA UN PAR:
+        (archivoMovimiento.log ; archivoPuerto.txt)
+        Debe existir un solo par por jugador, es decir, se deberan sobreescribir en caso de que el jugador decida no recuperar una partida.
+        Estos registros se guardarán en la carpeta "./log"
+    SOBRE LOS ARCHIVOS:
+        -archivoMovimiento.log: Es un archivo de forma "log/USER.log"    -> Con registros tOperacion efectivos realizados en la jornada.
+        -archivoPuerto.txt    : Es un archivo de forma "log/USER_puerto.txt" -> Es una copia del puerto.txt de la jornada para la cual se guardaron registros tOperacion.
 */
 
 #include <stdio.h>
@@ -17,7 +20,6 @@
 #define SUBFIJO_LOG             ".log"
 #define SUBFIJO_PUERTO          "_puerto.txt"
 #define PREFIJO_RECUPERANDO     "recu_"
-
 
 typedef enum{
     ER_TODO_OK          =  1,

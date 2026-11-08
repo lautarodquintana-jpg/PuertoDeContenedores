@@ -1,6 +1,10 @@
 #include "recuperacion.h"
 
 int duplicarArchivoTexto(const char *origen, const char *destino){
+/** ESTA FUNCION ABRE EL ARCHIVO DE TEXTO INDICADO EN "ORIGEN", Y LO COPIA A LA DIRECCION "DESTINO"
+    SE USARÁ PARA: A) COPIAR EL PUERTO TEMPORAL A LA CARPETA PRINCIPAL (PARA INICIAR LA JORNADA)
+                   B) COPIAR EL PUERTO ACTUAL (DE CARPETA PRINCIPAL) A LA CARPETA DE TEMPORALES (INDICANDO EL NOMBRE DE USUARIO) AL CUAL PERTENECE ESE PUERTO
+*/
     char buffer[MAX_LINEA_RECU];
     FILE *pf_ArchivoOrigen, *pf_ArchivoDestino;
     if(NULL == (pf_ArchivoOrigen = fopen(origen, "rt")))
@@ -20,6 +24,7 @@ int duplicarArchivoTexto(const char *origen, const char *destino){
 }
 
 int duplicarPuertoACarpetaPrincipal(const char *user){
+/** COPIA UN PUERTO TEMPORAL A LA CARPETA PRINCIPAL*/
     char buffer[MAX_FILENAME];
     snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_PUERTO);
     if(ER_NE_ARCHIVO == duplicarArchivoTexto(buffer, "puerto.txt"))
@@ -49,6 +54,7 @@ FILE* abrirArchivoMovimientosTemporales(const char *user, const char *modo, unsi
 }
 
 FILE* abrirArchivoPuertoTemporal(const char *user, const char *modo, unsigned iniciado){
+/** SE AGREGA APERTURA DIFERENCIADA (CAMPO INICIADO EN 0 O 1) EN CASO DE QUE SE DECIDA RENOMBRA EL ARCHIVO DE PUERTO Y NO ELIMINARLO */
     char buffer[MAX_FILENAME];
     FILE *pf_logPuerto;
     if(NULL == user || NULL == modo)
