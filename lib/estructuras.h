@@ -1,6 +1,7 @@
 #ifndef ESTRUCTURAS_H_INCLUDED
 #define ESTRUCTURAS_H_INCLUDED
 
+#include <stdio.h>
 #include "../TDA/cola.h"
 #include "../TDA/pila.h"
 #include "../TDA/ListaSimplementeEnlazada.h"
@@ -104,5 +105,11 @@ typedef struct{
     unsigned codParametro_2;
     unsigned minutoEjecutado;
 }tOperacion;
+
+typedef struct{
+    FILE *pf_logMovimientos;
+    unsigned registrosValidos;
+}tRecuperacion;
+
 
 #endif // ESTRUCTURAS_H_INCLUDED

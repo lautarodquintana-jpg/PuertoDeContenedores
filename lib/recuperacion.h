@@ -1,0 +1,43 @@
+#ifndef RECUPERACION_H_INCLUDED
+#define RECUPERACION_H_INCLUDED
+
+/*
+    ARCHIVO DE LOCACION DE LAS FUNCIONES DE CARGA DE UNA PARTIDA YA INICIALIZADA CON GUARDADA EN EL DISCO
+
+        PARA CADA PARTIDA GUARDADA, SE GENERARA: UN ARCHIVO: LOG/ARCHIVO.BIN, SIENDO "ARCHIVO.BIN" GENERADO EN BASE AL
+        NOMBRE DE USUARIO DEL JUGADOR. I.E -> "LOG/DELTAPLAYER.BIN" /  "LOG/BETHAPLAYER.BIN" / ETC...
+
+*/
+
+#include <stdio.h>
+#include "estructuras.h"
+#define MAX_FILENAME            100
+#define MAX_LINEA_RECU          200
+#define PATH_TEMPORALES         "./log/"
+#define SUBFIJO_LOG             ".log"
+#define SUBFIJO_PUERTO          "_puerto.txt"
+#define PREFIJO_RECUPERANDO     "recu_"
+
+
+typedef enum{
+    ER_TODO_OK          =  1,
+    ER_EX_ARCHIVO       =  2,
+    ER_NE_ARCHIVO       = -2,
+    ER_ERROR_ARCHIVO    = -3,
+    ER_ERROR_FIRMA      = -4
+}ESTADOS_RECUPERACION;
+
+int duplicarArchivoTexto(const char *origen, const char *destino);
+int duplicarPuertoACarpetaPrincipal(const char *user);
+
+void eliminarArchivoPuertoTemporal(const char *user);
+FILE* abrirArchivoMovimientosTemporales(const char *user, const char *modo, unsigned iniciado);
+FILE* abrirArchivoPuertoTemporal(const char *user, const char *modo, unsigned iniciado);
+
+int renombrarArchivoTemporalAIniciado(const char *user, const char *tipoArchivoTemporal);
+
+int existeArchivoDeRecuperacion (const char *user);
+int prepararEstructuraRecuperacion(const char *user, tRecuperacion *log);
+
+
+#endif // RECUPERACION_H_INCLUDED
