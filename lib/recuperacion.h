@@ -19,6 +19,7 @@
 #define PATH_TEMPORALES         "./log/"
 #define SUBFIJO_LOG             ".log"
 #define SUBFIJO_PUERTO          "_puerto.txt"
+#define SUBFIJO_CONFIG          "_config.txt"
 #define PREFIJO_RECUPERANDO     "recu_"
 
 typedef enum{
@@ -41,5 +42,10 @@ int renombrarArchivoTemporalAIniciado(const char *user, const char *tipoArchivoT
 int existeArchivoDeRecuperacion (const char *user);
 int prepararEstructuraRecuperacion(const char *user, tRecuperacion *log);
 
+void guardarOperacion( FILE* pf_log, tOperacion operacion );
+
+FILE* abrirArchivoConfigTemporal(const char *user, const char *modo, unsigned iniciado);
+int duplicarConfigACarpetaPrincipal(const char *user);
+void eliminarArchivoConfigTemporal(const char *user);
 
 #endif // RECUPERACION_H_INCLUDED

@@ -64,6 +64,7 @@ int main()
 }
 int jugar (tConfig *config, const char *nomUser)
 {
+    FILE* pf_logActual;
     tJornada jornada;
     tLista barcosEnCamino, camionesEnCamino;
     tOperacion operacion;
@@ -94,6 +95,8 @@ int jugar (tConfig *config, const char *nomUser)
     avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
     procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
 
+    pf_logActual = abrirArchivoMovimientosTemporales( jornada.user, "wb", 0 );
+
     while( jornada.estado == JUEGO_EN_CURSO )
     {
         while( !existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
@@ -110,6 +113,7 @@ int jugar (tConfig *config, const char *nomUser)
         else
         {
             procesarOperacion( &jornada, &operacion, config );
+            guardarOperacion( pf_logActual, operacion );
             procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
         }
         system("pause");

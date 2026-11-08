@@ -11,6 +11,7 @@ void procesarOperacion( tJornada* jornada, const tOperacion* ope, const tConfig*
         {
             jornada->tiempoActual += config->tiempoDeReubicacionDeContenedor;
             jornada->cantOperaciones.cantReubic++;
+            mostrarZonas( &jornada->zonasAlmacenamiento );
         }
     }
 
@@ -20,6 +21,7 @@ void procesarOperacion( tJornada* jornada, const tOperacion* ope, const tConfig*
         {
             jornada->tiempoActual += config->tiempoDeDescargaDeContenedor;
             jornada->cantOperaciones.cantDescargas++;
+            mostrarZonas( &jornada->zonasAlmacenamiento );
         }
     }
 
@@ -85,8 +87,6 @@ int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , un
     if( res != TODO_OK )
         return res;
 
-    mostrarZonas( plZonas );
-
     return res;
 }
 
@@ -112,8 +112,6 @@ int ejecutarREU( tLista* plZonasAlmacenamiento, unsigned codZonaOri, unsigned co
         fprintf(stderr,"\n\t | ERROR AL AGREGAR CONTENEDOR DE ZONA %u |\n",codZonaDes);
         return COD_ZONAS_MAL;
     }
-
-    mostrarZonas( plZonasAlmacenamiento );
 
     return TODO_OK;
 }

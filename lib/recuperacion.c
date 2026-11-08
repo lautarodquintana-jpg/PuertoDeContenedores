@@ -134,3 +134,41 @@ int prepararEstructuraRecuperacion(const char *user, tRecuperacion *log){
     eliminarArchivoPuertoTemporal(user);
     return ER_TODO_OK;
 }
+
+FILE* abrirArchivoConfigTemporal(const char *user, const char *modo, unsigned iniciado){
+    char buffer[MAX_FILENAME];
+    FILE *pf_logConfig;
+    if(NULL == user || NULL == modo)
+        return NULL;
+    if(iniciado)
+        snprintf(buffer, MAX_FILENAME, "%s%s%s%s",PATH_TEMPORALES, PREFIJO_RECUPERANDO, user, SUBFIJO_CONFIG);
+    else
+        snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
+    pf_logConfig = fopen(buffer, modo);
+    if(NULL == pf_logConfig)
+        return NULL;
+    return pf_logConfig;
+}
+
+int duplicarConfigACarpetaPrincipal(const char *user){
+    char buffer[MAX_FILENAME];
+    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
+    if(ER_NE_ARCHIVO == duplicarArchivoTexto(buffer, "config.txt"))
+        return ER_NE_ARCHIVO;
+    return ER_TODO_OK;
+}
+
+void eliminarArchivoConfigTemporal(const char *user){
+    char buffer[MAX_FILENAME];
+    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
+    remove(buffer);
+}
+
+void guardarOperacion( FILE* pf_logOperacion, tOperacion operacion )
+{
+    if( pf_logOperacion == NULL || strcmp( operacion.cod, "VER" ) == 0 )
+        return;
+
+    fwrite( &operacion, sizeof(tOperacion), 1, pf_logOperacion );
+    fflush( pf_logOperacion ); // Fuerza la escritura de los datos del búfer al disco inmediatamente
+}

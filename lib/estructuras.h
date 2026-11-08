@@ -109,6 +109,7 @@ typedef struct{
 
 typedef struct{
     FILE *pf_logMovimientos;
+    FILE *pf_logConfig;
     unsigned int registrosValidos;
 }tRecuperacion;
 

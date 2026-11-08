@@ -63,14 +63,12 @@ void quitarPrimerContenedorBarco( void *ctx, const void* elem  )
 }
 
 // Previsualiza cual es el primer contenedor del barco
-void obtenerPrimerContenedorDeBarco( void *ctx, const void* elem  )
+void obtenerPrimerContenedorDeBarco(void *actualizado, const void *actualizador)
 {
-    tMuelle* muelle = (tMuelle*)ctx;
-    tContenedor* contenedor = (tContenedor*)elem;
-
-    if( verPrimeroCola( &muelle->barco.contenedores , contenedor , sizeof(tContenedor) ) != OK )
-        *contenedor->cod = '\0';
+    tMuelle *muelle = (tMuelle *)actualizado;
+    verPrimeroCola(&muelle->barco.contenedores, (void *)actualizador, sizeof(tContenedor));
 }
+
 //Libera primero los contenedores de los barcos, y luego libera la lista
 void liberarListaDeBarcos(tLista *plBarcos)
 {

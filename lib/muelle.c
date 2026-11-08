@@ -155,16 +155,10 @@ int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* c
 
 int obtenerContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor)
 {
-    int res;
-
-    res = actualizarNElemDeLista( plMuelles , contenedor , codMuelle-1 , obtenerPrimerContenedorDeBarco );
-    if( res != TODO_OK )
-        return res;
-
-    if( *contenedor->cod == '\0' )
+    if(!tieneBarcoContenedores(plMuelles, codMuelle))
         return ERROR_SACAR_CONTENEDOR_BARCO;
 
-    return TODO_OK;
+    return actualizarNElemDeLista( plMuelles , contenedor , codMuelle-1 , obtenerPrimerContenedorDeBarco );
 }
 
 void mostrarMuelles( tLista *plMuelles )
