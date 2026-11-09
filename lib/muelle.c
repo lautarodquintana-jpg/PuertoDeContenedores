@@ -14,6 +14,7 @@ int generarMuelles(tLista *plMuelles, unsigned cantMuelles){
         auxMuelle.barco.cantidadContenedoresRestante = 0;
         *auxMuelle.barco.cod = '\0';
         auxMuelle.barco.cantidadContenedoresTotal = 0;
+        auxMuelle.minutoArribo = 0;
         crearCola( &auxMuelle.barco.contenedores );
     auxMuelle.estado = MUELLE_DISPONIBLE; //Estado disponible
     for( i=0 ; i<cantMuelles ; i++){

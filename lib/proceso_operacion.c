@@ -104,8 +104,7 @@ int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned 
 
     strcpy(ope->contenedorInvolucrado, contenedor.cod);
 
-    mostrarZonas( plZonas );
-
+    //mostrarZonas( plZonas );
     return res;
 }
 

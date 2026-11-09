@@ -14,6 +14,7 @@
 
 #define JUEGO_EN_CURSO 70
 #define FIN_JUEGO 75
+#define RECUPERACION 80
 #define PUNTOS_ENTREGA       10
 #define PUNTOS_DESCA_TOTAL    5
 #define PUNTOS_PENALIZACION   2
@@ -110,7 +111,6 @@ typedef struct{
 
 typedef struct{
     FILE *pf_logMovimientos;
-    FILE *pf_logConfig;
     unsigned int registrosValidos;
 }tRecuperacion;
 

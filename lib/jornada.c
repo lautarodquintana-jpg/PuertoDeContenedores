@@ -191,8 +191,8 @@ int cargarPuertoTxt(tJornada *jornada, tConfig *config, tLista *listaBarcosEnCam
                 auxParaCalculo=strchr(aux, ',');//Busco la siguiente ',' para calcular la cantidad de caracteres a copiar
                 if(auxParaCalculo)
                 {
-                    strncpy(contenedor.cod, aux, auxParaCalculo-aux);
-                    *(contenedor.cod+(auxParaCalculo-aux)+1)='\0';
+                    strncpy(contenedor.cod, aux, auxParaCalculo-aux); //AUX->>[0: C][1: 1][2: 1][3: ,]<<-AUXPARACALCULO, AUXPARACALCULO-AUX=3, SE COPIA LA COMA Y DESPUES '\0'
+                    *(contenedor.cod+(auxParaCalculo-aux))='\0';
                     //Al hacer la resta con punteros, se la cantidad de caracteres que le pertenecen a este contenedor
                     aux=auxParaCalculo+1;//Me posiciono en el siguiente contenedor
                 }

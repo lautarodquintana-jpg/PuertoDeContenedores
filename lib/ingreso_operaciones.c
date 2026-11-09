@@ -39,14 +39,14 @@ int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *confi
     sscanf(buffer, formatoCadena, opp, par_1, par_2);
 
     if(INGRESO_OPP_INVALIDA == (cantParametros = procesarComandoSTDIN_validarOPP(opp, ordenParametros))){
-        printf("\n\t | OPERACION INVALIDA |\n");
+        printf(BG_ROJO CL_BLANCO "\t| OPERACION INVALIDA |" COLOR_RESET "\n\n");
         return INGRESO_OPP_INVALIDA;
     }
 
     memcpy(oppDest->cod, opp, TAM_BUFFER_OPP);
 
     if(cantParametros && (INGRESO_PAR_INVALID0 == procesarComandoSTDIN_validarPAR(ordenParametros, dirParametros, cantParametros, oppDest, config))){
-        printf("\n\t | PARAMETRO U ORDEN DE LOS MISMOS INVALIDO |\n");
+        printf(BG_ROJO CL_BLANCO "\t| PARAMETRO U ORDEN DE LOS MISMOS INVALIDO |" COLOR_RESET "\n\n");
         return INGRESO_PAR_INVALID0;
     }
     oppDest->minutoEjecutado = jornada->tiempoActual;
@@ -153,7 +153,6 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
         fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
         bufferChar[strcspn(bufferChar, "\n")] = '\0';
         aMayusculas(bufferChar);
-
         if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config, jornada))
         {
             codValidacion = validarOperacion(oppDest, config, jornada);

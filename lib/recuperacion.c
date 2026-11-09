@@ -16,7 +16,6 @@ int duplicarArchivoTexto(const char *origen, const char *destino){
     while(fgets(buffer, MAX_LINEA_RECU, pf_ArchivoOrigen)){
         buffer[strcspn(buffer, "\n")] = '\0';
         fprintf(pf_ArchivoDestino, "%s\n", buffer);
-        puts(buffer);
     }
     fclose(pf_ArchivoOrigen);
     fclose(pf_ArchivoDestino);
@@ -24,7 +23,7 @@ int duplicarArchivoTexto(const char *origen, const char *destino){
 }
 
 int duplicarPuertoACarpetaPrincipal(const char *user){
-/** COPIA UN PUERTO TEMPORAL A LA CARPETA PRINCIPAL*/
+/** DUPLICA UN ARCHIVO DE FORMA: ./log/USER_puerto.txt A RAIZ DE FORMA: ./puerto.txt */
     char buffer[MAX_FILENAME];
     snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_PUERTO);
     if(ER_NE_ARCHIVO == duplicarArchivoTexto(buffer, "puerto.txt"))
@@ -33,17 +32,37 @@ int duplicarPuertoACarpetaPrincipal(const char *user){
 }
 
 void eliminarArchivoPuertoTemporal(const char *user){
+/** ELIMINA UN ARCHIVO DE LA FORMA: ./log/USER_puerto.txt*/
     char buffer[MAX_FILENAME];
     snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_PUERTO);
     remove(buffer);
 }
 
+int duplicarConfigACarpetaPrincipal(const char *user){
+/** DUPLICA UN ARCHIVO DE FORMA: ./log/USER_config.txt A RAIZ DE FORMA: ./config.txt */
+    char buffer[MAX_FILENAME];
+    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
+    if(ER_NE_ARCHIVO == duplicarArchivoTexto(buffer, "config.txt"))
+        return ER_NE_ARCHIVO;
+    return ER_TODO_OK;
+}
+
+void eliminarArchivoConfigTemporal(const char *user){
+/** ELIMINA UN ARCHIVO DE LA FORMA: ./log/USER_config.txt*/
+    char buffer[MAX_FILENAME];
+    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
+    remove(buffer);
+}
+
 FILE* abrirArchivoMovimientosTemporales(const char *user, const char *modo, unsigned iniciado){
+/** ABRE ARCHIVOS DE MOVIMIENTOS TEMPORALES (USER1.log / USER2.log)
+    PARA INICIADO:0, ABRE ./log/USER.log - PARA INICIADO:1, ABRE ./log/recu_USER.log
+*/
     char buffer[MAX_FILENAME];
     FILE *pf_logMovimientos;
     if(NULL == user || NULL == modo)
         return NULL;
-    if(iniciado)
+    if(1 == iniciado)
         snprintf(buffer, MAX_FILENAME, "%s%s%s%s",PATH_TEMPORALES, PREFIJO_RECUPERANDO, user, SUBFIJO_LOG);
     else
         snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_LOG);
@@ -52,9 +71,27 @@ FILE* abrirArchivoMovimientosTemporales(const char *user, const char *modo, unsi
         return NULL;
     return pf_logMovimientos;
 }
+void eliminarArchivoMovimientosTemporales(const char *user, unsigned iniciado){
+/** ELIMINA UN ARCHIVO DE LA FORMA: ./log/USER.log*/
+    char buffer[MAX_FILENAME];
+    if(iniciado)
+        snprintf(buffer, MAX_FILENAME, "%s%s%s%s",PATH_TEMPORALES, PREFIJO_RECUPERANDO, user, SUBFIJO_LOG);
+    else
+        snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_LOG);
+    remove(buffer);
+}
+
+void eliminarArchivosTemporales(const char *user){
+    eliminarArchivoPuertoTemporal(user);
+    eliminarArchivoConfigTemporal(user);
+    eliminarArchivoMovimientosTemporales(user,0);
+}
 
 FILE* abrirArchivoPuertoTemporal(const char *user, const char *modo, unsigned iniciado){
-/** SE AGREGA APERTURA DIFERENCIADA (CAMPO INICIADO EN 0 O 1) EN CASO DE QUE SE DECIDA RENOMBRA EL ARCHIVO DE PUERTO Y NO ELIMINARLO */
+/** ABRE ARCHIVOS DE MOVIMIENTOS TEMPORALES (USER1_puerto.txt / USER2_puerto.txt)
+    PARA INICIADO:0, ABRE ./log/USER_puerto.txt - PARA INICIADO:1, ABRE ./log/recu_USER_puerto.txt
+    LA APERTURA DIFERENCIADA PODRÍA NO NECESITARSE ACÁ, YA QUE SE USARÁ UNA SOLA VEZ
+*/
     char buffer[MAX_FILENAME];
     FILE *pf_logPuerto;
     if(NULL == user || NULL == modo)
@@ -69,73 +106,11 @@ FILE* abrirArchivoPuertoTemporal(const char *user, const char *modo, unsigned in
     return pf_logPuerto;
 }
 
-int renombrarArchivoTemporalAIniciado(const char *user, const char *tipoArchivoTemporal){
-/** FUNCION DE RENOMBRADO DE UN ARCHIVO TEMPORAL EXISTENTE A UN ARCHIVO TEMPORAL INICIADO (EN RECUPERACION)
-    RETORNA: -ER_TODO_OK: SI EL RENOMBRADO DEL ARCHIVO ES OK. -ER_ERROR_ARCHIVO: SI FALLA
-*/
-    char bufferAnt[MAX_FILENAME];
-    char bufferNue[MAX_FILENAME];
-    snprintf(bufferAnt, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, tipoArchivoTemporal);
-    snprintf(bufferNue, MAX_FILENAME, "%s%s%s%s",PATH_TEMPORALES, PREFIJO_RECUPERANDO, user, tipoArchivoTemporal);
-    printf("\n ANT: %s | NUE: %s", bufferAnt, bufferNue);
-    if(rename(bufferAnt, bufferNue))
-        return ER_ERROR_ARCHIVO;
-    return ER_TODO_OK;
-}
-
-int existeArchivoDeRecuperacion(const char *user){
-/** EN BASE AL NOMBRE DE USUARIO, DEVUELVE LA EXISTENCIA LÓGICA O NO DEL PAR (LOG_MOVIMIENTOS ; LOG_PUERTO) -> NO CARGA NADA*/
-    FILE *pf_logMovimientos, *pf_logPuerto;
-    pf_logMovimientos = abrirArchivoMovimientosTemporales(user, "rb", 0);
-    if(NULL == pf_logMovimientos)
-        return ER_NE_ARCHIVO;
-    pf_logPuerto = abrirArchivoPuertoTemporal(user, "r", 0);
-    if(NULL == pf_logPuerto){
-        fclose(pf_logMovimientos);
-        return ER_NE_ARCHIVO;
-    }
-    fclose(pf_logMovimientos);
-    fclose(pf_logPuerto);
-    return ER_EX_ARCHIVO;
-}
-
-int prepararEstructuraRecuperacion(const char *user, tRecuperacion *log){
-/** MODIFICA EL NOMBRE DEL ARCHIVO TEMPORAL DE MOVIMIENTOS PARA QUE NO SE REESCRIBA CON EL NUEVO ARCHIVO TEMPORAL ASOCIADO A LA JORNADA EN RECUPERACION
-    LUEGO, DUPLICA EL ARCHIVO DE PUERTO A LA CARPETA PRINCIPAL Y CARGA LA ESTRUCTRURA DE RECUPERACION CON LA CANTIDAD DE REGISTROS COMPLETOS:
-    CARGA LA ESTRUCTURA DE RECUPERACION, CON:
-        - PUNTERO AL ARCHIVO TEMPORAL DE MOVIMIENTOS.
-        - CANTIDAD DE REGISTROS VALIDOS A INTRODUCIR EN EL PROGRAMA.
-    ESTA FUNCION SE EJECUTA DESPUES DE: existeArchivoDeRecuperacion();
-    LUEGO DE DUPLICAR EL PUERTO A LA CARPETA PRINCIPAL, SE ELIMINA EL TEMPORAL, EN PRINCIPIO NO HAY NECESIDAD DE SEGUIR MANTENIENDOLO.
-*/
-    FILE *pf_logMovimientosIniciados, *pf_logMPuertoIniciado;
-    if(ER_ERROR_ARCHIVO == renombrarArchivoTemporalAIniciado(user, SUBFIJO_LOG)){
-        printf("\n -> [Error al renombrar el archivo temporal de movimientos] <- ");
-        return ER_ERROR_ARCHIVO;
-    }
-    pf_logMovimientosIniciados = abrirArchivoMovimientosTemporales(user, "rb",1);
-    if(NULL == pf_logMovimientosIniciados)
-        return ER_ERROR_ARCHIVO;
-    pf_logMPuertoIniciado = abrirArchivoPuertoTemporal(user, "r", 0);
-    if(NULL == pf_logMPuertoIniciado){
-        fclose(pf_logMovimientosIniciados);
-        return ER_ERROR_ARCHIVO;
-    }
-    if(ER_NE_ARCHIVO == duplicarPuertoACarpetaPrincipal(user)){
-        fclose(pf_logMovimientosIniciados);
-        fclose(pf_logMPuertoIniciado);
-        return ER_ERROR_ARCHIVO;
-    }
-    log->pf_logMovimientos = pf_logMovimientosIniciados;
-    fseek(pf_logMovimientosIniciados, 0, SEEK_END);
-    log->registrosValidos = ftell(pf_logMovimientosIniciados) / sizeof(tOperacion);
-    fseek(pf_logMovimientosIniciados, 0, SEEK_SET);
-    fclose(pf_logMPuertoIniciado);
-    eliminarArchivoPuertoTemporal(user);
-    return ER_TODO_OK;
-}
-
 FILE* abrirArchivoConfigTemporal(const char *user, const char *modo, unsigned iniciado){
+/** ABRE ARCHIVOS DE MOVIMIENTOS TEMPORALES (USER1_config.txt / USER2_config.txt)
+    PARA INICIADO:0, ABRE ./log/USER_config.txt - PARA INICIADO:1, ABRE ./log/recu_USER_config.txt
+    LA APERTURA DIFERENCIADA PODRÍA NO NECESITARSE ACÁ, YA QUE SE USARÁ UNA SOLA VEZ
+*/
     char buffer[MAX_FILENAME];
     FILE *pf_logConfig;
     if(NULL == user || NULL == modo)
@@ -150,18 +125,19 @@ FILE* abrirArchivoConfigTemporal(const char *user, const char *modo, unsigned in
     return pf_logConfig;
 }
 
-int duplicarConfigACarpetaPrincipal(const char *user){
-    char buffer[MAX_FILENAME];
-    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
-    if(ER_NE_ARCHIVO == duplicarArchivoTexto(buffer, "config.txt"))
-        return ER_NE_ARCHIVO;
+int renombrarArchivoTemporalAIniciado(const char *user, const char *tipoArchivoTemporal){
+/** FUNCION DE RENOMBRADO DE UN ARCHIVO TEMPORAL EXISTENTE A UN ARCHIVO TEMPORAL INICIADO (EN RECUPERACION)
+        -> CONVIERTE UN ARCHIVO: ./log/USER.log A OTRO DE LA FORMA: ./log/recu_USER.log
+        -> RETORNA: -ER_TODO_OK: SI EL RENOMBRADO DEL ARCHIVO ES OK. -ER_ERROR_ARCHIVO: SI FALLA
+*/
+    char bufferAnt[MAX_FILENAME];
+    char bufferNue[MAX_FILENAME];
+    snprintf(bufferAnt, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, tipoArchivoTemporal);
+    snprintf(bufferNue, MAX_FILENAME, "%s%s%s%s",PATH_TEMPORALES, PREFIJO_RECUPERANDO, user, tipoArchivoTemporal);
+    printf("\n ANT: %s | NUE: %s", bufferAnt, bufferNue);
+    if(rename(bufferAnt, bufferNue))
+        return ER_ERROR_ARCHIVO;
     return ER_TODO_OK;
-}
-
-void eliminarArchivoConfigTemporal(const char *user){
-    char buffer[MAX_FILENAME];
-    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
-    remove(buffer);
 }
 
 void guardarOperacion( FILE* pf_logOperacion, tOperacion operacion )
@@ -171,4 +147,115 @@ void guardarOperacion( FILE* pf_logOperacion, tOperacion operacion )
 
     fwrite( &operacion, sizeof(tOperacion), 1, pf_logOperacion );
     fflush( pf_logOperacion ); // Fuerza la escritura de los datos del búfer al disco inmediatamente
+}
+
+int guardarCopiaConfigYPuerto(const char *user){
+    char buffer[MAX_FILENAME];
+    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_PUERTO);
+    if(ER_TODO_OK != duplicarArchivoTexto("puerto.txt", buffer))
+        return ER_ERROR_ARCHIVO;
+    snprintf(buffer, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, SUBFIJO_CONFIG);
+    if(ER_TODO_OK != duplicarArchivoTexto("config.txt", buffer)){
+        eliminarArchivoPuertoTemporal(user);
+        return ER_ERROR_ARCHIVO;
+    }
+    return ER_TODO_OK;
+}
+
+int existeArchivoDeRecuperacion(const char *user){
+/** EN BASE AL NOMBRE DE USUARIO, DEVUELVE LA EXISTENCIA LÓGICA O NO DE LA TERNA (LOG_MOVIMIENTOS ; LOG_PUERTO ; LOG_CONFIG) -> NO CARGA NADA*/
+    FILE *pf_logMovimientos, *pf_logPuerto, *pf_logConfig;
+    pf_logMovimientos = abrirArchivoMovimientosTemporales(user, "rb", 0);
+    if(NULL == pf_logMovimientos)
+        return ER_NE_ARCHIVO;
+    pf_logPuerto = abrirArchivoPuertoTemporal(user, "r", 0);
+    if(NULL == pf_logPuerto){
+        fclose(pf_logMovimientos);
+        return ER_NE_ARCHIVO;
+    }
+    pf_logConfig = abrirArchivoConfigTemporal(user,"r", 0);
+    if(NULL == pf_logConfig){
+        fclose(pf_logMovimientos);
+        fclose(pf_logPuerto);
+        return ER_NE_ARCHIVO;
+    }
+    fclose(pf_logMovimientos);
+    fclose(pf_logPuerto);
+    fclose(pf_logConfig);
+    return ER_EX_ARCHIVO;
+}
+
+int consultarArchivosDeRecuperacionYCarga(tJornada *jornada){
+    char c = 0;
+    if(ER_EX_ARCHIVO == existeArchivoDeRecuperacion(jornada->user)){
+        do{
+            printf(BG_CARBON CL_PLATA "\n Existen archivos de recuperacion para el usuario \"%s\"" COLOR_RESET, jornada->user);
+            printf(CL_GRIS "\n\t Desea cargarlos " COLOR_RESET);
+            printf(CL_BLANCO "[S: SI / N: NO]" COLOR_RESET);
+            printf(CL_GRIS "?: " COLOR_RESET);
+            fflush(stdin);
+            scanf("%c", &c);
+            c = toupper(c);
+            system("cls");
+        }while(c!='S' && c!='N');
+        fflush(stdin);
+        if('N' == c){
+            eliminarArchivosTemporales(jornada->user);
+            return ER_NO_RECUPERA;
+        }else
+            return ER_RECUPERA;
+    }
+    return ER_NO_RECUPERA;
+}
+
+int prepararEstructuraRecuperacion(tJornada *jornada, tConfig *config, tRecuperacion *log){
+/** MODIFICA EL NOMBRE DEL ARCHIVO TEMPORAL DE MOVIMIENTOS PARA QUE NO SE REESCRIBA CON EL NUEVO ARCHIVO TEMPORAL ASOCIADO A LA JORNADA EN RECUPERACION
+    LUEGO, DUPLICA EL ARCHIVO DE PUERTO A LA CARPETA PRINCIPAL Y CARGA LA ESTRUCTRURA DE RECUPERACION CON LA CANTIDAD DE REGISTROS COMPLETOS:
+    CARGA LA ESTRUCTURA DE RECUPERACION, CON:
+        - PUNTERO AL ARCHIVO TEMPORAL DE MOVIMIENTOS.
+        - CANTIDAD DE REGISTROS VALIDOS A INTRODUCIR EN EL PROGRAMA.
+    ESTA FUNCION SE EJECUTA DESPUES DE: existeArchivoDeRecuperacion();
+    LUEGO DE DUPLICAR EL PUERTO A LA CARPETA PRINCIPAL, SE ELIMINA EL TEMPORAL, EN PRINCIPIO NO HAY NECESIDAD DE SEGUIR MANTENIENDOLO.
+*/
+
+    FILE *pf_logMovimientosIniciados;
+
+    if(ER_ERROR_ARCHIVO == renombrarArchivoTemporalAIniciado(jornada->user, SUBFIJO_LOG)){
+        printf("\n Error en el renombrado");
+        return ER_ERROR_ARCHIVO;
+    }
+
+    pf_logMovimientosIniciados = abrirArchivoMovimientosTemporales(jornada->user, "rb",1);
+    if(NULL == pf_logMovimientosIniciados){
+        return ER_ERROR_ARCHIVO;
+    }
+
+    if(ER_TODO_OK != duplicarConfigACarpetaPrincipal(jornada->user) || ER_TODO_OK != duplicarPuertoACarpetaPrincipal(jornada->user)){        fclose(pf_logMovimientosIniciados);
+        return ER_NE_ARCHIVO;
+    }
+
+    if(TODO_OK != leerConfigTxt(config, RECU_NOMBARCH_CONFIG)){
+        fclose(pf_logMovimientosIniciados);
+        return ER_NE_ARCHIVO;
+    }
+    eliminarArchivoConfigTemporal(jornada->user);
+    eliminarArchivoPuertoTemporal(jornada->user);
+    log->pf_logMovimientos = pf_logMovimientosIniciados;
+    fseek(pf_logMovimientosIniciados, 0, SEEK_END);
+    log->registrosValidos = ftell(pf_logMovimientosIniciados) / sizeof(tOperacion);
+    fseek(pf_logMovimientosIniciados, 0, SEEK_SET);
+    return ER_TODO_OK;
+}
+
+int leerRegistroDelArchivoTemporal(tOperacion *operacion, tJornada *jornada, tRecuperacion *recuperacion){
+    if(recuperacion->registrosValidos > 0){
+        fread(operacion, sizeof(tOperacion), 1, recuperacion->pf_logMovimientos);
+        recuperacion->registrosValidos -= 1;
+    }else{
+        jornada->estado = JUEGO_EN_CURSO;
+        fclose(recuperacion->pf_logMovimientos);
+        eliminarArchivoMovimientosTemporales(jornada->user, 1);
+        return ER_NE_REGISTROS_REC;
+    }
+    return ER_EX_REGISTROS_REC;
 }
