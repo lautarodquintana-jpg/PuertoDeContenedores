@@ -192,7 +192,7 @@ int cargarPuertoTxt(tJornada *jornada, tConfig *config, tLista *listaBarcosEnCam
                 if(auxParaCalculo)
                 {
                     strncpy(contenedor.cod, aux, auxParaCalculo-aux);
-                    *(auxParaCalculo+1)='\0';
+                    *(contenedor.cod+(auxParaCalculo-aux)+1)='\0';
                     //Al hacer la resta con punteros, se la cantidad de caracteres que le pertenecen a este contenedor
                     aux=auxParaCalculo+1;//Me posiciono en el siguiente contenedor
                 }
@@ -408,19 +408,63 @@ void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barc
     ponerBarcosArribadosEnMuelles( &jornada->muelles, &jornada->barcosEspera, jornada->tiempoActual );
 }
 
-void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned cantCamionesPend, unsigned puntuacionFinal, const char* nomOpera )
+void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , tCola *camionesPendientes)
 {
+    int cantCamionesPend=0;
+
+    while(sacarDeCola(camionesPendientes, NULL, 0)==OK)//Contamos los camiones que quedaron en la cola
+    {
+        cantCamionesPend++;
+    }
+
     printf("\n\tRESUMEN DE LA JORNADA\n");
     printf("\n\tOPERADOR: %s\n", nomOpera);
     printf("TIEMPO DE LA JORNADA: %u de %u MINUTOS\n", tiempoJornada, tiempoDispo);
     printf("BUQUES DESCARGADOS EN SU TOTALIDAD: %u -> %u PUNTOS\n", cantDesc, cantDesc * PUNTOS_DESCA_TOTAL);
     printf("CONTENEDORES ENTREGADOS: %u -> %u PUNTOS\n", cantEntre, cantEntre * PUNTOS_ENTREGA);
     printf("REUBICACIONES REALIZADAS: %u\n", cantReubi);
-    /**
-
-    FALTARIA:
     printf("CAMIONES QUE QUEDARON PENDIENTES: %u -> %u PUNTOS\n", cantCamionesPend, cantCamionesPend * PUNTOS_PENALIZACION);
-
-    */
     printf("PUNTUACION FINAL: %u PUNTOS\n", puntuacionFinal);
+}
+void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config)
+{
+    tOperacion operacion;
+
+    printf("%-11s\n%-5s %-5s\n", "  Minuto  ", "Ini", "Fin");
+    while(sacarDeCola(colaOperaciones, &operacion, sizeof(tOperacion))==OK)
+    {
+        if(strcmp(operacion.cod, "DES")==0)
+        {
+            printf("%-5u %-5u Descarga del contenedor %s del muelle %u sobre la zona %u\n",
+            operacion.minutoEjecutado,
+            operacion.minutoEjecutado+config->tiempoDeDescargaDeContenedor,
+            operacion.contenedorInvolucrado,
+            operacion.codParametro_1,
+            operacion.codParametro_2);
+        }
+        if(strcmp(operacion.cod, "REU")==0)
+        {
+            printf("%-5u %-5u Reubicacion del contenedor %s de zona %u a zona %u\n",
+            operacion.minutoEjecutado,
+            operacion.minutoEjecutado+config->tiempoDeReubicacionDeContenedor,
+            operacion.contenedorInvolucrado,
+            operacion.codParametro_1,
+            operacion.codParametro_2);
+        }
+        if(strcmp(operacion.cod, "ENT")==0)
+        {
+            printf("%-5u %-5u Se entrega de la zona %d, el contenedor %s al camion K%u\n",
+            operacion.minutoEjecutado,
+            operacion.minutoEjecutado+config->tiempoDeCargaDeCamion,
+            operacion.codParametro_1,
+            operacion.contenedorInvolucrado,
+            operacion.codParametro_2);
+        }
+        if(strcmp(operacion.cod, "ESP")==0)
+        {
+            printf("%-5u %-5u Esperar\n", operacion.minutoEjecutado, operacion.minutoEjecutado+1);
+        }
+    }
+
+
 }

@@ -31,6 +31,6 @@ int avanzarTiempoHastaEventoFuturo( tJornada* jornada , const tLista* camionesEn
 int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola , tLista* camionesEnCamino, tLista* barcosEnCamino , unsigned tiempoActual );
 void procesarLlegadas( tJornada* jornada , tLista* camionesEnCamino, tLista* barcosEnCamino );
 void liberarJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino );
-void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned cantCamionesPend, unsigned puntuacionFinal, const char* nomOpera );
-
+void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , tCola *camionesPendientes);
+void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config);
 #endif // JORNADA_H_INCLUDED

@@ -19,7 +19,7 @@ int generarZonas( tLista* zonas, unsigned cantZonas, int largoMaxCodContenedor, 
     {
         auxZona.cod = i + 1;
 
-        auxZona.cadContenedoresApilados=malloc(sizeof(char)*largoMaxCodContenedor*contenedoresApiladosMax)+contenedoresApiladosMax+1;
+        auxZona.cadContenedoresApilados=malloc(sizeof(char)*largoMaxCodContenedor*contenedoresApiladosMax+contenedoresApiladosMax+1);
         //En la cadena guardaré: códigos de contenedores, el '\0' y el '\n' entre códigos
         //Le sumo 1 para el '\0' y contenedoresApiladosMax para todos los '\n' que puedan aparecer
 
