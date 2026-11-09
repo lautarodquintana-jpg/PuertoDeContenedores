@@ -105,6 +105,7 @@ typedef struct{
     unsigned codParametro_1;
     unsigned codParametro_2;
     unsigned minutoEjecutado;
+    char contenedorInvolucrado[TAM_CODIGOS];
 }tOperacion;
 
 typedef struct{

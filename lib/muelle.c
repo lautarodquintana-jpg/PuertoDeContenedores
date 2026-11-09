@@ -46,7 +46,7 @@ void mostrarMuelleCB(void *ctx, const void *elem){
     printf("\n ||-> COD: %u - ESTADO: %-10s - Minuto Arribo: %u - BUQUE: ",muelle->cod, muelle->estado==MUELLE_DISPONIBLE? "Disponible": "Ocupado", muelle->minutoArribo);
 
     if( *muelle->barco.cod != '\0' )
-        printf("%s",muelle->barco.cod);
+        printf("%s - CONTENEDORES RESTANTES: %u",muelle->barco.cod, muelle->barco.cantidadContenedoresRestante);
     else
         printf("SIN BARCO");
 }

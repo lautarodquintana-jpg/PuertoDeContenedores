@@ -11,11 +11,12 @@ enum COD_CAMION{
     COD_CAMION_OK          = 1,
     COD_CAMION_INCORRECTO   = -1,
     ENCOLAR_CAMION_MAL = -2,
-    ERROR_RETIRAR_CONTE = -3
+    ERROR_RETIRAR_CONTE = -3,
+    NO_HAY_CAMION=-4
 };
 
 void mostrarCamion( const void* elem );
-void mostrarPrimerCamion( tCola* camionesEnCola );
-int realizarEntregaCamion( tCola* camionesEnCola , tLista* plZonasAlmacenamiento );
+int mostrarPrimeros3Camiones( tCola* camionesEnCola );
+int realizarEntregaCamion( tCola* camionesEnCola , tLista* plZonasAlmacenamiento , tOperacion *ope);
 
 #endif // CAMION_H_INCLUDED

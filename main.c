@@ -67,8 +67,8 @@ int jugar (tConfig *config, const char *nomUser)
     FILE* pf_logActual;
     tJornada jornada;
     tLista barcosEnCamino, camionesEnCamino;
+    tCola colaOperaciones;
     tOperacion operacion;
-    //tCola historialOperaciones;
 
     int ret, largoMaxCodContenedor=0;
 
@@ -80,18 +80,19 @@ int jugar (tConfig *config, const char *nomUser)
         vaciarLista(&camionesEnCamino);
         return ret;
     }
-
     getchar(); // Consumo salto de linea
+
     iniciarSesion( &jornada );
     system("cls");//Borro la consola
 
     ret=prepararJornada( &jornada, &camionesEnCamino, &barcosEnCamino, config , largoMaxCodContenedor);
     if(ret!=TODO_OK)
     {
-        printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la función
+        printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acï¿½ adentro, ya que libera todo dentro de la funciï¿½n
         return ret;
     }
 
+    crearCola(&colaOperaciones);
     avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
     procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
 
@@ -112,7 +113,15 @@ int jugar (tConfig *config, const char *nomUser)
         }
         else
         {
-            procesarOperacion( &jornada, &operacion, config );
+            ret=procesarOperacion( &jornada, &operacion, config );
+            if(ret==TODO_OK)
+                if(strcmp(operacion.cod, "VER")!=0)//No guardamos la operaciï¿½n VER
+                    if(ponerEnCola(&colaOperaciones, &operacion, sizeof(tOperacion))!=OK)
+                    {
+                        vaciarCola(&colaOperaciones);
+                        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
+                        return COLA_LLENA;
+                    }
             guardarOperacion( pf_logActual, operacion );
             procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
         }
@@ -120,7 +129,9 @@ int jugar (tConfig *config, const char *nomUser)
         system("cls");
     }
 
-    mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, 0, jornada.puntajeActual, jornada.user );
+    mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, jornada.puntajeActual, jornada.user , &jornada.camiones);
+    mostrarHistorialOperaciones(&colaOperaciones, config);
 
+    //liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
     return TODO_OK;
 }

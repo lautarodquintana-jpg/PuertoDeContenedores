@@ -129,14 +129,14 @@ int procesarComandoSTDIN_validarPAR(const char *ordenParametros, char const **di
     }
     return INGRESO_OK;
 }
-void mostrarTipoOperaciones()
+void mostrarTipoOperaciones(const tConfig *config)
 {
-    printf("%-21s %-30s", "Tipo de operacion", "Sintaxis de la operacion");//Titulo
-    printf("\n%-21s %-30s", "Descargar y almacenar", "DES M(Numero) Z(Numero)");
-    printf("\n%-21s %-30s", "Reubicar", "REU Z(Numero) Z(Numero)");
-    printf("\n%-21s %-30s", "Entregar a camion", "ENT");
-    printf("\n%-21s %-30s", "Ver estado", "VER");
-    printf("\n%-21s %-30s", "Esperar 1 minuto", "ESP");
+    printf("%-21s %-30s %-18s", "Tipo de operacion", "Sintaxis de la operacion", "Minutos requeridos");//Titulo
+    printf("\n%-21s %-30s %-5u", "Descargar y almacenar", "DES M(Numero) Z(Numero)", config->tiempoDeDescargaDeContenedor);
+    printf("\n%-21s %-30s %-5u", "Reubicar", "REU Z(Numero) Z(Numero)", config->tiempoDeReubicacionDeContenedor);
+    printf("\n%-21s %-30s %-5u", "Entregar a camion", "ENT", config->tiempoDeCargaDeCamion);
+    printf("\n%-21s %-30s 0", "Ver estado", "VER");
+    printf("\n%-21s %-30s 1", "Esperar", "ESP");
     printf("\n%-21s %-30s", "Salir del juego", "SALIR");
     printf("\nNotas: \nZ= Zona de almacenamiento\nM= Muelle\nAl ingresar el numero de zona o muelle hagalo sin ()");
     printf("\n");
@@ -148,7 +148,7 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
     int codValidacion;
 
     do{
-        mostrarTipoOperaciones();
+        mostrarTipoOperaciones(config);
         printf("\n |-> INGRESE OPERACION: ");
         fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
         bufferChar[strcspn(bufferChar, "\n")] = '\0';
