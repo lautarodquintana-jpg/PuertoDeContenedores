@@ -41,7 +41,7 @@ int buscarCodZona( tLista *plZonasAlmacenamiento, const char* codContenedor );
 ///////
 int consultarDisponibilidadZona(tLista *plZonasAlmacenamiento, unsigned codZona, unsigned capacidadPila);
 void obtenerDisponibilidadCB(void *zonaLista, const void *cantidadOcupado);
-
+int verDisponibilidadDeTodasLasZonas(tLista *plZonasAlmacenamiento, unsigned cantZonas, tConfig *config);
 void apilarContenedorCB(void *zonaLista, const void *ctx);
 int agregarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned codZona, tContenedor contenedor, unsigned capacidadPila);
 

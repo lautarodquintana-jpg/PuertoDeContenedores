@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "colores.h"
 #include "estructuras.h"
 
 enum INGRESO{

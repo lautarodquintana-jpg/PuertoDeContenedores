@@ -32,21 +32,21 @@ int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *confi
     if(!strlen(buffer))
         return INGRESO_CAD_INVALIDA;
 
-    if(!strcmpi(buffer,"EXIT"))
+    if(!strcmpi(buffer,"SALIR"))
         return INGRESO_CAD_EXIT;
 
     sprintf(formatoCadena, "%%%us %%%us %%%us", (int)(sizeof(opp)-1), (int)(sizeof(par_1)-1), (int)(sizeof(par_2)-1));
     sscanf(buffer, formatoCadena, opp, par_1, par_2);
 
     if(INGRESO_OPP_INVALIDA == (cantParametros = procesarComandoSTDIN_validarOPP(opp, ordenParametros))){
-        printf("\n\t | OPERACION INVALIDA |\n");
+        printf(BG_ROJO CL_BLANCO "\t| OPERACION INVALIDA |" COLOR_RESET "\n\n");
         return INGRESO_OPP_INVALIDA;
     }
 
     memcpy(oppDest->cod, opp, TAM_BUFFER_OPP);
 
     if(cantParametros && (INGRESO_PAR_INVALID0 == procesarComandoSTDIN_validarPAR(ordenParametros, dirParametros, cantParametros, oppDest, config))){
-        printf("\n\t | PARAMETRO U ORDEN DE LOS MISMOS INVALIDO |\n");
+        printf(BG_ROJO CL_BLANCO "\t| PARAMETRO U ORDEN DE LOS MISMOS INVALIDO |" COLOR_RESET "\n\n");
         return INGRESO_PAR_INVALID0;
     }
     oppDest->minutoEjecutado = jornada->tiempoActual;
@@ -137,7 +137,7 @@ void mostrarTipoOperaciones(const tConfig *config)
     printf("\n%-21s %-30s %-5u", "Entregar a camion", "ENT", config->tiempoDeCargaDeCamion);
     printf("\n%-21s %-30s 0", "Ver estado", "VER");
     printf("\n%-21s %-30s 1", "Esperar", "ESP");
-    printf("\n%-21s %-30s", "Salir del juego", "EXIT");
+    printf("\n%-21s %-30s", "Salir del juego", "SALIR");
     printf("\nNotas: \nZ= Zona de almacenamiento\nM= Muelle\nAl ingresar el numero de zona o muelle hagalo sin ()");
     printf("\n");
 }
@@ -149,11 +149,10 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
 
     do{
         mostrarTipoOperaciones(config);
-        printf("\n |-> INGRESE OPERACION: ");
+        printf("\n"BG_CARBON CL_BLANCO"|-> INGRESE OPERACION:"COLOR_RESET" ");
         fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
         bufferChar[strcspn(bufferChar, "\n")] = '\0';
         aMayusculas(bufferChar);
-
         if(INGRESO_OK == procesarComandoSTDIN(bufferChar, oppDest, config, jornada))
         {
             codValidacion = validarOperacion(oppDest, config, jornada);
@@ -161,7 +160,7 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
                 return INGRESO_OK;
             mostrarMotivoRechazo(codValidacion);
         }
-    }while(0 != strcmp(bufferChar, "EXIT"));
+    }while(0 != strcmp(bufferChar, "SALIR"));
 
     return INGRESO_CAD_EXIT;
 }

@@ -2,8 +2,13 @@
 
 void iniciarSesion( tJornada* jornada )
 {
+    char* pLinea;
     printf("Ingrese su nombre: ");
     fgets( jornada->user, TAM_USER, stdin );
+
+    pLinea = strchr( jornada->user, '\n' );
+    if( pLinea != NULL )
+        *pLinea = '\0';
 }
 
 int agregarUserRankingOrdenado( const tJornada* jornada )
