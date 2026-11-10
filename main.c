@@ -18,6 +18,7 @@
 #include "lib/muelle.h"
 #include "lib/barco.h"
 #include "lib/recuperacion.h"
+#include "lib/ranking.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()
@@ -71,13 +72,28 @@ int jugar (tConfig *config, const char *nomUser)
     tLista barcosEnCamino, camionesEnCamino;
     tCola colaOperaciones;
     tOperacion operacion;
+    tArbol indiceUsuarios;
+    tRegistroJornada regJornada;
     tRecuperacion recuperacion = {NULL, 0};
     int ret, largoMaxCodContenedor=0;
     crearLista(&barcosEnCamino);
     crearLista(&camionesEnCamino);
 
     getchar(); // Consumo salto de linea
-    iniciarSesion( &jornada );
+
+    cargarIndiceUsuarios(&indiceUsuarios);
+
+    ret=generarPuertoTXT(config, &jornada, nomUser, &largoMaxCodContenedor);
+
+    if(ret!=TODO_OK || cargarPuertoTxt(&jornada, config, &barcosEnCamino, &camionesEnCamino)!=TODO_OK)
+    {
+        vaciarLista(&barcosEnCamino);
+        vaciarLista(&camionesEnCamino);
+        return ret;
+    }
+    getchar(); // Consumo salto de linea
+
+    iniciarSesion( &jornada  , &indiceUsuarios);
     system("cls");//Borro la consola
 
     if(ER_NO_RECUPERA == consultarArchivosDeRecuperacionYCarga(&jornada)){
@@ -157,6 +173,8 @@ int jugar (tConfig *config, const char *nomUser)
         system("pause");
         system("cls");
     }
+
+    registrarJornada( &indiceUsuarios, &regJornada );
     mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, jornada.puntajeActual, jornada.user , &jornada.camiones);
     mostrarHistorialOperaciones(&colaOperaciones, config);
     cerrarArchivo(&recuperacion.pf_logMovimientos);

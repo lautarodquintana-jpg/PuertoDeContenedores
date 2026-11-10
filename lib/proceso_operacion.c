@@ -84,6 +84,7 @@ int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned 
     /**Obtenemos el primer contenedor del barco del primer muelle. No lo eliminamos porque
     si ocurre un error, habria que reinsertarlo en el barco*/
     res = obtenerContenedorMuelle( plMuelles , ope->codParametro_1 , &contenedor );
+
     if( res != TODO_OK )
     {
         fprintf(stderr,"\n\t | ERROR AL OBTENER CONTENEDOR DEL BUQUE DEL MUELLE %u |\n", ope->codParametro_1);
