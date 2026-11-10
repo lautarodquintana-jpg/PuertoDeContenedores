@@ -4,6 +4,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include "lib/colores.h"
 #include "lib/configuracion.h"
 #include "lib/validaciones.h"
 #include "lib/estructuras.h"
@@ -16,6 +17,8 @@
 #include "lib/usuarios.h"
 #include "lib/muelle.h"
 #include "lib/barco.h"
+#include "lib/recuperacion.h"
+#include "lib/ranking.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()
@@ -24,6 +27,7 @@ int main()
     HACER:
     iniciar_consola(); //Para poder mostrar los caracteres de los "mostrarMuelles()" y "mostrarZonasAlmacenamiento()"
     */
+
     int ret;
     tConfig config;
     char opcion, nomUser[TAM_USER];
@@ -59,17 +63,25 @@ int main()
         }
         opcion=leerYValidarCharMenu();
     }
-
     return 0;
 }
 int jugar (tConfig *config, const char *nomUser)
 {
+    FILE* pf_logActual;
     tJornada jornada;
     tLista barcosEnCamino, camionesEnCamino;
     tCola colaOperaciones;
     tOperacion operacion;
-
+    tArbol indiceUsuarios;
+    tRegistroJornada regJornada;
+    tRecuperacion recuperacion = {NULL, 0};
     int ret, largoMaxCodContenedor=0;
+    crearLista(&barcosEnCamino);
+    crearLista(&camionesEnCamino);
+
+    getchar(); // Consumo salto de linea
+
+    cargarIndiceUsuarios(&indiceUsuarios);
 
     ret=generarPuertoTXT(config, &jornada, nomUser, &largoMaxCodContenedor);
 
@@ -81,21 +93,49 @@ int jugar (tConfig *config, const char *nomUser)
     }
     getchar(); // Consumo salto de linea
 
-    iniciarSesion( &jornada );
+    iniciarSesion( &jornada  , &indiceUsuarios);
     system("cls");//Borro la consola
 
+    if(ER_NO_RECUPERA == consultarArchivosDeRecuperacionYCarga(&jornada)){
+        ret=generarPuertoTXT(config, &jornada, nomUser, &largoMaxCodContenedor);
+    }else if(ER_TODO_OK != (ret = prepararEstructuraRecuperacion(&jornada, config, &recuperacion)))
+        return ret;
+    largoMaxCodContenedor = (0 == largoMaxCodContenedor)?TAM_DEF_CODIGO_CONTENEDOR:largoMaxCodContenedor;
+    if(NULL == (pf_logActual = abrirArchivoMovimientosTemporales( jornada.user, "wb", 0 ))){
+        cerrarArchivo(&recuperacion.pf_logMovimientos);
+        return 0;
+    }
+
+    if(ret!=TODO_OK || cargarPuertoTxt(&jornada, config, &barcosEnCamino, &camionesEnCamino)!=TODO_OK){
+        vaciarLista(&barcosEnCamino);
+        vaciarLista(&camionesEnCamino);
+        cerrarArchivo(&recuperacion.pf_logMovimientos);
+        cerrarArchivo(&pf_logActual);
+        return ret;
+    }
+
+    if(ER_TODO_OK != (ret = guardarCopiaConfigYPuerto(jornada.user))){
+        printf("\n\t | ERROR AL CREAR COPIAS DE AUTOGUARDADO | \n");
+        vaciarLista(&barcosEnCamino);
+        vaciarLista(&camionesEnCamino);
+        cerrarArchivo(&recuperacion.pf_logMovimientos);
+        cerrarArchivo(&pf_logActual);
+        return ret;
+    }
+
     ret=prepararJornada( &jornada, &camionesEnCamino, &barcosEnCamino, config , largoMaxCodContenedor);
-    if(ret!=TODO_OK)
-    {
-        printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la función
+    if(ret!=TODO_OK){
+        printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acÃ¡ adentro, ya que libera todo dentro de la funciï¿½n
+        cerrarArchivo(&recuperacion.pf_logMovimientos);
+        cerrarArchivo(&pf_logActual);
         return ret;
     }
 
     crearCola(&colaOperaciones);
     avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
     procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
-
-    while( jornada.estado == JUEGO_EN_CURSO )
+    jornada.estado = recuperacion.registrosValidos>0?JUEGO_EN_RECUPERACION:JUEGO_EN_CURSO;
+    while( jornada.estado == JUEGO_EN_CURSO || jornada.estado == JUEGO_EN_RECUPERACION)
     {
         while( !existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
             procesarLlegadas(&jornada, &camionesEnCamino, &barcosEnCamino);
@@ -103,31 +143,42 @@ int jugar (tConfig *config, const char *nomUser)
         if( existeOperacionValida( config, &jornada ) == NO_EXISTE_OPE_VALIDA )
         {
             jornada.estado = FIN_JUEGO;
+            cerrarArchivo(&pf_logActual);
+            eliminarArchivosTemporales(jornada.user);
         } // Primero verificamos que haya tiempo
-        else if( solicitarOperacionSTDIN( &operacion, config, &jornada) == INGRESO_CAD_EXIT )
-        {
+        else if(JUEGO_EN_CURSO == jornada.estado && INGRESO_CAD_EXIT == solicitarOperacionSTDIN(&operacion, config, &jornada)){
             jornada.estado = FIN_JUEGO;
         }
-        else
+        else if(JUEGO_EN_RECUPERACION == jornada.estado && ER_NE_REGISTROS_REC == leerOperacionDelArchivoTemporal(&operacion, &jornada, &recuperacion)){
+            jornada.estado = JUEGO_EN_CURSO;
+        }
+        else if(JUEGO_EN_CURSO == jornada.estado || JUEGO_EN_RECUPERACION == jornada.estado)
         {
             ret=procesarOperacion( &jornada, &operacion, config );
-            if(ret==TODO_OK)
-                if(strcmp(operacion.cod, "VER")!=0)//No guardamos la operación VER
+            if(ret==TODO_OK){
+                if(strcmp(operacion.cod, "VER")!=0){//No guardamos la operaciÃ³n VER
                     if(ponerEnCola(&colaOperaciones, &operacion, sizeof(tOperacion))!=OK)
                     {
                         vaciarCola(&colaOperaciones);
                         liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
+                        cerrarArchivo(&recuperacion.pf_logMovimientos);
+                        cerrarArchivo(&pf_logActual);
                         return COLA_LLENA;
                     }
+                }
+                guardarOperacion( pf_logActual, operacion );
+            }
             procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
         }
         system("pause");
         system("cls");
     }
 
+    registrarJornada( &indiceUsuarios, &regJornada );
     mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, jornada.puntajeActual, jornada.user , &jornada.camiones);
     mostrarHistorialOperaciones(&colaOperaciones, config);
-
+    cerrarArchivo(&recuperacion.pf_logMovimientos);
+    cerrarArchivo(&pf_logActual);
     //liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
     return TODO_OK;
 }

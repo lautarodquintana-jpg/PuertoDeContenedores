@@ -34,11 +34,11 @@ void recorrerPosOrdenArbol(tArbol *pa, void(mostrar)(const void *elem))
 }
 int insertarOrdenadoConRecursividad(tArbol *pa, const void *elem, unsigned tam, int(comparacion)(const void *elem1, const void *elem2))
 {
-    tNodo *nue;
+    tNodoArbol *nue;
     int comp;
     if(*pa==NULL)
     {
-        nue=malloc(sizeof(tNodo));
+        nue=malloc(sizeof(tNodoArbol));
         if(!nue)
             return ERROR_MEMORIA;
         nue->info=malloc(tam);
@@ -69,7 +69,7 @@ int insertarOrdenadoConRecursividad(tArbol *pa, const void *elem, unsigned tam, 
 }
 int insertarOrdenadoSinRecursividad(tArbol *pa, const void *elem, unsigned tam, int(comparacion)(const void *elem1, const void *elem2))
 {
-    tNodo *nue;
+    tNodoArbol *nue;
     int comp;
 
     while(*pa)
@@ -84,7 +84,7 @@ int insertarOrdenadoSinRecursividad(tArbol *pa, const void *elem, unsigned tam, 
                 pa=&(*pa)->izq;
     }
 
-    nue=malloc(sizeof(tNodo));
+    nue=malloc(sizeof(tNodoArbol));
     if(!nue)
         return ERROR_MEMORIA;
     nue->info=malloc(tam);
@@ -274,7 +274,7 @@ int generarArbolAPartirDeArchivoBinario(tArbol *pa, const char *nomArch, unsigne
     FILE *pf=fopen(nomArch, "rb");
     tArbol *ini=pa;
     void *aux;
-    tNodo *nue;
+    tNodoArbol *nue;
     int comparacion;
     if(!pf)
         return ERROR_ARCHIVO;
@@ -300,7 +300,7 @@ int generarArbolAPartirDeArchivoBinario(tArbol *pa, const char *nomArch, unsigne
         }
         if(comparacion)
         {
-            nue=malloc(sizeof(tNodo));
+            nue=malloc(sizeof(tNodoArbol));
             if(!nue)
             {
                 free(aux);
@@ -346,12 +346,12 @@ int generarArbolBalanceadoAPartirDeArchivoBinarioOrdenado(tArbol *pa, const char
 }
 int _generarArbolBalanceadoAPartirDeArchivoBinarioOrdenado(tArbol *pa, unsigned tamElem, FILE *pf, int ini, int fin)
 {
-    tNodo *nue;
+    tNodoArbol *nue;
     int li=ini, ls=fin, medio;
 
     if(li>ls)
         return TODO_OK;
-    nue=malloc(sizeof(tNodo));
+    nue=malloc(sizeof(tNodoArbol));
     if(!nue)
         return ERROR_MEMORIA;
     nue->info=malloc(tamElem);
@@ -428,7 +428,7 @@ tArbol* buscarElemEnArbol(tArbol *pa, void *elem, int(cmp)(const void *elem1, co
 }
 int eliminarRaizDeArbol(tArbol *pa, void *elem, unsigned tamElem,int(cmp)(const void *elem1, const void *elem2))//Debo buscar mayor y menor, todo eso
 {
-    tNodo *elim;
+    tNodoArbol *elim;
     tArbol *aux;
     if(calcularAlturadelArbol(&(*pa)->izq) > calcularAlturadelArbol(&(*pa)->der))//si la altura del arbol izquierdo es mayor, debo buscar el mayor de los menores
     {
@@ -458,7 +458,7 @@ int eliminarNodo(tArbol *pa, void *elem, tArbol *aEliminar)
 {
     //En esta funcion: tiene hijo por izq o der, o es hoja
 
-    tNodo *elim=*aEliminar;
+    tNodoArbol *elim=*aEliminar;
 
     if(elim->der && !elim->izq)//Si tiene hijo por derecha pero no por izquierda
     {

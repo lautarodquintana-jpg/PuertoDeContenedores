@@ -116,14 +116,14 @@ void mostrarMotivoRechazo(int codigo)
 {
     switch(codigo)
     {
-        case INGRESO_SIN_TIEMPO:            printf("\n\t | NO HAY TIEMPO SUFICIENTE EN LA JORNADA |\n"); break;
-        case INGRESO_MUELLE_SIN_CARGA:      printf("\n\t | EL MUELLE NO TIENE UN BUQUE CON CARGA PENDIENTE |\n"); break;
-        case INGRESO_ZONA_LLENA:            printf("\n\t | LA ZONA DE DESTINO NO TIENE CAPACIDAD |\n"); break;
-        case INGRESO_ZONA_VACIA:            printf("\n\t | LA ZONA DE ORIGEN ESTA VACIA |\n"); break;
-        case INGRESO_ZONAS_IGUALES:         printf("\n\t | LAS ZONAS DEBEN SER DISTINTAS |\n"); break;
-        case INGRESO_SIN_CAMION:            printf("\n\t | NO HAY CAMIONES ESPERANDO |\n"); break;
-        case INGRESO_CONTENEDOR_NO_EN_TOPE: printf("\n\t | EL CONTENEDOR DEL CAMION NO ESTA EN EL TOPE DE NINGUNA ZONA |\n"); break;
-        default:                            printf("\n\t | ERROR INTERNO AL VALIDAR |\n"); break;
+        case INGRESO_SIN_TIEMPO:            printf("\t"BG_ROJO CL_BLANCO"| NO HAY TIEMPO SUFICIENTE EN LA JORNADA |"COLOR_RESET "\n\n"); break;
+        case INGRESO_MUELLE_SIN_CARGA:      printf("\t"BG_ROJO CL_BLANCO"| EL MUELLE NO TIENE UN BUQUE CON CARGA PENDIENTE |" COLOR_RESET "\n\n"); break;
+        case INGRESO_ZONA_LLENA:            printf("\t"BG_ROJO CL_BLANCO"| LA ZONA DE DESTINO NO TIENE CAPACIDAD |"COLOR_RESET"\n\n"); break;
+        case INGRESO_ZONA_VACIA:            printf("\t"BG_ROJO CL_BLANCO"| LA ZONA DE ORIGEN ESTA VACIA |"COLOR_RESET"\n\n"); break;
+        case INGRESO_ZONAS_IGUALES:         printf("\t"BG_ROJO CL_BLANCO"| LAS ZONAS DEBEN SER DISTINTAS |"COLOR_RESET"\n\n"); break;
+        case INGRESO_SIN_CAMION:            printf("\t"BG_ROJO CL_BLANCO"| NO HAY CAMIONES ESPERANDO |"COLOR_RESET"\n\n"); break;
+        case INGRESO_CONTENEDOR_NO_EN_TOPE: printf("\t"BG_ROJO CL_BLANCO"| EL CONTENEDOR DEL CAMION NO ESTA EN EL TOPE DE NINGUNA ZONA |"COLOR_RESET"\n\n"); break;
+        default:                            printf("\t"BG_ROJO CL_BLANCO"| ERROR INTERNO AL VALIDAR |"COLOR_RESET"\n\n"); break;
     }
 }
 

@@ -1,6 +1,7 @@
 #ifndef ESTRUCTURAS_H_INCLUDED
 #define ESTRUCTURAS_H_INCLUDED
 
+#include <stdio.h>
 #include "../TDA/cola.h"
 #include "../TDA/pila.h"
 #include "../TDA/ListaSimplementeEnlazada.h"
@@ -9,10 +10,12 @@
 #define ERROR_ARCHIVO -20
 #define TAM_USER 50
 #define TAM_CODIGOS 15
+#define TAM_DEF_CODIGO_CONTENEDOR 10
 #define TAM_LINEAMAX_PUERTOTXT 300
 
 #define JUEGO_EN_CURSO 70
 #define FIN_JUEGO 75
+#define JUEGO_EN_RECUPERACION 80
 #define PUNTOS_ENTREGA       10
 #define PUNTOS_DESCA_TOTAL    5
 #define PUNTOS_PENALIZACION   2
@@ -106,5 +109,11 @@ typedef struct{
     unsigned minutoEjecutado;
     char contenedorInvolucrado[TAM_CODIGOS];
 }tOperacion;
+
+typedef struct{
+    FILE *pf_logMovimientos;
+    unsigned int registrosValidos;
+}tRecuperacion;
+
 
 #endif // ESTRUCTURAS_H_INCLUDED

@@ -14,6 +14,7 @@ int generarMuelles(tLista *plMuelles, unsigned cantMuelles){
         auxMuelle.barco.cantidadContenedoresRestante = 0;
         *auxMuelle.barco.cod = '\0';
         auxMuelle.barco.cantidadContenedoresTotal = 0;
+        auxMuelle.minutoArribo = 0;
         crearCola( &auxMuelle.barco.contenedores );
     auxMuelle.estado = MUELLE_DISPONIBLE; //Estado disponible
     for( i=0 ; i<cantMuelles ; i++){
@@ -41,13 +42,12 @@ void eliminarMuelles(tLista *plMuelles){
 
 //Funcion callback para mostrar un muelle
 void mostrarMuelleCB(void *ctx, const void *elem){
+    //tContenedor auxContenedor;
     tMuelle *muelle = (tMuelle*)elem;
     printf("\n ||-> COD: %u - ESTADO: %-10s - Minuto Arribo: %u - BUQUE: ",muelle->cod, muelle->estado==MUELLE_DISPONIBLE? "Disponible": "Ocupado", muelle->minutoArribo);
 
     if( *muelle->barco.cod != '\0' )
-    {
         printf("%s - CONTENEDORES RESTANTES: %u",muelle->barco.cod, muelle->barco.cantidadContenedoresRestante);
-    }
     else
         printf("SIN BARCO");
 }
@@ -156,16 +156,10 @@ int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* c
 
 int obtenerContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor)
 {
-    int res;
-
-    res = actualizarNElemDeLista( plMuelles , contenedor , codMuelle-1 , obtenerPrimerContenedorDeBarco );
-    if( res != TODO_OK )
-        return res;
-
-    if( *contenedor->cod == '\0' )
+    if(!tieneBarcoContenedores(plMuelles, codMuelle))
         return ERROR_SACAR_CONTENEDOR_BARCO;
 
-    return TODO_OK;
+    return actualizarNElemDeLista( plMuelles , contenedor , codMuelle-1 , obtenerPrimerContenedorDeBarco );
 }
 
 void mostrarMuelles( tLista *plMuelles )
