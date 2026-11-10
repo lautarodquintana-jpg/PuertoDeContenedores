@@ -7,6 +7,7 @@
 #include "estructuras.h"
 #include "ingreso_operaciones.h"
 #include "muelle.h"
+#include "colores.h"
 
 enum VALIDACION{
     INGRESO_SIN_TIEMPO            = -35,

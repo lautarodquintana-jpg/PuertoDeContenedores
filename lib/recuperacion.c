@@ -134,7 +134,7 @@ int renombrarArchivoTemporalAIniciado(const char *user, const char *tipoArchivoT
     char bufferNue[MAX_FILENAME];
     snprintf(bufferAnt, MAX_FILENAME, "%s%s%s",PATH_TEMPORALES, user, tipoArchivoTemporal);
     snprintf(bufferNue, MAX_FILENAME, "%s%s%s%s",PATH_TEMPORALES, PREFIJO_RECUPERANDO, user, tipoArchivoTemporal);
-    printf("\n ANT: %s | NUE: %s", bufferAnt, bufferNue);
+    remove(bufferNue); //Para evitar fallo en caso de que por alguna razon exista ya.
     if(rename(bufferAnt, bufferNue))
         return ER_ERROR_ARCHIVO;
     return ER_TODO_OK;
@@ -221,22 +221,21 @@ int prepararEstructuraRecuperacion(tJornada *jornada, tConfig *config, tRecupera
     FILE *pf_logMovimientosIniciados;
 
     if(ER_ERROR_ARCHIVO == renombrarArchivoTemporalAIniciado(jornada->user, SUBFIJO_LOG)){
-        printf("\n Error en el renombrado");
-        return ER_ERROR_ARCHIVO;
+        return ER_ERROR_RENOMBRE;
     }
 
     pf_logMovimientosIniciados = abrirArchivoMovimientosTemporales(jornada->user, "rb",1);
     if(NULL == pf_logMovimientosIniciados){
-        return ER_ERROR_ARCHIVO;
+        return ER_ERROR_APERTURA_LGMOVS;
     }
 
     if(ER_TODO_OK != duplicarConfigACarpetaPrincipal(jornada->user) || ER_TODO_OK != duplicarPuertoACarpetaPrincipal(jornada->user)){        fclose(pf_logMovimientosIniciados);
-        return ER_NE_ARCHIVO;
+        return ER_ERROR_DUPLICACION;
     }
 
     if(TODO_OK != leerConfigTxt(config, RECU_NOMBARCH_CONFIG)){
         fclose(pf_logMovimientosIniciados);
-        return ER_NE_ARCHIVO;
+        return ER_ERROR_CONFIG;
     }
     eliminarArchivoConfigTemporal(jornada->user);
     eliminarArchivoPuertoTemporal(jornada->user);
@@ -247,12 +246,13 @@ int prepararEstructuraRecuperacion(tJornada *jornada, tConfig *config, tRecupera
     return ER_TODO_OK;
 }
 
-int leerRegistroDelArchivoTemporal(tOperacion *operacion, tJornada *jornada, tRecuperacion *recuperacion){
+int leerOperacionDelArchivoTemporal(tOperacion *operacion, tJornada *jornada, tRecuperacion *recuperacion){
     if(recuperacion->registrosValidos > 0){
         fread(operacion, sizeof(tOperacion), 1, recuperacion->pf_logMovimientos);
+        printf(CL_GRIS"\n TIEMPO ACTUAL: %d"COLOR_RESET, jornada->tiempoActual);
+        printf("\n\t"CL_GRIS"OPP: %s | P1: %d | P2: %d | MIN: %d"COLOR_RESET"\n", operacion->cod, operacion->codParametro_1, operacion->codParametro_2, operacion->minutoEjecutado);
         recuperacion->registrosValidos -= 1;
     }else{
-        jornada->estado = JUEGO_EN_CURSO;
         fclose(recuperacion->pf_logMovimientos);
         eliminarArchivoMovimientosTemporales(jornada->user, 1);
         return ER_NE_REGISTROS_REC;

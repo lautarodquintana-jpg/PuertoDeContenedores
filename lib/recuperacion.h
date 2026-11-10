@@ -37,7 +37,11 @@ typedef enum{
     ER_NO_RECUPERA      = -5,
     ER_RECUPERA         =  3,
     ER_EX_REGISTROS_REC =  5,
-    ER_NE_REGISTROS_REC = -5
+    ER_NE_REGISTROS_REC = -5,
+    ER_ERROR_RENOMBRE   = -6,
+    ER_ERROR_APERTURA_LGMOVS = -7,
+    ER_ERROR_DUPLICACION = -8,
+    ER_ERROR_CONFIG      = -9
 }ESTADOS_RECUPERACION;
 
 int duplicarArchivoTexto(const char *origen, const char *destino);
@@ -61,7 +65,7 @@ int guardarCopiaConfigYPuerto(const char *user);
 
 int existeArchivoDeRecuperacion (const char *user);
 int consultarArchivosDeRecuperacionYCarga(tJornada *jornada);
-int leerRegistroDelArchivoTemporal(tOperacion *operacion, tJornada *jornada, tRecuperacion *recuperacion);
 int prepararEstructuraRecuperacion(tJornada *jornada, tConfig *config, tRecuperacion *log);
+int leerOperacionDelArchivoTemporal(tOperacion *operacion, tJornada *jornada, tRecuperacion *recuperacion);
 
 #endif // RECUPERACION_H_INCLUDED

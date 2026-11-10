@@ -149,7 +149,7 @@ int solicitarOperacionSTDIN(tOperacion *oppDest, tConfig *config, tJornada *jorn
 
     do{
         mostrarTipoOperaciones(config);
-        printf("\n |-> INGRESE OPERACION: ");
+        printf("\n"BG_CARBON CL_BLANCO"|-> INGRESE OPERACION:"COLOR_RESET" ");
         fgets(bufferChar, TAM_BUFFER_STDIN_OPP, stdin);
         bufferChar[strcspn(bufferChar, "\n")] = '\0';
         aMayusculas(bufferChar);

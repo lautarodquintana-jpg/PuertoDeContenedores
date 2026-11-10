@@ -25,6 +25,7 @@ int main()
     HACER:
     iniciar_consola(); //Para poder mostrar los caracteres de los "mostrarMuelles()" y "mostrarZonasAlmacenamiento()"
     */
+
     int ret;
     tConfig config;
     char opcion, nomUser[TAM_USER];
@@ -113,9 +114,8 @@ int jugar (tConfig *config, const char *nomUser)
     crearCola(&colaOperaciones);
     avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
     procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
-
-
-    while( jornada.estado == JUEGO_EN_CURSO )
+    jornada.estado = recuperacion.registrosValidos>0?JUEGO_EN_RECUPERACION:JUEGO_EN_CURSO;
+    while( jornada.estado == JUEGO_EN_CURSO || jornada.estado == JUEGO_EN_RECUPERACION)
     {
         while( !existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
             procesarLlegadas(&jornada, &camionesEnCamino, &barcosEnCamino);
@@ -123,11 +123,15 @@ int jugar (tConfig *config, const char *nomUser)
         if( existeOperacionValida( config, &jornada ) == NO_EXISTE_OPE_VALIDA )
         {
             jornada.estado = FIN_JUEGO;
+            fclose(pf_logActual);
+            pf_logActual = NULL;
             eliminarArchivosTemporales(jornada.user);
         } // Primero verificamos que haya tiempo
-        else if( solicitarOperacionSTDIN( &operacion, config, &jornada) == INGRESO_CAD_EXIT )
-        {
+        else if(JUEGO_EN_CURSO == jornada.estado && INGRESO_CAD_EXIT == solicitarOperacionSTDIN(&operacion, config, &jornada)){
             jornada.estado = FIN_JUEGO;
+        }
+        else if(JUEGO_EN_RECUPERACION == jornada.estado && ER_NE_REGISTROS_REC == leerOperacionDelArchivoTemporal(&operacion, &jornada, &recuperacion)){
+            jornada.estado = JUEGO_EN_CURSO;
         }
         else
         {
@@ -152,7 +156,8 @@ int jugar (tConfig *config, const char *nomUser)
     mostrarHistorialOperaciones(&colaOperaciones, config);
     if(NULL != recuperacion.pf_logMovimientos)
         fclose(recuperacion.pf_logMovimientos);
-    fclose(pf_logActual);
+    if(pf_logActual)
+        fclose(pf_logActual);
     //liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
     return TODO_OK;
 }
