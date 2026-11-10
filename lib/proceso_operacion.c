@@ -9,7 +9,7 @@ int procesarOperacion( tJornada* jornada, tOperacion* ope, const tConfig* config
 
     if( strcmp( ope->cod, "REU" ) == 0 )
     {
-        if( ejecutarREU( &jornada->zonasAlmacenamiento, ope , config->cantidadZonasDeAlmacenamiento ) == TODO_OK )
+        if( ejecutarREU( &jornada->zonasAlmacenamiento, ope , config->capPila ) == TODO_OK )
         {
             jornada->tiempoActual += config->tiempoDeReubicacionDeContenedor;
             jornada->cantOperaciones.cantReubic++;
@@ -124,9 +124,7 @@ int ejecutarREU( tLista* plZonasAlmacenamiento, tOperacion *ope, unsigned maxCap
         fprintf(stderr,"\n\t | ERROR AL RETIRAR CONTENEDOR DE ZONA %u |\n",ope->codParametro_1);
         return COD_ZONAS_MAL;
     }
-
     strcpy(ope->contenedorInvolucrado, contenedor.cod);
-
     if( agregarContenedorZonaAlmacenamiento( plZonasAlmacenamiento, ope->codParametro_2, contenedor, maxCapacidadZonas ) != COD_ZONAS_OK )
     {
         fprintf(stderr,"\n\t | ERROR AL AGREGAR CONTENEDOR DE ZONA %u |\n",ope->codParametro_2);

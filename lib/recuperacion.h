@@ -67,5 +67,5 @@ int existeArchivoDeRecuperacion (const char *user);
 int consultarArchivosDeRecuperacionYCarga(tJornada *jornada);
 int prepararEstructuraRecuperacion(tJornada *jornada, tConfig *config, tRecuperacion *log);
 int leerOperacionDelArchivoTemporal(tOperacion *operacion, tJornada *jornada, tRecuperacion *recuperacion);
-
+void cerrarArchivo(FILE **pf);
 #endif // RECUPERACION_H_INCLUDED

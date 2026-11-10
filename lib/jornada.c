@@ -318,7 +318,7 @@ int avanzarTiempoHastaEventoFuturo( tJornada* jornada, const tLista* camionesEnC
 
     if( existeEvento != 0 )
     {
-        jornada->tiempoActual = barco.arriboProgramado;
+        jornada->tiempoActual = barco.arriboProgramado; //tiempoPrimerEvento?
         return TIEMPO_AVANZADO;
     }
     return TIEMPO_NO_AVANZADO;

@@ -165,20 +165,27 @@ int guardarCopiaConfigYPuerto(const char *user){
 int existeArchivoDeRecuperacion(const char *user){
 /** EN BASE AL NOMBRE DE USUARIO, DEVUELVE LA EXISTENCIA LÓGICA O NO DE LA TERNA (LOG_MOVIMIENTOS ; LOG_PUERTO ; LOG_CONFIG) -> NO CARGA NADA*/
     FILE *pf_logMovimientos, *pf_logPuerto, *pf_logConfig;
+
+    // INTENTA ABRIR EL ARCHIVO "USER.LOG"
     pf_logMovimientos = abrirArchivoMovimientosTemporales(user, "rb", 0);
     if(NULL == pf_logMovimientos)
         return ER_NE_ARCHIVO;
+
+    // INTENTA ABRIR EL ARCHIVO "USER_PUERTO.TXT"
     pf_logPuerto = abrirArchivoPuertoTemporal(user, "r", 0);
     if(NULL == pf_logPuerto){
         fclose(pf_logMovimientos);
         return ER_NE_ARCHIVO;
     }
+
+    // INTENTA ABRIR EL ARCHIVO "USER_CONFIG.TXT"
     pf_logConfig = abrirArchivoConfigTemporal(user,"r", 0);
     if(NULL == pf_logConfig){
         fclose(pf_logMovimientos);
         fclose(pf_logPuerto);
         return ER_NE_ARCHIVO;
     }
+
     fclose(pf_logMovimientos);
     fclose(pf_logPuerto);
     fclose(pf_logConfig);
@@ -220,29 +227,45 @@ int prepararEstructuraRecuperacion(tJornada *jornada, tConfig *config, tRecupera
 
     FILE *pf_logMovimientosIniciados;
 
-    if(ER_ERROR_ARCHIVO == renombrarArchivoTemporalAIniciado(jornada->user, SUBFIJO_LOG)){
-        return ER_ERROR_RENOMBRE;
-    }
+    //RENOMBRA: USER.LOG A RECU_USER.LOG
+        if(ER_ERROR_ARCHIVO == renombrarArchivoTemporalAIniciado(jornada->user, SUBFIJO_LOG)){
+            return ER_ERROR_RENOMBRE;
+        }
 
-    pf_logMovimientosIniciados = abrirArchivoMovimientosTemporales(jornada->user, "rb",1);
-    if(NULL == pf_logMovimientosIniciados){
-        return ER_ERROR_APERTURA_LGMOVS;
-    }
+    //ABRE ARCHIVO DE MOVIMIENTOS DE NOMBRE: RECU_USER.LOG
+        pf_logMovimientosIniciados = abrirArchivoMovimientosTemporales(jornada->user, "rb",1);
+        if(NULL == pf_logMovimientosIniciados){
+            return ER_ERROR_APERTURA_LGMOVS;
+        }
 
-    if(ER_TODO_OK != duplicarConfigACarpetaPrincipal(jornada->user) || ER_TODO_OK != duplicarPuertoACarpetaPrincipal(jornada->user)){        fclose(pf_logMovimientosIniciados);
-        return ER_ERROR_DUPLICACION;
-    }
+    // CREA EN CARPETA RAIZ: "CONFIG.TXT" Y "PUERTO.TXT" DUPLICADOS (SOBREESCRIBIENDO LOS ANTERIORES)
+        if(ER_TODO_OK != duplicarConfigACarpetaPrincipal(jornada->user) || ER_TODO_OK != duplicarPuertoACarpetaPrincipal(jornada->user)){            fclose(pf_logMovimientosIniciados);
+            return ER_ERROR_DUPLICACION;
+        }
 
-    if(TODO_OK != leerConfigTxt(config, RECU_NOMBARCH_CONFIG)){
-        fclose(pf_logMovimientosIniciados);
-        return ER_ERROR_CONFIG;
-    }
-    eliminarArchivoConfigTemporal(jornada->user);
-    eliminarArchivoPuertoTemporal(jornada->user);
-    log->pf_logMovimientos = pf_logMovimientosIniciados;
-    fseek(pf_logMovimientosIniciados, 0, SEEK_END);
-    log->registrosValidos = ftell(pf_logMovimientosIniciados) / sizeof(tOperacion);
-    fseek(pf_logMovimientosIniciados, 0, SEEK_SET);
+    // LEE EL CONFIG Y LO CARGA NUEVAMENTE (POR SI CAMBIO)
+        if(TODO_OK != leerConfigTxt(config, RECU_NOMBARCH_CONFIG)){
+            fclose(pf_logMovimientosIniciados);
+            return ER_ERROR_CONFIG;
+        }
+
+    // ELIMINA LOS ARCHIVOS: "USER_CONFIG.TXT" Y "USER_PUERTO.TXT": YA ESTA EN RAIZ PARA INICIALIZAR JORNADA Y LA COPIA DE SEGURIDAD CREARÁ NUEVOS
+        eliminarArchivoConfigTemporal(jornada->user);
+        eliminarArchivoPuertoTemporal(jornada->user);
+
+    // CALCULA CUANTOS REGISTROS VALIDOS EXISTEN EN EL ARCHIVO
+        fseek(pf_logMovimientosIniciados, 0, SEEK_END);
+        log->registrosValidos = ftell(pf_logMovimientosIniciados) / sizeof(tOperacion);
+        fseek(pf_logMovimientosIniciados, 0, SEEK_SET);
+
+    // SI NO HAY REGISTROS VALIDOS, LA RECUPERACION NO SE INICIA
+        if(0 == log->registrosValidos){
+            fclose(pf_logMovimientosIniciados);                    // CIERRA "RECU_USER.LOG"
+            eliminarArchivoMovimientosTemporales(jornada->user,1); // ELIMINA: "RECU_USER.LOG"
+            log->pf_logMovimientos = NULL;
+        }else
+            log->pf_logMovimientos = pf_logMovimientosIniciados;
+
     return ER_TODO_OK;
 }
 
@@ -250,12 +273,19 @@ int leerOperacionDelArchivoTemporal(tOperacion *operacion, tJornada *jornada, tR
     if(recuperacion->registrosValidos > 0){
         fread(operacion, sizeof(tOperacion), 1, recuperacion->pf_logMovimientos);
         printf(CL_GRIS"\n TIEMPO ACTUAL: %d"COLOR_RESET, jornada->tiempoActual);
-        printf("\n\t"CL_GRIS"OPP: %s | P1: %d | P2: %d | MIN: %d"COLOR_RESET"\n", operacion->cod, operacion->codParametro_1, operacion->codParametro_2, operacion->minutoEjecutado);
+        printf("\n\t"CL_GRIS"OPP: %s | P1: %d | P2: %d | MIN: %d | CI: %s"COLOR_RESET"\n", operacion->cod, operacion->codParametro_1, operacion->codParametro_2, operacion->minutoEjecutado, operacion->contenedorInvolucrado);
         recuperacion->registrosValidos -= 1;
     }else{
-        fclose(recuperacion->pf_logMovimientos);
+        cerrarArchivo(&recuperacion->pf_logMovimientos);
         eliminarArchivoMovimientosTemporales(jornada->user, 1);
         return ER_NE_REGISTROS_REC;
     }
     return ER_EX_REGISTROS_REC;
+}
+
+void cerrarArchivo(FILE **pf){
+    if(pf == NULL || *pf == NULL)
+        return;
+    fclose(*pf);
+    *pf = NULL;
 }

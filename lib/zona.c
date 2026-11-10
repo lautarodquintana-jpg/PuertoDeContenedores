@@ -12,7 +12,6 @@ int generarZonas( tLista* zonas, unsigned cantZonas, int largoMaxCodContenedor, 
     tZona auxZona;
 
     auxZona.cantidadOcupada = 0;
-
     crearPila( &auxZona.contenedores );
 
     for( i = 0 ; i < cantZonas ; i++ )
@@ -50,7 +49,7 @@ void apilarContenedorEnZona( void* pZona, const void* elem )
     else
         zona->cantidadOcupada++;
 
-    strcat(zona->cadContenedoresApilados, contenedor->cod);
+    strcat(zona->cadContenedoresApilados, contenedor->cod); //ALMACENA EL SALTO DE LINEA [C|1|0|0|\n|C|2|0|0|\n]
     strcat(zona->cadContenedoresApilados, "\n");
 }
 
@@ -176,8 +175,7 @@ void obtenerDisponibilidadCB(void *zonaLista, const void *cantidadOcupado)
 }
 
 //Funcion que devuelve el estado de ocupación de una zona: ZONA_LLENA (0) - ZONA_DISPONIBLE(1)
-int consultarDisponibilidadZona(tLista *plZonasAlmacenamiento, unsigned codZona, unsigned capacidadPila)
-{
+int consultarDisponibilidadZona(tLista *plZonasAlmacenamiento, unsigned codZona, unsigned capacidadPila){
     unsigned cantidadOcupada = 0;
     if(0 == codZona--)
         return COD_ZONAS_MAL;
@@ -185,6 +183,19 @@ int consultarDisponibilidadZona(tLista *plZonasAlmacenamiento, unsigned codZona,
         return COD_ZONAS_MAL;
     return cantidadOcupada==capacidadPila?ZONA_LLENA:(cantidadOcupada==0?ZONA_VACIA:ZONA_DISPONIBLE);
 }
+
+//////////////////// TEMP /////////// SE RECORRE DE [0 A N-1] ZONAS EN LISTA
+int verDisponibilidadDeTodasLasZonas(tLista *plZonasAlmacenamiento, unsigned cantZonas, tConfig *config){
+    unsigned cantidadOcupada = 0;
+    for(int i=0; i<cantZonas ; i++){
+        if(TODO_OK != actualizarNElemDeLista(plZonasAlmacenamiento, &cantidadOcupada, i, obtenerDisponibilidadCB))
+            return COD_ZONAS_MAL;
+        printf("\n ZONA: [%d|%d] -> CANTIDAD_OCUPADA: %d | MAX: %d", i, i+1,cantidadOcupada, config->capPila);
+    }
+    printf("\n");
+    return 1;
+}
+///////////////////
 
 //Funcion callback que empila un contenedor a una zona de almacenamiento
 void apilarContenedorCB(void *zonaLista, const void *ctx)
@@ -209,7 +220,7 @@ int agregarContenedorZonaAlmacenamiento(tLista *plZonasAlmacenamiento, unsigned 
     void *ptxCtx[2] = {&contenedor, &error};
     if(0 == codZona--)
         return COD_ZONAS_MAL;
-    if(ZONA_LLENA == consultarDisponibilidadZona(plZonasAlmacenamiento,codZona,capacidadPila))
+    if(ZONA_LLENA == consultarDisponibilidadZona(plZonasAlmacenamiento,(codZona+1),capacidadPila))
         return ZONA_LLENA;
     if(TODO_OK != actualizarNElemDeLista(plZonasAlmacenamiento, &ptxCtx, codZona, apilarContenedorCB))
         return COD_ZONAS_MAL;
@@ -228,6 +239,5 @@ void liberarZonasDeAlmacenamiento (tLista *zonas)
         vaciarPila(&aux.contenedores);
         i++;
     }
-
     vaciarLista(zonas);
 }
