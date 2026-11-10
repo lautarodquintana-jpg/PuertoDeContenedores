@@ -9,11 +9,11 @@
 #include "zona.h"
 #include "camion.h"
 
-void procesarOperacion( tJornada* jornada , const tOperacion* ope, const tConfig* config );
+int procesarOperacion( tJornada* jornada, tOperacion* ope, const tConfig* config );
 
-void ejecutarVER( tJornada* jornada );
-int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , unsigned codZonaDes, unsigned capacidadPilaZona, unsigned* puntuacionActual );
+int ejecutarVER( tJornada* jornada );
+int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned capacidadPilaZona, unsigned* puntuacionActual );
 int ejecutarREU();
-int ejecutarENT( tCola* colaCamiones, tLista* plZonas );
+int ejecutarENT( tCola* colaCamiones, tLista* plZonas , tOperacion *ope);
 
 #endif // PROCESO_OPERACION_H_INCLUDED

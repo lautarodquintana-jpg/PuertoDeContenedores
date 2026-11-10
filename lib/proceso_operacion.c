@@ -1,40 +1,53 @@
 #include "proceso_operacion.h"
 
-void procesarOperacion( tJornada* jornada, const tOperacion* ope, const tConfig* config )
+int procesarOperacion( tJornada* jornada, tOperacion* ope, const tConfig* config )
 {
+    int res;
+
     if( strcmp( ope->cod, "VER" ) == 0 )
-        ejecutarVER(jornada);
+        return ejecutarVER(jornada);
 
     if( strcmp( ope->cod, "REU" ) == 0 )
     {
-        if( ejecutarREU( &jornada->zonasAlmacenamiento, ope->codParametro_1, ope->codParametro_2, config->cantidadZonasDeAlmacenamiento ) == TODO_OK )
+        if( ejecutarREU( &jornada->zonasAlmacenamiento, ope , config->cantidadZonasDeAlmacenamiento ) == TODO_OK )
         {
             jornada->tiempoActual += config->tiempoDeReubicacionDeContenedor;
             jornada->cantOperaciones.cantReubic++;
         }
+        else
+            return COD_ZONAS_MAL;
     }
 
     if( strcmp( ope->cod, "DES" ) == 0 )
     {
-        if( ejecutarDES(&jornada->muelles, &jornada->zonasAlmacenamiento, ope->codParametro_1, ope->codParametro_2, config->capPila, &jornada->puntajeActual) == TODO_OK )
+        res=ejecutarDES(&jornada->muelles, &jornada->zonasAlmacenamiento, ope , config->capPila, &jornada->puntajeActual);
+        if( res == TODO_OK )
         {
             jornada->tiempoActual += config->tiempoDeDescargaDeContenedor;
             jornada->cantOperaciones.cantDescargas++;
         }
+        else
+            return res;
     }
 
     if( strcmp( ope->cod, "ENT" ) == 0 )
     {
-        if( ejecutarENT( &jornada->camiones, &jornada->zonasAlmacenamiento ) == TODO_OK )
+        res=ejecutarENT( &jornada->camiones, &jornada->zonasAlmacenamiento , ope);
+        if( res == TODO_OK )
         {
             jornada->tiempoActual += config->tiempoDeCargaDeCamion;
             jornada->puntajeActual += PUNTOS_ENTREGA;
             jornada->cantOperaciones.cantEntregas++;
+            return TODO_OK;
         }
+        else
+            return res;
     }
 
     if( strcmp( ope->cod, "ESP" ) == 0 )
         jornada->tiempoActual += 1;
+
+    return TODO_OK;
 }
 
 /**
@@ -44,46 +57,50 @@ contenido de las zonas de almacenamiento, la ventana
 de planificaci�n de hasta tres camiones y la puntuaci�n
 provisoria.
 */
-void ejecutarVER( tJornada* jornada )
+int ejecutarVER( tJornada* jornada )
 {
     printf("\nTiempo transcurrido: %u minutos\n", jornada->tiempoActual);
     printf("Puntaje: %u\n", jornada->puntajeActual);
 
     mostrarMuelles( &jornada->muelles );
     mostrarZonas( &jornada->zonasAlmacenamiento );
-    mostrarPrimerCamion( &jornada->camiones );
+    if(mostrarPrimeros3Camiones( &jornada->camiones )!=OK)
+        return COLA_LLENA;
 
     printf("\n");
+    return OK;
 }
 
 /**El ultimo contenedor que se ingreso en el buque sera el que se ponga en
 la pila de la zona seleccionada.
 */
-int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , unsigned codZonaDes, unsigned capacidadPilaZona, unsigned* puntuacionActual )
+int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned capacidadPilaZona, unsigned* puntuacionActual )
 {
     tContenedor contenedor;
     int res;
 
     /**Obtenemos el primer contenedor del barco del primer muelle. No lo eliminamos porque
     si ocurre un error, habria que reinsertarlo en el barco*/
-    res = obtenerContenedorMuelle( plMuelles , codMuelleOri , &contenedor );
+    res = obtenerContenedorMuelle( plMuelles , ope->codParametro_1 , &contenedor );
     if( res != TODO_OK )
     {
-        fprintf(stderr,"\n\t | ERROR AL OBTENER CONTENEDOR DEL BUQUE DEL MUELLE %u |\n",codMuelleOri);
+        fprintf(stderr,"\n\t | ERROR AL OBTENER CONTENEDOR DEL BUQUE DEL MUELLE %u |\n", ope->codParametro_1);
         return res;
     }
 
     /**Ponemos el contenedor en la Zona*/
-    if( actualizarNElemDeLista( plZonas , &contenedor , codZonaDes - 1 , apilarContenedorEnZona ) != TODO_OK )
+    if( actualizarNElemDeLista( plZonas , &contenedor , ope->codParametro_2 - 1 , apilarContenedorEnZona ) != TODO_OK )
         return ZONA_APILAR_CONTENEDOR_MAL;
 
     // SI NO SE PUDO AGREGAR A LA PILA, ENTONCES DEBEREMOS TERMINAR EL JUEGO POR FALTA DE MEMORIA.
     if( *contenedor.cod == '\0' )
         return PILA_LLENA;
 
-    res = quitarContenedorMuelle( plMuelles , codMuelleOri , &contenedor, puntuacionActual );
+    res = quitarContenedorMuelle( plMuelles , ope->codParametro_1 , &contenedor, puntuacionActual );
     if( res != TODO_OK )
         return res;
+
+    strcpy(ope->contenedorInvolucrado, contenedor.cod);
 
     mostrarZonas( plZonas );
 
@@ -91,25 +108,27 @@ int ejecutarDES(tLista *plMuelles , tLista *plZonas , unsigned codMuelleOri , un
 }
 
 //Se ejecuta la entrega del contenedor al primer camion de la cola
-int ejecutarENT( tCola* colaCamiones, tLista* plZonas )
+int ejecutarENT( tCola* colaCamiones, tLista* plZonas , tOperacion *ope)
 {
-    return realizarEntregaCamion( colaCamiones, plZonas );
+    return realizarEntregaCamion( colaCamiones, plZonas , ope);
 }
 
 //Funcion que reubica: el contenedor en el tope de la zona origen se coloca en el tope de la zona destino
-int ejecutarREU( tLista* plZonasAlmacenamiento, unsigned codZonaOri, unsigned codZonaDes, unsigned maxCapacidadZonas )
+int ejecutarREU( tLista* plZonasAlmacenamiento, tOperacion *ope, unsigned maxCapacidadZonas )
 {
     tContenedor contenedor;
 
-    if( retirarContenedorZonaAlmacenamiento( plZonasAlmacenamiento , codZonaOri , &contenedor ) != COD_ZONAS_OK )
+    if( retirarContenedorZonaAlmacenamiento( plZonasAlmacenamiento , ope->codParametro_1 , &contenedor ) != COD_ZONAS_OK )
     {
-        fprintf(stderr,"\n\t | ERROR AL RETIRAR CONTENEDOR DE ZONA %u |\n",codZonaOri);
+        fprintf(stderr,"\n\t | ERROR AL RETIRAR CONTENEDOR DE ZONA %u |\n",ope->codParametro_1);
         return COD_ZONAS_MAL;
     }
 
-    if( agregarContenedorZonaAlmacenamiento( plZonasAlmacenamiento, codZonaDes, contenedor, maxCapacidadZonas ) != COD_ZONAS_OK )
+    strcpy(ope->contenedorInvolucrado, contenedor.cod);
+
+    if( agregarContenedorZonaAlmacenamiento( plZonasAlmacenamiento, ope->codParametro_2, contenedor, maxCapacidadZonas ) != COD_ZONAS_OK )
     {
-        fprintf(stderr,"\n\t | ERROR AL AGREGAR CONTENEDOR DE ZONA %u |\n",codZonaDes);
+        fprintf(stderr,"\n\t | ERROR AL AGREGAR CONTENEDOR DE ZONA %u |\n",ope->codParametro_2);
         return COD_ZONAS_MAL;
     }
 

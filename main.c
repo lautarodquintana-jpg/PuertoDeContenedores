@@ -66,8 +66,8 @@ int jugar (tConfig *config, const char *nomUser)
 {
     tJornada jornada;
     tLista barcosEnCamino, camionesEnCamino;
+    tCola colaOperaciones;
     tOperacion operacion;
-    //tCola historialOperaciones;
 
     int ret, largoMaxCodContenedor=0;
 
@@ -79,8 +79,8 @@ int jugar (tConfig *config, const char *nomUser)
         vaciarLista(&camionesEnCamino);
         return ret;
     }
-
     getchar(); // Consumo salto de linea
+
     iniciarSesion( &jornada );
     system("cls");//Borro la consola
 
@@ -91,6 +91,7 @@ int jugar (tConfig *config, const char *nomUser)
         return ret;
     }
 
+    crearCola(&colaOperaciones);
     avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
     procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
 
@@ -109,14 +110,24 @@ int jugar (tConfig *config, const char *nomUser)
         }
         else
         {
-            procesarOperacion( &jornada, &operacion, config );
+            ret=procesarOperacion( &jornada, &operacion, config );
+            if(ret==TODO_OK)
+                if(strcmp(operacion.cod, "VER")!=0)//No guardamos la operación VER
+                    if(ponerEnCola(&colaOperaciones, &operacion, sizeof(tOperacion))!=OK)
+                    {
+                        vaciarCola(&colaOperaciones);
+                        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
+                        return COLA_LLENA;
+                    }
             procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
         }
         system("pause");
         system("cls");
     }
 
-    mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, 0, jornada.puntajeActual, jornada.user );
+    mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, jornada.puntajeActual, jornada.user , &jornada.camiones);
+    mostrarHistorialOperaciones(&colaOperaciones, config);
 
+    //liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
     return TODO_OK;
 }
