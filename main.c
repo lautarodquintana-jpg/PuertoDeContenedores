@@ -73,6 +73,7 @@ int jugar (tConfig *config, const char *nomUser)
     tOperacion operacion;
     tRecuperacion recuperacion = {NULL, 0};
     int ret, largoMaxCodContenedor=0;
+    unsigned estadoAlEntrarCiclo = 0;
     crearLista(&barcosEnCamino);
     crearLista(&camionesEnCamino);
 
@@ -121,6 +122,7 @@ int jugar (tConfig *config, const char *nomUser)
     jornada.estado = recuperacion.registrosValidos>0?JUEGO_EN_RECUPERACION:JUEGO_EN_CURSO;
     while( jornada.estado == JUEGO_EN_CURSO || jornada.estado == JUEGO_EN_RECUPERACION)
     {
+        estadoAlEntrarCiclo = jornada.estado;
         while( !existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
             procesarLlegadas(&jornada, &camionesEnCamino, &barcosEnCamino);
 
@@ -134,7 +136,7 @@ int jugar (tConfig *config, const char *nomUser)
             jornada.estado = FIN_JUEGO;
         }
         else if(JUEGO_EN_RECUPERACION == jornada.estado && ER_NE_REGISTROS_REC == leerOperacionDelArchivoTemporal(&operacion, &jornada, &recuperacion)){
-            jornada.estado = JUEGO_EN_CURSO;
+            jornada.estado = JUEGO_EN_CURSO; //RECUPERACION_TERMINADA
         }
         else if(JUEGO_EN_CURSO == jornada.estado || JUEGO_EN_RECUPERACION == jornada.estado)
         {
@@ -154,7 +156,8 @@ int jugar (tConfig *config, const char *nomUser)
             }
             procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
         }
-        system("pause");
+        if( JUEGO_EN_RECUPERACION != estadoAlEntrarCiclo || JUEGO_EN_RECUPERACION != jornada.estado )
+            system("pause");
         system("cls");
     }
     mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, jornada.puntajeActual, jornada.user , &jornada.camiones);
