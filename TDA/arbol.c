@@ -513,3 +513,22 @@ void destruirArbol(tArbol *pa)
         *pa=NULL;
     }
 }
+int buscarYRetornarElemEnArbol(tArbol *pa, void *elem, unsigned tamElem, int (cmp)(const void *elem1, const void *elem2))
+{
+    int comparacion;
+    if(*pa==NULL)
+        return NO_ENCONTRADO;
+
+    comparacion=cmp(elem, (*pa)->info);
+    if(comparacion==0)
+    {
+        memcpy(elem, (*pa)->info, MINIMO((*pa)->tamElem, tamElem));
+        return TODO_OK;
+    }
+
+    else
+        if(comparacion>0)
+            return buscarYRetornarElemEnArbol(&(*pa)->der, elem, tamElem, cmp);
+        else
+            return buscarYRetornarElemEnArbol(&(*pa)->izq, elem, tamElem, cmp);
+}

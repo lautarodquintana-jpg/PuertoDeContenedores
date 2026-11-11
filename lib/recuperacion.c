@@ -200,12 +200,10 @@ int consultarArchivosDeRecuperacionYCarga(tJornada *jornada){
             printf(CL_GRIS "\n\t Desea cargarlos " COLOR_RESET);
             printf(CL_BLANCO "[S: SI / N: NO]" COLOR_RESET);
             printf(CL_GRIS "?: " COLOR_RESET);
-            fflush(stdin);
             scanf(" %c", &c);
             c = toupper(c);
             system("cls");
         }while(c!='S' && c!='N');
-        fflush(stdin);
         if('N' == c){
             eliminarArchivosTemporales(jornada->user);
             return ER_NO_RECUPERA;

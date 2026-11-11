@@ -79,5 +79,5 @@ tArbol* BuscarMayorClave(tArbol *pa);
 tArbol* BuscarMenorClave(tArbol *pa);
 
 void destruirArbol(tArbol *pa);
-
+int buscarYRetornarElemEnArbol(tArbol *pa, void *elem, unsigned tamElem, int(*cmp)(const void *elem1, const void *elem2));
 #endif // ARBOL_H_INCLUDED

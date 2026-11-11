@@ -22,11 +22,6 @@
 int jugar (tConfig *config, const char *nomUser);
 int main()
 {
-    /*
-    HACER:
-    iniciar_consola(); //Para poder mostrar los caracteres de los "mostrarMuelles()" y "mostrarZonasAlmacenamiento()"
-    */
-
     int ret;
     tConfig config;
     char opcion, nomUser[TAM_USER];
