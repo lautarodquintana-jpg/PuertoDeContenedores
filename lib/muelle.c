@@ -98,8 +98,12 @@ int ocuparMuelle(tLista *plMuelles, unsigned codMuelle, tBarco barco, unsigned m
 
 int estadoMuelle(tLista *plMuelles, unsigned codMuelle){
     unsigned estadoMuelle = 0;
-    if(--codMuelle < 0)
+
+    if( codMuelle == 0 )
         return COD_MUELLES_MAL;
+
+    codMuelle--;
+
     if(TODO_OK != actualizarNElemDeLista(plMuelles, &estadoMuelle, codMuelle, consultarEstadoMuelleCB))
         return COD_MUELLES_MAL;
     return estadoMuelle;

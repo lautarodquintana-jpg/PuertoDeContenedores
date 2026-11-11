@@ -11,6 +11,8 @@
 #define EXISTE_USER -75
 #define NO_EXISTE_USER -76
 #define ERROR_AGREGAR_USER -80
+#define NOMBRE_VALIDO -85
+#define NOMBRE_INVALIDO -86
 
 #define ARCH_USUARIOS "operadores.dat"
 #define ARCH_INDICE   "operadores.idx"
@@ -41,6 +43,12 @@ typedef struct
 }tRegistroJornada;
 
 int iniciarSesion( tJornada* jornada , tArbol* indice);
+
+// VALIDACION
+int esNombreValido( char* user );
+
+// INGRESO VALIDADO
+void leerNombreUsuarioValido( char* user );
 
 // INSERCION
 int agregarUserRankingOrdenado( const tJornada* jornada );
