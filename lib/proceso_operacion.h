@@ -12,7 +12,7 @@
 int procesarOperacion( tJornada* jornada, tOperacion* ope, const tConfig* config );
 
 int ejecutarVER( tJornada* jornada );
-int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned capacidadPilaZona, unsigned* puntuacionActual );
+int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned capacidadPilaZona, unsigned* puntuacionActual, unsigned* cantDesTotales );
 int ejecutarREU();
 int ejecutarENT( tCola* colaCamiones, tLista* plZonas , tOperacion *ope);
 

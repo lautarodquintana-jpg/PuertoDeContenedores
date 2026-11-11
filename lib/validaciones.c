@@ -141,9 +141,9 @@ int existeOperacionValida( tConfig* config, tJornada* jornada )
 
     // Se comprueba si DES (descarga) es una operacion que se puede ejecutar
     strcpy( ope.cod, "DES" );
-    for( i = 1 ; i < config->cantidadMuelles ; i++ )
+    for( i = 1 ; i <= config->cantidadMuelles ; i++ )
     {
-        for( j = 1 ; j < config->cantidadZonasDeAlmacenamiento ; j++ )
+        for( j = 1 ; j <= config->cantidadZonasDeAlmacenamiento ; j++ )
         {
             ope.codParametro_1 = i;
             ope.codParametro_2 = j;
@@ -154,9 +154,9 @@ int existeOperacionValida( tConfig* config, tJornada* jornada )
 
     // Se comprueba si REU (reubicacion) es una operacion que se puede ejecutar
     strcpy( ope.cod, "REU" );
-    for( i = 1 ; i < config->cantidadZonasDeAlmacenamiento ; i++ )
+    for( i = 1 ; i <= config->cantidadZonasDeAlmacenamiento ; i++ )
     {
-        for( j = 1 ; j < config->cantidadZonasDeAlmacenamiento ; j++ )
+        for( j = 1 ; j <= config->cantidadZonasDeAlmacenamiento ; j++ )
         {
             ope.codParametro_1 = i;
             ope.codParametro_2 = j;
@@ -166,4 +166,20 @@ int existeOperacionValida( tConfig* config, tJornada* jornada )
     }
 
     return NO_EXISTE_OPE_VALIDA;
+}
+
+int leerYValidarEntero(int li, int ls, const char *mensaje)
+{
+    int opcion;
+
+    printf("%s", mensaje);
+    scanf("%d", &opcion);
+    while(opcion<li || opcion>ls)
+    {
+        printf("Opcion ingresada no valida, ingrese otro valor...\n");
+        printf("%s", mensaje);
+        scanf("%d", &opcion);
+    }
+
+    return opcion;
 }

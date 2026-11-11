@@ -30,7 +30,8 @@ void actualizarBarco(void *actualizado, const void *actualizador);
 int avanzarTiempoHastaEventoFuturo( tJornada* jornada , const tLista* camionesEnCamino , const tLista* barcosEnCamino );
 int procesarTiempo( tCola* camionesEnCola, tCola* barcosEnCola , tLista* camionesEnCamino, tLista* barcosEnCamino , unsigned tiempoActual );
 void procesarLlegadas( tJornada* jornada , tLista* camionesEnCamino, tLista* barcosEnCamino );
-void liberarJornada( tJornada* jornada , tLista* camionesEnCamino , tLista* barcosEnCamino );
-void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , tCola *camionesPendientes);
+void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino, tCola* colaOperaciones );
+void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , unsigned camionesPendientes);
 void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config);
+unsigned calcularCantCamionesPendientes(tCola *colaCamiones);
 #endif // JORNADA_H_INCLUDED

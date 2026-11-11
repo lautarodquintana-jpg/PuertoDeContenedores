@@ -18,6 +18,7 @@
 #include "lib/muelle.h"
 #include "lib/barco.h"
 #include "lib/recuperacion.h"
+#include "lib/ranking.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()
@@ -45,15 +46,13 @@ int main()
         switch(opcion)
         {
         case 'N':
-            //IniciarSesion (coming soon)
             ret=jugar(&config, nomUser);
             if(ret!=TODO_OK)
             {
                 return ret;
             }
-            //IniciarJornada (coming soon)
-            //ActualizarRanking (coming soon)
-            //MostrarRanking (coming soon)
+            if( mostrarRanking() != TODO_OK )
+                fprintf(stderr,"\n\t | ERROR AL MOSTRAR RANKING.\n");
             break;
         case 'V':
             if( mostrarRanking() != TODO_OK )
@@ -71,14 +70,18 @@ int jugar (tConfig *config, const char *nomUser)
     tLista barcosEnCamino, camionesEnCamino;
     tCola colaOperaciones;
     tOperacion operacion;
+    tArbol indiceUsuarios;
     tRecuperacion recuperacion = {NULL, 0};
     int ret, largoMaxCodContenedor=0;
-    unsigned estadoAlEntrarCiclo = 0;
+    unsigned estadoAlEntrarCiclo = 0, camionesPendientes;
     crearLista(&barcosEnCamino);
     crearLista(&camionesEnCamino);
 
     getchar(); // Consumo salto de linea
-    iniciarSesion( &jornada );
+
+    cargarIndiceUsuarios(&indiceUsuarios);
+    iniciarSesion( &jornada  , &indiceUsuarios);
+
     system("cls");//Borro la consola
 
     if(ER_NO_RECUPERA == consultarArchivosDeRecuperacionYCarga(&jornada)){
@@ -113,6 +116,7 @@ int jugar (tConfig *config, const char *nomUser)
         printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la funci�n
         cerrarArchivo(&recuperacion.pf_logMovimientos);
         cerrarArchivo(&pf_logActual);
+        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino, &colaOperaciones);
         return ret;
     }
 
@@ -123,7 +127,7 @@ int jugar (tConfig *config, const char *nomUser)
     while( jornada.estado == JUEGO_EN_CURSO || jornada.estado == JUEGO_EN_RECUPERACION)
     {
         estadoAlEntrarCiclo = jornada.estado;
-        while( !existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
+        while( NO_EXISTE_OPE_VALIDA == existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
             procesarLlegadas(&jornada, &camionesEnCamino, &barcosEnCamino);
 
         if( existeOperacionValida( config, &jornada ) == NO_EXISTE_OPE_VALIDA )
@@ -146,7 +150,7 @@ int jugar (tConfig *config, const char *nomUser)
                     if(ponerEnCola(&colaOperaciones, &operacion, sizeof(tOperacion))!=OK)
                     {
                         vaciarCola(&colaOperaciones);
-                        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
+                        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino, &colaOperaciones);
                         cerrarArchivo(&recuperacion.pf_logMovimientos);
                         cerrarArchivo(&pf_logActual);
                         return COLA_LLENA;
@@ -160,10 +164,31 @@ int jugar (tConfig *config, const char *nomUser)
             system("pause");
         system("cls");
     }
-    mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, jornada.puntajeActual, jornada.user , &jornada.camiones);
-    mostrarHistorialOperaciones(&colaOperaciones, config);
+
+    if(strcmpi(operacion.cod, "SALIR")!=0)
+    {
+        camionesPendientes=calcularCantCamionesPendientes(&jornada.camiones);
+        mostrarResumenJornada( jornada.tiempoActual
+                              , config->duracionMinutosdeJornada
+                              , jornada.cantOperaciones.cantDescargas
+                              , jornada.cantOperaciones.cantReubic
+                              , jornada.cantOperaciones.cantEntregas
+                              , jornada.puntajeActual
+                              , jornada.user
+                              , camionesPendientes);
+
+        if( camionesPendientes*PUNTOS_PENALIZACION <= jornada.puntajeActual )
+            jornada.puntajeActual-=camionesPendientes*PUNTOS_PENALIZACION;
+        else
+            jornada.puntajeActual = 0;
+
+        registrarJornada( &indiceUsuarios, &jornada, camionesPendientes);
+        mostrarHistorialOperaciones(&colaOperaciones, config);
+    }
+
     cerrarArchivo(&recuperacion.pf_logMovimientos);
     cerrarArchivo(&pf_logActual);
-    //liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
+    liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino, &colaOperaciones);
+    destruirArbol( &indiceUsuarios );
     return TODO_OK;
 }

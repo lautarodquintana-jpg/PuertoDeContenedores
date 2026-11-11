@@ -319,7 +319,7 @@ int actualizarNElemDeLista(tLista *pl, const void *elem, unsigned pos, void(actu
         i++;
     }
 
-    if(i==pos)
+    if(*pl!=NULL && i==pos)
     {
         actualizar((*pl)->info, elem);
         return TODO_OK;

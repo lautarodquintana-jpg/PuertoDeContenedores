@@ -33,7 +33,10 @@ int procesarComandoSTDIN(const char *buffer, tOperacion *oppDest, tConfig *confi
         return INGRESO_CAD_INVALIDA;
 
     if(!strcmpi(buffer,"SALIR"))
+    {
+        strcpy( oppDest->cod, "SALIR" );
         return INGRESO_CAD_EXIT;
+    }
 
     sprintf(formatoCadena, "%%%us %%%us %%%us", (int)(sizeof(opp)-1), (int)(sizeof(par_1)-1), (int)(sizeof(par_2)-1));
     sscanf(buffer, formatoCadena, opp, par_1, par_2);

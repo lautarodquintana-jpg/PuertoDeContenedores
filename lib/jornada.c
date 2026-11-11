@@ -313,12 +313,15 @@ int avanzarTiempoHastaEventoFuturo( tJornada* jornada, const tLista* camionesEnC
     if( verNElem( (tLista*)barcosEnCamino, 0, &barco, sizeof(tBarco) ) == TODO_OK)
     {
         if( existeEvento == 0 || barco.arriboProgramado < tiempoPrimerEvento )
-        tiempoPrimerEvento = barco.arriboProgramado;
+        {
+            tiempoPrimerEvento = barco.arriboProgramado;
+            existeEvento = 1;
+        }
     }
 
     if( existeEvento != 0 )
     {
-        jornada->tiempoActual = barco.arriboProgramado; //tiempoPrimerEvento?
+        jornada->tiempoActual = tiempoPrimerEvento;
         return TIEMPO_AVANZADO;
     }
     return TIEMPO_NO_AVANZADO;
@@ -377,7 +380,6 @@ int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcos
     if( ret != COD_MUELLES_OK )
     {
         fprintf(stderr,"ERROR al generar muelles.");
-        liberarJornada(jornada,camionesEnCamino,barcosEnCamino);
         return ret;
     }
 
@@ -385,21 +387,20 @@ int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcos
     if( ret != COD_ZONAS_OK )
     {
         fprintf(stderr,"ERROR al generar zonas.");
-        liberarJornada(jornada,camionesEnCamino,barcosEnCamino);
         return ret;
     }
 
     return ret;
 }
 
-void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
+void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino, tCola* colaOperaciones )
 {
     vaciarLista(camionesEnCamino);
     liberarListaDeBarcos(barcosEnCamino);
     vaciarCola(&jornada->camiones);
     liberarZonasDeAlmacenamiento(&jornada->zonasAlmacenamiento);
     eliminarMuelles(&jornada->muelles);
-    vaciarCola(&jornada->movimientos);
+    vaciarCola( colaOperaciones );
 }
 
 void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
@@ -408,22 +409,17 @@ void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barc
     ponerBarcosArribadosEnMuelles( &jornada->muelles, &jornada->barcosEspera, jornada->tiempoActual );
 }
 
-void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , tCola *camionesPendientes)
+void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , unsigned camionesPendientes)
 {
-    int cantCamionesPend=0;
-
-    while(sacarDeCola(camionesPendientes, NULL, 0)==OK)//Contamos los camiones que quedaron en la cola
-    {
-        cantCamionesPend++;
-    }
-
     printf("\n\tRESUMEN DE LA JORNADA\n");
     printf("\n\tOPERADOR: %s\n", nomOpera);
     printf("TIEMPO DE LA JORNADA: %u de %u MINUTOS\n", tiempoJornada, tiempoDispo);
     printf("BUQUES DESCARGADOS EN SU TOTALIDAD: %u -> %u PUNTOS\n", cantDesc, cantDesc * PUNTOS_DESCA_TOTAL);
     printf("CONTENEDORES ENTREGADOS: %u -> %u PUNTOS\n", cantEntre, cantEntre * PUNTOS_ENTREGA);
     printf("REUBICACIONES REALIZADAS: %u\n", cantReubi);
-    printf("CAMIONES QUE QUEDARON PENDIENTES: %u -> %u PUNTOS\n", cantCamionesPend, cantCamionesPend * PUNTOS_PENALIZACION);
+    printf("CAMIONES QUE QUEDARON PENDIENTES: %u -> %u PUNTOS\n", camionesPendientes, camionesPendientes * PUNTOS_PENALIZACION);
+
+    puntuacionFinal-=camionesPendientes * PUNTOS_PENALIZACION;
     printf("PUNTUACION FINAL: %u PUNTOS\n", puntuacionFinal);
 }
 void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config)
@@ -467,4 +463,15 @@ void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config)
     }
 
 
+}
+unsigned calcularCantCamionesPendientes(tCola *colaCamiones)
+{
+    int cant=0;
+
+    while(sacarDeCola(colaCamiones, NULL, 0)==OK)
+    {
+        cant++;
+    }
+
+    return cant;
 }
