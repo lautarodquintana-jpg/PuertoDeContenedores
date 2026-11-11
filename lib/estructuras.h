@@ -53,9 +53,6 @@ typedef struct{
 	tLista 		muelles;
 	tLista 		zonasAlmacenamiento;
 
-	tCola 		movimientos;
-	tCola		bloqueos;
-
 	tCola		barcosEspera;
 	tCola		camiones;
 

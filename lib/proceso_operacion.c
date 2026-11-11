@@ -21,11 +21,10 @@ int procesarOperacion( tJornada* jornada, tOperacion* ope, const tConfig* config
 
     if( strcmp( ope->cod, "DES" ) == 0 )
     {
-        res=ejecutarDES(&jornada->muelles, &jornada->zonasAlmacenamiento, ope , config->capPila, &jornada->puntajeActual);
+        res=ejecutarDES(&jornada->muelles, &jornada->zonasAlmacenamiento, ope , config->capPila, &jornada->puntajeActual, &jornada->cantOperaciones.cantDescargas);
         if( res == TODO_OK )
         {
             jornada->tiempoActual += config->tiempoDeDescargaDeContenedor;
-            jornada->cantOperaciones.cantDescargas++;
             mostrarZonas( &jornada->zonasAlmacenamiento );
         }
         else
@@ -76,7 +75,7 @@ int ejecutarVER( tJornada* jornada )
 /**El ultimo contenedor que se ingreso en el buque sera el que se ponga en
 la pila de la zona seleccionada.
 */
-int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned capacidadPilaZona, unsigned* puntuacionActual )
+int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned capacidadPilaZona, unsigned* puntuacionActual, unsigned* cantDesTotales )
 {
     tContenedor contenedor;
     int res;
@@ -99,7 +98,7 @@ int ejecutarDES(tLista *plMuelles , tLista *plZonas , tOperacion *ope, unsigned 
     if( *contenedor.cod == '\0' )
         return PILA_LLENA;
 
-    res = quitarContenedorMuelle( plMuelles , ope->codParametro_1 , &contenedor, puntuacionActual );
+    res = quitarContenedorMuelle( plMuelles , ope->codParametro_1 , &contenedor, puntuacionActual, cantDesTotales );
     if( res != TODO_OK )
         return res;
 

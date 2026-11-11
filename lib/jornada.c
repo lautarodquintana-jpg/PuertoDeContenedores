@@ -313,12 +313,15 @@ int avanzarTiempoHastaEventoFuturo( tJornada* jornada, const tLista* camionesEnC
     if( verNElem( (tLista*)barcosEnCamino, 0, &barco, sizeof(tBarco) ) == TODO_OK)
     {
         if( existeEvento == 0 || barco.arriboProgramado < tiempoPrimerEvento )
-        tiempoPrimerEvento = barco.arriboProgramado;
+        {
+            tiempoPrimerEvento = barco.arriboProgramado;
+            existeEvento = 1;
+        }
     }
 
     if( existeEvento != 0 )
     {
-        jornada->tiempoActual = barco.arriboProgramado; //tiempoPrimerEvento?
+        jornada->tiempoActual = tiempoPrimerEvento;
         return TIEMPO_AVANZADO;
     }
     return TIEMPO_NO_AVANZADO;
@@ -377,7 +380,6 @@ int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcos
     if( ret != COD_MUELLES_OK )
     {
         fprintf(stderr,"ERROR al generar muelles.");
-        liberarJornada(jornada,camionesEnCamino,barcosEnCamino);
         return ret;
     }
 
@@ -385,21 +387,20 @@ int prepararJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcos
     if( ret != COD_ZONAS_OK )
     {
         fprintf(stderr,"ERROR al generar zonas.");
-        liberarJornada(jornada,camionesEnCamino,barcosEnCamino);
         return ret;
     }
 
     return ret;
 }
 
-void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )
+void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino, tCola* colaOperaciones )
 {
     vaciarLista(camionesEnCamino);
     liberarListaDeBarcos(barcosEnCamino);
     vaciarCola(&jornada->camiones);
     liberarZonasDeAlmacenamiento(&jornada->zonasAlmacenamiento);
     eliminarMuelles(&jornada->muelles);
-    vaciarCola(&jornada->movimientos);
+    vaciarCola( colaOperaciones );
 }
 
 void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barcosEnCamino )

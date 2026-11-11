@@ -77,19 +77,11 @@ int jugar (tConfig *config, const char *nomUser)
     crearLista(&barcosEnCamino);
     crearLista(&camionesEnCamino);
 
-    cargarIndiceUsuarios(&indiceUsuarios);
-
-    ret=generarPuertoTXT(config, &jornada, nomUser, &largoMaxCodContenedor);
-
-    if(ret!=TODO_OK || cargarPuertoTxt(&jornada, config, &barcosEnCamino, &camionesEnCamino)!=TODO_OK)
-    {
-        vaciarLista(&barcosEnCamino);
-        vaciarLista(&camionesEnCamino);
-        return ret;
-    }
     getchar(); // Consumo salto de linea
 
+    cargarIndiceUsuarios(&indiceUsuarios);
     iniciarSesion( &jornada  , &indiceUsuarios);
+
     system("cls");//Borro la consola
 
     if(ER_NO_RECUPERA == consultarArchivosDeRecuperacionYCarga(&jornada)){
@@ -124,6 +116,7 @@ int jugar (tConfig *config, const char *nomUser)
         printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la funci�n
         cerrarArchivo(&recuperacion.pf_logMovimientos);
         cerrarArchivo(&pf_logActual);
+        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino, &colaOperaciones);
         return ret;
     }
 
@@ -134,7 +127,7 @@ int jugar (tConfig *config, const char *nomUser)
     while( jornada.estado == JUEGO_EN_CURSO || jornada.estado == JUEGO_EN_RECUPERACION)
     {
         estadoAlEntrarCiclo = jornada.estado;
-        while( !existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
+        while( NO_EXISTE_OPE_VALIDA == existeOperacionValida( config, &jornada ) && avanzarTiempoHastaEventoFuturo(&jornada, &camionesEnCamino, &barcosEnCamino) == TIEMPO_AVANZADO )
             procesarLlegadas(&jornada, &camionesEnCamino, &barcosEnCamino);
 
         if( existeOperacionValida( config, &jornada ) == NO_EXISTE_OPE_VALIDA )
@@ -157,7 +150,7 @@ int jugar (tConfig *config, const char *nomUser)
                     if(ponerEnCola(&colaOperaciones, &operacion, sizeof(tOperacion))!=OK)
                     {
                         vaciarCola(&colaOperaciones);
-                        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
+                        liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino, &colaOperaciones);
                         cerrarArchivo(&recuperacion.pf_logMovimientos);
                         cerrarArchivo(&pf_logActual);
                         return COLA_LLENA;
@@ -171,7 +164,8 @@ int jugar (tConfig *config, const char *nomUser)
             system("pause");
         system("cls");
     }
-    if(strcmpi(operacion.cod, "salir")!=0)
+
+    if(strcmpi(operacion.cod, "SALIR")!=0)
     {
         camionesPendientes=calcularCantCamionesPendientes(&jornada.camiones);
         mostrarResumenJornada( jornada.tiempoActual
@@ -183,7 +177,10 @@ int jugar (tConfig *config, const char *nomUser)
                               , jornada.user
                               , camionesPendientes);
 
-        jornada.puntajeActual-=camionesPendientes*PUNTOS_PENALIZACION;
+        if( camionesPendientes*PUNTOS_PENALIZACION <= jornada.puntajeActual )
+            jornada.puntajeActual-=camionesPendientes*PUNTOS_PENALIZACION;
+        else
+            jornada.puntajeActual = 0;
 
         registrarJornada( &indiceUsuarios, &jornada, camionesPendientes);
         mostrarHistorialOperaciones(&colaOperaciones, config);
@@ -191,6 +188,7 @@ int jugar (tConfig *config, const char *nomUser)
 
     cerrarArchivo(&recuperacion.pf_logMovimientos);
     cerrarArchivo(&pf_logActual);
-    //liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);
+    liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino, &colaOperaciones);
+    destruirArbol( &indiceUsuarios );
     return TODO_OK;
 }

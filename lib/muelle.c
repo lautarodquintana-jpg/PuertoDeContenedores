@@ -124,7 +124,7 @@ int liberarMuelle(tLista *plMuelles, unsigned codMuelle){
     return COD_MUELLES_OK;
 }
 
-int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor, unsigned* puntuacionActual) // Requiere primitivas de barco
+int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* contenedor, unsigned* puntuacionActual, unsigned* cantDesTotales) // Requiere primitivas de barco
 {
     int res;
     unsigned cantConteResAntes = 0,cantConteResDesp = 0;
@@ -149,6 +149,7 @@ int quitarContenedorMuelle(tLista *plMuelles, unsigned codMuelle, tContenedor* c
     {
         liberarMuelle( plMuelles , codMuelle );
         *puntuacionActual += PUNTOS_DESCA_TOTAL;
+        (*cantDesTotales)++;
     }
 
     return TODO_OK;

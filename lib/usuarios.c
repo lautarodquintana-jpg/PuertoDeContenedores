@@ -1,6 +1,6 @@
 #include "usuarios.h"
 
-int iniciarSesion( tJornada* jornada , tArbol* indice)
+int iniciarSesion( tJornada* jornada, tArbol* indice)
 {
     tIndiceUsuario ind;
     tUsuario nuevo;
@@ -17,7 +17,7 @@ int iniciarSesion( tJornada* jornada , tArbol* indice)
     if( pLinea != NULL )
         *pLinea = '\0';
 
-    strcpy(ind.clave , jornada->user);
+    strcpy(ind.clave, jornada->user);
     ind.nroRegistro=-1;
     mapearInOrdenArbol(indice, elemEstaEnArbol, &ind);
     //Si encuentro el usuario debo preguntar si desea jugar con el existente
@@ -33,7 +33,7 @@ int iniciarSesion( tJornada* jornada , tArbol* indice)
             pLinea = strchr( jornada->user, '\n' );
             if( pLinea != NULL )
                 *pLinea = '\0';
-            strcpy(ind.clave , jornada->user);
+            strcpy(ind.clave, jornada->user);
             ind.nroRegistro=-1;
             mapearInOrdenArbol(indice, elemEstaEnArbol, &ind);
         }
@@ -79,7 +79,7 @@ int guardarIndiceUsuarios( tArbol* indice )
     return crearArchivoBinarioAPartirDeArbol( indice, ARCH_INDICE ); //lo crea en inorden
 }
 
-int registrarJornada( tArbol* indice, const tJornada* jornada , unsigned camionesPendientes)
+int registrarJornada( tArbol* indice, const tJornada* jornada, unsigned camionesPendientes)
 {
     tIndiceUsuario ind;
     tUsuario usr;
@@ -126,7 +126,7 @@ int registrarJornada( tArbol* indice, const tJornada* jornada , unsigned camione
         strcpy(usr.nomUser, regJornada.nomUser);
         usr.puntajeTotal = regJornada.puntaje;
         usr.jornadasJugadas = 1;
-        fseek( pf, 0 , SEEK_END );
+        fseek( pf, 0, SEEK_END );
         fwrite( &usr, sizeof(tUsuario), 1, pf );
     }
 
@@ -150,11 +150,14 @@ int mostrarRanking()
 
     while(fread(&user, sizeof(tUsuario), 1, archUsuarios))
     {
-        if(insertarOrdenadoenLista(&listaOperadores, &user, sizeof(tUsuario), compararPuntaje, 0, NULL)!=TODO_OK)//No debería retornar duplicado
+        if( user.jornadasJugadas > 0 )
         {
-            fclose(archUsuarios);
-            vaciarLista(&listaOperadores);
-            return ERROR_MEMORIA;
+            if(insertarOrdenadoenLista(&listaOperadores, &user, sizeof(tUsuario), compararPuntaje, 0, NULL)!=TODO_OK)//No debería retornar duplicado
+            {
+                fclose(archUsuarios);
+                vaciarLista(&listaOperadores);
+                return ERROR_MEMORIA;
+            }
         }
     }
     printf("\n\n=== RANKING DE USUARIOS ===\n\n");
@@ -177,7 +180,7 @@ int compararNombres( const void* reg_1, const void* reg_2 )
 int compararIndiceUsuarios( const void* reg_1, const void* reg_2 )
 {
     return strcmpi( ((const tIndiceUsuario*)reg_1)->clave,
-                   ((const tIndiceUsuario*)reg_2)->clave );
+                    ((const tIndiceUsuario*)reg_2)->clave );
 }
 
 void elemEstaEnArbol(void *elem, void *param)
@@ -196,11 +199,10 @@ int compararPuntaje( const void* reg_1, const void* reg_2 )
 
     if(user1->puntajeTotal==user2->puntajeTotal)
         cmp=0;
+    else if(user1->puntajeTotal>user2->puntajeTotal)
+        cmp= -1;
     else
-        if(user1->puntajeTotal>user2->puntajeTotal)
-            cmp= -1;
-        else
-            cmp=1;
+        cmp=1;
 
     if(cmp!=0)
         return cmp;
@@ -208,13 +210,20 @@ int compararPuntaje( const void* reg_1, const void* reg_2 )
     return strcmpi(user1->nomUser, user2->nomUser);
 }
 
-void mostrarInfoUsuario( void *param , const void* reg_1)
+void mostrarInfoUsuario( void *param, const void* reg_1)
 {
     tUsuario* user = (tUsuario*)reg_1;
+    float puntajeProm;
+
+    if( user->jornadasJugadas > 0 )
+        puntajeProm = (float)user->puntajeTotal/user->jornadasJugadas;
+    else
+        puntajeProm = 0;
+
     printf("%-50s | %-11u | %-18.2f | %-13u\n",
            user->nomUser,
            user->puntajeTotal,
-           (float)user->puntajeTotal/user->jornadasJugadas,
+           puntajeProm,
            user->jornadasJugadas);
 }
 
