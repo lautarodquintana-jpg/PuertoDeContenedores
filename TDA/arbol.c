@@ -14,6 +14,15 @@ void recorrerPreOrdenArbol(tArbol *pa, void(mostrar)(const void *elem))
         recorrerPreOrdenArbol(&(*pa)->der, mostrar);
     }
 }
+void mapearInOrdenArbol(tArbol *pa, void(accionar)(void *elem, void *param), void *param) //IRD
+{
+    if(*pa==NULL)
+        return;
+
+    mapearInOrdenArbol(&(*pa)->izq, accionar, param);
+    accionar((*pa)->info, param);
+    mapearInOrdenArbol(&(*pa)->der, accionar, param);
+}
 void recorrerInOrdenArbol(tArbol *pa, void(mostrar)(const void *elem))
 {//iRd
     if(*pa)

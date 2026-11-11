@@ -34,4 +34,5 @@ void mostrarMotivoRechazo(int codigo);
 
 int existeOperacionValida( tConfig* config, tJornada* jornada );
 
+int leerYValidarEntero(int li, int ls, const char *mensaje);
 #endif // VALIDACIONES_H_INCLUDED

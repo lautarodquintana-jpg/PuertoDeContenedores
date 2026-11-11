@@ -46,15 +46,13 @@ int main()
         switch(opcion)
         {
         case 'N':
-            //IniciarSesion (coming soon)
             ret=jugar(&config, nomUser);
             if(ret!=TODO_OK)
             {
                 return ret;
             }
-            //IniciarJornada (coming soon)
-            //ActualizarRanking (coming soon)
-            //MostrarRanking (coming soon)
+            if( mostrarRanking() != TODO_OK )
+                fprintf(stderr,"\n\t | ERROR AL MOSTRAR RANKING.\n");
             break;
         case 'V':
             if( mostrarRanking() != TODO_OK )
@@ -73,14 +71,11 @@ int jugar (tConfig *config, const char *nomUser)
     tCola colaOperaciones;
     tOperacion operacion;
     tArbol indiceUsuarios;
-    tRegistroJornada regJornada;
     tRecuperacion recuperacion = {NULL, 0};
     int ret, largoMaxCodContenedor=0;
-    unsigned estadoAlEntrarCiclo = 0;
+    unsigned estadoAlEntrarCiclo = 0, camionesPendientes;
     crearLista(&barcosEnCamino);
     crearLista(&camionesEnCamino);
-
-    getchar(); // Consumo salto de linea
 
     cargarIndiceUsuarios(&indiceUsuarios);
 
@@ -176,10 +171,24 @@ int jugar (tConfig *config, const char *nomUser)
             system("pause");
         system("cls");
     }
+    if(strcmpi(operacion.cod, "salir")!=0)
+    {
+        camionesPendientes=calcularCantCamionesPendientes(&jornada.camiones);
+        mostrarResumenJornada( jornada.tiempoActual
+                              , config->duracionMinutosdeJornada
+                              , jornada.cantOperaciones.cantDescargas
+                              , jornada.cantOperaciones.cantReubic
+                              , jornada.cantOperaciones.cantEntregas
+                              , jornada.puntajeActual
+                              , jornada.user
+                              , camionesPendientes);
 
-    registrarJornada( &indiceUsuarios, &regJornada );
-    mostrarResumenJornada( jornada.tiempoActual, config->duracionMinutosdeJornada, jornada.cantOperaciones.cantDescargas, jornada.cantOperaciones.cantReubic, jornada.cantOperaciones.cantEntregas, jornada.puntajeActual, jornada.user , &jornada.camiones);
-    mostrarHistorialOperaciones(&colaOperaciones, config);
+        jornada.puntajeActual-=camionesPendientes*PUNTOS_PENALIZACION;
+
+        registrarJornada( &indiceUsuarios, &jornada, camionesPendientes);
+        mostrarHistorialOperaciones(&colaOperaciones, config);
+    }
+
     cerrarArchivo(&recuperacion.pf_logMovimientos);
     cerrarArchivo(&pf_logActual);
     //liberarJornada(&jornada, &camionesEnCamino, &barcosEnCamino);

@@ -28,6 +28,7 @@ typedef tNodoArbol* tArbol;
 void crearArbol(tArbol *pa);
 void recorrerPreOrdenArbol(tArbol *pa, void(mostrar)(const void *elem));
 void recorrerInOrdenArbol(tArbol *pa, void(mostrar)(const void *elem));
+void mapearInOrdenArbol(tArbol *pa, void(accionar)(void *elem, void *param), void *param);
 void recorrerPosOrdenArbol(tArbol *pa, void(mostrar)(const void *elem));
 int insertarOrdenadoConRecursividad(tArbol *pa, const void *elem, unsigned tam, int(comparacion)(const void *elem1, const void *elem2));
 int insertarOrdenadoSinRecursividad(tArbol *pa, const void *elem, unsigned tam, int(comparacion)(const void *elem1, const void *elem2));

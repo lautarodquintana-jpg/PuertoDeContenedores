@@ -3,8 +3,10 @@
 
 #include "../TDA/arbol.h"
 #include "estructuras.h"
+#include "validaciones.h"
 #include <stdio.h>
 #include <stdlib.h>
+
 
 #define EXISTE_USER -75
 #define NO_EXISTE_USER -76
@@ -50,8 +52,10 @@ int modificarMejorPuntaje( const tJornada* jornada );
 int agregarUserRankingOrdenado( const tJornada* jornada );
 int cargarIndiceUsuarios( tArbol* indice );
 int guardarIndiceUsuarios( tArbol* indice );
-int registrarJornada( tArbol* indice, const tRegistroJornada* jornada );
+int registrarJornada( tArbol* indice, const tJornada* jornada , unsigned camionesPendientes);
 
+//MAPEO DE ARBOL
+void elemEstaEnArbol(void *elem, void *param);
 
 // COMPARACIONES
 int compararPuntaje( const void* reg_1, const void* reg_2 );
@@ -59,7 +63,7 @@ int compararNombres( const void* reg_1, const void* reg_2 );
 int compararIndiceUsuarios( const void* reg_1, const void* reg_2 );
 
 // SALIDA
-void mostrarInfoUsuario( const void* reg_1 );
+void mostrarInfoUsuario( void *param , const void* reg_1);
 int mostrarRanking();
 
 #endif // USUARIOS_H_INCLUDED

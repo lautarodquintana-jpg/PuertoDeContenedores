@@ -408,22 +408,17 @@ void procesarLlegadas( tJornada* jornada, tLista* camionesEnCamino, tLista* barc
     ponerBarcosArribadosEnMuelles( &jornada->muelles, &jornada->barcosEspera, jornada->tiempoActual );
 }
 
-void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , tCola *camionesPendientes)
+void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsigned cantDesc, unsigned cantReubi, unsigned cantEntre, unsigned puntuacionFinal, const char* nomOpera , unsigned camionesPendientes)
 {
-    int cantCamionesPend=0;
-
-    while(sacarDeCola(camionesPendientes, NULL, 0)==OK)//Contamos los camiones que quedaron en la cola
-    {
-        cantCamionesPend++;
-    }
-
     printf("\n\tRESUMEN DE LA JORNADA\n");
     printf("\n\tOPERADOR: %s\n", nomOpera);
     printf("TIEMPO DE LA JORNADA: %u de %u MINUTOS\n", tiempoJornada, tiempoDispo);
     printf("BUQUES DESCARGADOS EN SU TOTALIDAD: %u -> %u PUNTOS\n", cantDesc, cantDesc * PUNTOS_DESCA_TOTAL);
     printf("CONTENEDORES ENTREGADOS: %u -> %u PUNTOS\n", cantEntre, cantEntre * PUNTOS_ENTREGA);
     printf("REUBICACIONES REALIZADAS: %u\n", cantReubi);
-    printf("CAMIONES QUE QUEDARON PENDIENTES: %u -> %u PUNTOS\n", cantCamionesPend, cantCamionesPend * PUNTOS_PENALIZACION);
+    printf("CAMIONES QUE QUEDARON PENDIENTES: %u -> %u PUNTOS\n", camionesPendientes, camionesPendientes * PUNTOS_PENALIZACION);
+
+    puntuacionFinal-=camionesPendientes * PUNTOS_PENALIZACION;
     printf("PUNTUACION FINAL: %u PUNTOS\n", puntuacionFinal);
 }
 void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config)
@@ -467,4 +462,15 @@ void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config)
     }
 
 
+}
+unsigned calcularCantCamionesPendientes(tCola *colaCamiones)
+{
+    int cant=0;
+
+    while(sacarDeCola(colaCamiones, NULL, 0)==OK)
+    {
+        cant++;
+    }
+
+    return cant;
 }

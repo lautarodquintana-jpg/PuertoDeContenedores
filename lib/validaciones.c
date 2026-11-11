@@ -167,3 +167,19 @@ int existeOperacionValida( tConfig* config, tJornada* jornada )
 
     return NO_EXISTE_OPE_VALIDA;
 }
+
+int leerYValidarEntero(int li, int ls, const char *mensaje)
+{
+    int opcion;
+
+    printf("%s", mensaje);
+    scanf("%d", &opcion);
+    while(opcion<li || opcion>ls)
+    {
+        printf("Opcion ingresada no valida, ingrese otro valor...\n");
+        printf("%s", mensaje);
+        scanf("%d", &opcion);
+    }
+
+    return opcion;
+}
