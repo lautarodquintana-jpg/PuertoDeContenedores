@@ -7,15 +7,7 @@ int iniciarSesion( tJornada* jornada, tArbol* indice)
     FILE* pf;
     int opcion=0;
 
-    char* pLinea;
-
-    printf("Ingrese su nombre: ");
-    fflush(stdin);
-    fgets( jornada->user, TAM_USER, stdin );
-
-    pLinea = strchr( jornada->user, '\n' );
-    if( pLinea != NULL )
-        *pLinea = '\0';
+    leerNombreUsuarioValido( jornada->user );
 
     strcpy(ind.clave, jornada->user);
     ind.nroRegistro=-1;
@@ -27,12 +19,7 @@ int iniciarSesion( tJornada* jornada, tArbol* indice)
         if(opcion==0)
         {
             getchar();
-            printf("Ingrese su nombre: ");
-            fgets( jornada->user, TAM_USER, stdin );
-
-            pLinea = strchr( jornada->user, '\n' );
-            if( pLinea != NULL )
-                *pLinea = '\0';
+            leerNombreUsuarioValido( jornada->user );
             strcpy(ind.clave, jornada->user);
             ind.nroRegistro=-1;
             mapearInOrdenArbol(indice, elemEstaEnArbol, &ind);
@@ -72,6 +59,42 @@ int iniciarSesion( tJornada* jornada, tArbol* indice)
 
 
     return NO_EXISTE_USER;
+}
+
+void leerNombreUsuarioValido( char* user )
+{
+    do
+    {
+        printf("Ingrese su nombre: ");
+        fflush(stdin);
+        fgets( user, TAM_USER, stdin );
+
+        if( esNombreValido( user ) == NOMBRE_INVALIDO )
+            printf("\nEl nombre ingresado es invalido. Intente nuevamente.\n");
+    }
+    while( esNombreValido( user ) == NOMBRE_INVALIDO );
+}
+
+int esNombreValido( char* user )
+{
+    char *pLinea;
+
+    pLinea = strchr( user, '\n' );
+    if( pLinea != NULL )
+        *pLinea = '\0';
+
+    if( strlen( user ) == 0 )
+        return NOMBRE_INVALIDO;
+
+    pLinea = user;
+
+    while( *pLinea == ' ' && *pLinea != '\0' )
+        pLinea++;
+
+    if( *pLinea == '\0' )
+        return NOMBRE_INVALIDO;
+
+    return NOMBRE_VALIDO;
 }
 
 int cargarIndiceUsuarios( tArbol* indice )

@@ -134,7 +134,7 @@ int procesarComandoSTDIN_validarPAR(const char *ordenParametros, char const **di
 }
 void mostrarTipoOperaciones(const tConfig *config)
 {
-    printf("%-21s %-30s %-18s", "Tipo de operacion", "Sintaxis de la operacion", "Minutos requeridos");//Titulo
+    printf("\n%-21s %-30s %-18s", "Tipo de operacion", "Sintaxis de la operacion", "Minutos requeridos");//Titulo
     printf("\n%-21s %-30s %-5u", "Descargar y almacenar", "DES M(Numero) Z(Numero)", config->tiempoDeDescargaDeContenedor);
     printf("\n%-21s %-30s %-5u", "Reubicar", "REU Z(Numero) Z(Numero)", config->tiempoDeReubicacionDeContenedor);
     printf("\n%-21s %-30s %-5u", "Entregar a camion", "ENT", config->tiempoDeCargaDeCamion);
