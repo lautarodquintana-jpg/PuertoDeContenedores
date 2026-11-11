@@ -1,58 +1,73 @@
 #ifndef ESTRUCTURAS_H_INCLUDED
 #define ESTRUCTURAS_H_INCLUDED
 
+#include <stdio.h>
 #include "../TDA/cola.h"
 #include "../TDA/pila.h"
+#include "../TDA/ListaSimplementeEnlazada.h"
 
-#define POS_CANT_MUELLES 0
-#define POS_CANT_ZONAS_ALMACENAMIENTO 1
+#define TODO_OK                          1
+#define ERROR_ARCHIVO                  -20
+#define TAM_USER                        50
+#define TAM_CODIGOS                     15
+#define TAM_DEF_CODIGO_CONTENEDOR       10
+#define TAM_LINEAMAX_PUERTOTXT          300
 
-#define POS_MAX_BUQUES 0
-#define POS_MAX_CONTENEDORES_POR_BUQUE 1
-#define POS_MAX_CAMIONES 2
+#define JUEGO_EN_CURSO                  70
+#define FIN_JUEGO                       75
+#define JUEGO_EN_RECUPERACION           80
+#define JUEGO_RECUPERACION_COMPLETA     85
+#define PUNTOS_ENTREGA       10
+#define PUNTOS_DESCA_TOTAL    5
+#define PUNTOS_PENALIZACION   2
 
-#define POS_TIEMPO_DESCARGA_DE_CONTENEDOR 0
-#define POS_TIEMPO_REUBICACION_CONTENEDOR 1
-#define POS_TIEMPO_CARGA_CAMION 2
-
-#define TODO_OK 1
-#define ERROR_ARCHIVO -20
-#define TAM_USER 50
+#define TAM_BUFFER_STDIN_OPP 100
+#define TAM_BUFFER_OPP 10
 
 typedef struct
 {
 	unsigned duracionMinutosdeJornada;
-	unsigned cants[2];
+	unsigned cantidadMuelles;
+	unsigned cantidadZonasDeAlmacenamiento;
 	unsigned capPila;
-	unsigned maximos[3];
-	unsigned tiempos[3];
+	unsigned maximosBuques;
+	unsigned maximosContenedoresPorBuque;
+	unsigned maximosCamiones;
+	unsigned tiempoDeDescargaDeContenedor;
+	unsigned tiempoDeReubicacionDeContenedor;
+	unsigned tiempoDeCargaDeCamion;
 }tConfig;
+
+typedef struct
+{
+    unsigned cantDescargas;
+    unsigned cantEntregas;
+    unsigned cantReubic;
+}tCantidad;
 
 typedef struct{
 	char 		user[TAM_USER];
-	unsigned	tiempoTotal;
 	unsigned 	tiempoActual;
 	unsigned 	puntajeActual;
 
-//	tLista 		muelles;
-//	tLista 		zonasAlmacenamiento;
-
-	tCola 		movimientos;
-	tCola		bloqueos;
+	tLista 		muelles;
+	tLista 		zonasAlmacenamiento;
 
 	tCola		barcosEspera;
 	tCola		camiones;
+
+    tCantidad   cantOperaciones;
 
 	unsigned 	estado;
 }tJornada;
 
 typedef struct{
-	tConfig 	config;
-	tJornada	jornada;
+	tConfig 	*config;
+	tJornada	*jornada;
 }tPuerto;
 
 typedef struct{
-		unsigned	cod;
+		char	    cod[TAM_CODIGOS];
 		unsigned	arriboProgramado;
 		unsigned	cantidadContenedoresTotal;
 		unsigned 	cantidadContenedoresRestante;
@@ -61,26 +76,42 @@ typedef struct{
 
 typedef struct{
 	unsigned 	cod;
-	unsigned 	minutoArribo;
 	tBarco		barco;
-	unsigned	estado; //Esperando - Descargando - Libre
-	unsigned 	minutoLiberacion;
+	unsigned	estado; //Disponible (1) - Ocupado (0)
+	unsigned 	minutoArribo; //Este campo podria no usarse
+	unsigned 	minutoLiberacion; //Este podria no usarse
 }tMuelle;
 
 typedef struct{
-    unsigned cod;
+    char cod[TAM_CODIGOS];
 }tContenedor;
 
 typedef struct{
 	unsigned	cod;
 	unsigned 	cantidadOcupada;
 	tPila		contenedores;
+	char*       cadContenedoresApilados;
 }tZona;
 
 typedef struct{
-	unsigned	cod;
+	char    	cod[TAM_CODIGOS];
 	unsigned 	minutoRetiro;
-	unsigned	codContenedorRetirar;
+	char    	codContenedorRetirar[TAM_CODIGOS];
 }tCamion;
+
+//Estructura construida luego de parsear el codigo de operacion y constantes que usa
+typedef struct{
+    char     cod[TAM_BUFFER_OPP];
+    unsigned codParametro_1;
+    unsigned codParametro_2;
+    unsigned minutoEjecutado;
+    char contenedorInvolucrado[TAM_CODIGOS];
+}tOperacion;
+
+typedef struct{
+    FILE *pf_logMovimientos;
+    unsigned int registrosValidos;
+}tRecuperacion;
+
 
 #endif // ESTRUCTURAS_H_INCLUDED

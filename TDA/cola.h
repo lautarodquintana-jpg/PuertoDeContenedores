@@ -1,4 +1,5 @@
-#ifndef INCLUDE_COLA_H
+#ifndef COLA_H_INCLUDED
+#define COLA_H_INCLUDED
 
 #include <string.h>
 #include <stdlib.h>
@@ -23,4 +24,4 @@ int sacarDeCola( tCola *cola , void *dato , unsigned tamUsuario );
 int verPrimeroCola( const tCola *cola , void *dato , unsigned tamUsuario );
 void vaciarCola( tCola *cola );
 
-#endif // INCLUDE_COLA_H
+#endif // COLA_H_INCLUDED

@@ -102,4 +102,6 @@ void vaciarCola( tCola *cola )
         free(aux->info);
         free(aux);
     }
+
+    cola->ult = NULL;
 }
