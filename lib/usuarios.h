@@ -42,12 +42,6 @@ typedef struct
 
 int iniciarSesion( tJornada* jornada , tArbol* indice);
 
-// ACTUALIZACIONES
-void actualizarPuntaje( void* reg_1, const void* reg_2 );
-
-// MODIFICACIONES
-int modificarMejorPuntaje( const tJornada* jornada );
-
 // INSERCION
 int agregarUserRankingOrdenado( const tJornada* jornada );
 int cargarIndiceUsuarios( tArbol* indice );
@@ -58,8 +52,7 @@ int registrarJornada( tArbol* indice, const tJornada* jornada , unsigned camione
 void elemEstaEnArbol(void *elem, void *param);
 
 // COMPARACIONES
-int compararPuntaje( const void* reg_1, const void* reg_2 );
-int compararNombres( const void* reg_1, const void* reg_2 );
+int compararPuntajeYNombres( const void* reg_1, const void* reg_2 );
 int compararIndiceUsuarios( const void* reg_1, const void* reg_2 );
 
 // SALIDA

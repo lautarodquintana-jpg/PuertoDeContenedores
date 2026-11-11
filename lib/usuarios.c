@@ -44,7 +44,9 @@ int iniciarSesion( tJornada* jornada, tArbol* indice)
     // alta: registro nuevo al final de operadores.dat
     pf = fopen(ARCH_USUARIOS, "ab");
     if(!pf)
-        return ERROR_ARCHIVO;
+    {
+        return ERROR_ARCHIVO; //Rearmo archivo indexado pero sin el usuario dado de alta debido a falla
+    }
 
     fseek( pf, 0, SEEK_END );
     ind.nroRegistro = ftell(pf) / sizeof(tUsuario);
@@ -55,10 +57,19 @@ int iniciarSesion( tJornada* jornada, tArbol* indice)
     fwrite(&nuevo, sizeof(tUsuario), 1, pf);
     fclose(pf);
 
-    if(insertarOrdenadoSinRecursividad(indice, &ind, sizeof(tIndiceUsuario), compararIndiceUsuarios ) != TODO_OK)
+    if(insertarOrdenadoConRecursividad(indice, &ind, sizeof(tIndiceUsuario), compararIndiceUsuarios ) == ERROR_MEMORIA)
+    {
         return ERROR_AGREGAR_USER;
+
+    }
     if(guardarIndiceUsuarios(indice) != TODO_OK)
+    {
+        eliminarElemDeArbol(indice, &ind, sizeof(tIndiceUsuario), compararIndiceUsuarios);
+        //Si no pude escribir el indice debo eliminar el usuario nuevo registrado del arbol
         return ERROR_ARCHIVO;
+    }
+
+
 
     return NO_EXISTE_USER;
 }
@@ -152,7 +163,7 @@ int mostrarRanking()
     {
         if( user.jornadasJugadas > 0 )
         {
-            if(insertarOrdenadoenLista(&listaOperadores, &user, sizeof(tUsuario), compararPuntaje, 0, NULL)!=TODO_OK)//No debería retornar duplicado
+            if(insertarOrdenadoenLista(&listaOperadores, &user, sizeof(tUsuario), compararPuntajeYNombres, 0, NULL)!=TODO_OK)//No debería retornar duplicado
             {
                 fclose(archUsuarios);
                 vaciarLista(&listaOperadores);
@@ -169,14 +180,6 @@ int mostrarRanking()
     return TODO_OK;
 }
 
-int compararNombres( const void* reg_1, const void* reg_2 )
-{
-    tUsuario* user1 = (tUsuario*)reg_1;
-    tUsuario* user2 = (tUsuario*)reg_2;
-
-    return strcmpi( user2->nomUser, user1->nomUser );
-}
-
 int compararIndiceUsuarios( const void* reg_1, const void* reg_2 )
 {
     return strcmpi( ((const tIndiceUsuario*)reg_1)->clave,
@@ -191,7 +194,7 @@ void elemEstaEnArbol(void *elem, void *param)
         parametro->nroRegistro=indice->nroRegistro;
 }
 
-int compararPuntaje( const void* reg_1, const void* reg_2 )
+int compararPuntajeYNombres( const void* reg_1, const void* reg_2 )
 {
     int cmp;
     tUsuario* user1 = (tUsuario*)reg_1;
@@ -225,13 +228,4 @@ void mostrarInfoUsuario( void *param, const void* reg_1)
            user->puntajeTotal,
            puntajeProm,
            user->jornadasJugadas);
-}
-
-void actualizarPuntaje( void* reg_1, const void* reg_2 )
-{
-    tUsuario* user1 = (tUsuario*)reg_1;
-    tUsuario* user2 = (tUsuario*)reg_2;
-
-    if( user1->puntajeTotal < user2->puntajeTotal )
-        user1->puntajeTotal = user2->puntajeTotal;
 }

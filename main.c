@@ -18,7 +18,6 @@
 #include "lib/muelle.h"
 #include "lib/barco.h"
 #include "lib/recuperacion.h"
-#include "lib/ranking.h"
 
 int jugar (tConfig *config, const char *nomUser);
 int main()
@@ -79,8 +78,16 @@ int jugar (tConfig *config, const char *nomUser)
 
     getchar(); // Consumo salto de linea
 
-    cargarIndiceUsuarios(&indiceUsuarios);
-    iniciarSesion( &jornada  , &indiceUsuarios);
+    if(cargarIndiceUsuarios(&indiceUsuarios)==ERROR_MEMORIA)
+        return ERROR_ARCHIVO;
+
+    ret=iniciarSesion( &jornada  , &indiceUsuarios);
+    if(ret != EXISTE_USER && ret != NO_EXISTE_USER)//Quiere decir que fallo por falta de memoria o por archivos
+    {
+        destruirArbol(&indiceUsuarios);
+        return ret;
+    }
+
 
     system("cls");//Borro la consola
 
@@ -111,6 +118,8 @@ int jugar (tConfig *config, const char *nomUser)
         return ret;
     }
 
+
+    crearCola(&colaOperaciones);
     ret=prepararJornada( &jornada, &camionesEnCamino, &barcosEnCamino, config , largoMaxCodContenedor);
     if(ret!=TODO_OK){
         printf("\n\t | ERROR AL GENERAR JORNADA\n");//No es necesario liberar acá adentro, ya que libera todo dentro de la funci�n
@@ -120,7 +129,6 @@ int jugar (tConfig *config, const char *nomUser)
         return ret;
     }
 
-    crearCola(&colaOperaciones);
     avanzarTiempoHastaEventoFuturo( &jornada, &camionesEnCamino, &barcosEnCamino );
     procesarLlegadas( &jornada, &camionesEnCamino, &barcosEnCamino );
     jornada.estado = recuperacion.registrosValidos>0?JUEGO_EN_RECUPERACION:JUEGO_EN_CURSO;

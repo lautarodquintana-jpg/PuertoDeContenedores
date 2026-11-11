@@ -118,13 +118,6 @@
 		<Unit filename="lib/proceso_operacion.h">
 			<Option virtualFolder=".h/" />
 		</Unit>
-		<Unit filename="lib/ranking.c">
-			<Option compilerVar="CC" />
-			<Option virtualFolder=".c/" />
-		</Unit>
-		<Unit filename="lib/ranking.h">
-			<Option virtualFolder=".h/" />
-		</Unit>
 		<Unit filename="lib/recuperacion.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder=".c/" />

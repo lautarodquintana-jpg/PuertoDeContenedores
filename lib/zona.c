@@ -47,10 +47,11 @@ void apilarContenedorEnZona( void* pZona, const void* elem )
     if( ponerEnPila( &zona->contenedores, contenedor, sizeof(tContenedor) ) != TODO_OK )
         *contenedor->cod = '\0';
     else
+    {
         zona->cantidadOcupada++;
-
-    strcat(zona->cadContenedoresApilados, contenedor->cod); //ALMACENA EL SALTO DE LINEA [C|1|0|0|\n|C|2|0|0|\n]
-    strcat(zona->cadContenedoresApilados, "\n");
+        strcat(zona->cadContenedoresApilados, contenedor->cod); //ALMACENA EL SALTO DE LINEA [C|1|0|0|\n|C|2|0|0|\n]
+        strcat(zona->cadContenedoresApilados, "\n");
+    }
 }
 
 void consultarCantidadOcupada(void *elem, const void *actualizador)

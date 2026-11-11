@@ -19,7 +19,7 @@ int generarMuelles(tLista *plMuelles, unsigned cantMuelles){
     auxMuelle.estado = MUELLE_DISPONIBLE; //Estado disponible
     for( i=0 ; i<cantMuelles ; i++){
         auxMuelle.cod = i+1;
-        if( 0 == insertarAlFinalDeLista(plMuelles,&auxMuelle,sizeof(tMuelle)))
+        if( SINMEM == insertarAlFinalDeLista(plMuelles,&auxMuelle,sizeof(tMuelle)))
         {
             vaciarLista(plMuelles);
             return COD_MUELLES_MAL;

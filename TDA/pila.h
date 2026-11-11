@@ -1,4 +1,5 @@
 #ifndef INCLUDE_PILA_H
+#define INCLUDE_PILA_H
 
 #include <string.h>
 #include <stdlib.h>

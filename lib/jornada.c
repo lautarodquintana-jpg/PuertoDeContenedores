@@ -55,7 +55,7 @@ int generarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, in
             }
             barco.cantidadContenedoresRestante++;
         }
-        if(insertarOrdenadoenLista(&listaBarcosEnCamino, &barco, sizeof(tBarco), compararTiempos, 1, NULL)!=TODO_OK)
+        if(insertarOrdenadoenLista(&listaBarcosEnCamino, &barco, sizeof(tBarco), compararTiemposYCodigosBuques, 0, NULL)!=TODO_OK)
         {
             fclose(archPuerto);
             vaciarCola(&barco.contenedores);
@@ -67,7 +67,7 @@ int generarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, in
     }
 
     i=0;
-    contadorCamiones=0;
+    contadorCamiones=1;
     while(verNElem(&listaBarcosEnCamino, i, &barco, sizeof(tBarco))==TODO_OK) //Ya tenemos cargados los buques ordenados por tiempo, escribimos puerto.txt
     {
         fprintf(archPuerto, "%s;T=%u;C=", barco.cod, barco.arriboProgramado);
@@ -90,14 +90,14 @@ int generarPuertoTXT(tConfig *config, tJornada *jornada, const char *nomUser, in
 
         while(sacarDeCola(&colaAuxContenedores, &contenedor, sizeof(tContenedor))==OK) //Vuelvo a poner los contenedores en su lugar sin alterar la cola
         {
-            if(contadorCamiones<config->maximosCamiones)
+            if(contadorCamiones<=config->maximosCamiones)
             {
                 camion.minutoRetiro=rand()%(config->duracionMinutosdeJornada-barco.arriboProgramado)+barco.arriboProgramado;
                 //Debo garantizar que llegue en el mismo minuto o luego de que llega el buque
                 sprintf(camion.cod, "K%u", contadorCamiones);
                 strcpy(camion.codContenedorRetirar, contenedor.cod);
 
-                if(insertarOrdenadoenLista(&listaCamionesEnCamino, &camion, sizeof(tCamion), compararTiemposDeCamiones, 1, NULL)!=TODO_OK)
+                if(insertarOrdenadoenLista(&listaCamionesEnCamino, &camion, sizeof(tCamion), compararTiemposDeCamionesYCodigos, 0, NULL)!=TODO_OK)
                 {
                     fclose(archPuerto);
                     vaciarCola(&barco.contenedores);
@@ -270,11 +270,17 @@ int cargarPuertoTxt(tJornada *jornada, tConfig *config, tLista *listaBarcosEnCam
     fclose(archPuerto);
     return TODO_OK;
 }
-int compararTiempos(const void *elem1, const void *elem2)
+int compararTiemposYCodigosBuques(const void *elem1, const void *elem2)
 {
+    int cmp;
     const tBarco *barco1= elem1, *barco2=elem2;
 
-    return barco1->arriboProgramado-barco2->arriboProgramado;
+    cmp=barco1->arriboProgramado-barco2->arriboProgramado;
+
+    if(cmp!=0)
+        return cmp;
+
+    return strcmp(barco1->cod, barco2->cod);
 }
 int compararContenedores(const void *elem1, const void *elem2)
 {
@@ -282,11 +288,16 @@ int compararContenedores(const void *elem1, const void *elem2)
 
     return (*contenedor1)-(*contenedor2);
 }
-int compararTiemposDeCamiones(const void *elem1, const void *elem2)
+int compararTiemposDeCamionesYCodigos(const void *elem1, const void *elem2)
 {
+    int cmp;
     const tCamion *camion1=elem1, *camion2=elem2;
 
-    return camion1->minutoRetiro-camion2->minutoRetiro;
+    cmp= camion1->minutoRetiro-camion2->minutoRetiro;
+    if(cmp!=0)
+        return cmp;
+
+    return strcmp(camion1->cod, camion2->cod);
 }
 void actualizarBarco(void *actualizado, const void *actualizador)
 {
@@ -397,6 +408,7 @@ void liberarJornada( tJornada* jornada, tLista* camionesEnCamino, tLista* barcos
 {
     vaciarLista(camionesEnCamino);
     liberarListaDeBarcos(barcosEnCamino);
+    vaciarCola(&jornada->barcosEspera);
     vaciarCola(&jornada->camiones);
     liberarZonasDeAlmacenamiento(&jornada->zonasAlmacenamiento);
     eliminarMuelles(&jornada->muelles);
@@ -418,9 +430,10 @@ void mostrarResumenJornada( unsigned tiempoJornada, unsigned tiempoDispo, unsign
     printf("CONTENEDORES ENTREGADOS: %u -> %u PUNTOS\n", cantEntre, cantEntre * PUNTOS_ENTREGA);
     printf("REUBICACIONES REALIZADAS: %u\n", cantReubi);
     printf("CAMIONES QUE QUEDARON PENDIENTES: %u -> %u PUNTOS\n", camionesPendientes, camionesPendientes * PUNTOS_PENALIZACION);
-
-    puntuacionFinal-=camionesPendientes * PUNTOS_PENALIZACION;
-    printf("PUNTUACION FINAL: %u PUNTOS\n", puntuacionFinal);
+    if(camionesPendientes*PUNTOS_PENALIZACION<=puntuacionFinal)
+        printf("PUNTUACION FINAL: %u PUNTOS\n", puntuacionFinal-camionesPendientes*PUNTOS_PENALIZACION);
+    else
+        printf("PUNTUACION FINAL: %u PUNTOS\n", 0);//Ya que al ser un unsigned, la resta daría un subdesbordamiento
 }
 void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config)
 {
@@ -467,8 +480,9 @@ void mostrarHistorialOperaciones(tCola *colaOperaciones, tConfig *config)
 unsigned calcularCantCamionesPendientes(tCola *colaCamiones)
 {
     int cant=0;
+    tCamion camion;
 
-    while(sacarDeCola(colaCamiones, NULL, 0)==OK)
+    while(sacarDeCola(colaCamiones, &camion, 0)==OK)
     {
         cant++;
     }

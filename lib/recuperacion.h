@@ -20,7 +20,7 @@
 #include "configuracion.h"
 #include "colores.h"
 #define MAX_FILENAME            100
-#define MAX_LINEA_RECU          200
+#define MAX_LINEA_RECU          300
 #define PATH_TEMPORALES         "./log/"
 #define SUBFIJO_LOG             ".log"
 #define SUBFIJO_PUERTO          "_puerto.txt"
