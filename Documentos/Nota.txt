@@ -1,0 +1,1 @@
+Se incorpora una funcionalidad extra al trabajo práctico: archivos log en los cuales en cada operación se realiza un autoguardado del progreso de la partida del usuario. Si se llegase a cerrar el programa inesperadamente o salir por la operación "SALIR" del desarrollo normal del juego, el usuario puede recuperar su partida donde se quedó mas tarde

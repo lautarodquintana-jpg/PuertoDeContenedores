@@ -7,13 +7,13 @@ int iniciarSesion( tJornada* jornada, tArbol* indice)
     FILE* pf;
     int opcion=0;
 
+
     leerNombreUsuarioValido( jornada->user );
 
     strcpy(ind.clave, jornada->user);
     ind.nroRegistro=-1;
-    mapearInOrdenArbol(indice, elemEstaEnArbol, &ind);
     //Si encuentro el usuario debo preguntar si desea jugar con el existente
-    while(ind.nroRegistro!=-1)
+    while(buscarYRetornarElemEnArbol(indice, &ind, sizeof(tIndiceUsuario), compararPuntajeYNombres)==TODO_OK)//Mientras lo encuentre
     {
         opcion=leerYValidarEntero(0, 1, "Este usuario ya ha sido creado, desea jugar con este? 1: Si, 0:No\nIngrese una opcion: ");
         if(opcion==0)
@@ -22,7 +22,6 @@ int iniciarSesion( tJornada* jornada, tArbol* indice)
             leerNombreUsuarioValido( jornada->user );
             strcpy(ind.clave, jornada->user);
             ind.nroRegistro=-1;
-            mapearInOrdenArbol(indice, elemEstaEnArbol, &ind);
         }
         else
             return EXISTE_USER;
