@@ -6,7 +6,10 @@ Simulación por consola, desarrollada en C, donde un usuario asume el rol de Ope
 
 ## Integrantes
 
-[![GitHub](https://img.shields.io/badge/GitHub-Lautaro%20Quintana-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/lautarodquintana-jpg) [![GitHub](https://img.shields.io/badge/GitHub-Julian%20Luna-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JuliannLuna) [![GitHub](https://img.shields.io/badge/GitHub-Nehuen%20Lencina-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/nehuenlencina) [![GitHub](https://img.shields.io/badge/GitHub-Lucas%20Costilla-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Lucasleonel4)
+[![GitHub](https://img.shields.io/badge/GitHub-Lautaro%20Quintana-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/lautarodquintana-jpg) 
+[![GitHub](https://img.shields.io/badge/GitHub-Julian%20Luna-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JuliannLuna) 
+[![GitHub](https://img.shields.io/badge/GitHub-Nehuen%20Lencina-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/nehuenlencina) 
+[![GitHub](https://img.shields.io/badge/GitHub-Lucas%20Costilla-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Lucasleonel4)
 
 ## Comandos
 
